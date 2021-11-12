@@ -6,7 +6,6 @@
   <link name="foot">
     <inertial>
       <mass value="0.151" />
-      <!-- Stolen from the other URDF. Definitely wrong. -->
       <inertia ixx="3.8554e-05" ixy="9.4075e-07" ixz="1.709e-06" iyy="4.445e-05" iyz="1.2246e-06" izz="2.5729e-05"/>
     </inertial>
     <visual>
@@ -23,7 +22,6 @@
   <link name="link1">
     <inertial>
       <mass value="0.151" />
-      <!-- Stolen from the other URDF. Definitely wrong. -->
       <inertia ixx="3.8554e-05" ixy="9.4075e-07" ixz="1.709e-06" iyy="4.445e-05" iyz="1.2246e-06" izz="2.5729e-05"/>
     </inertial>
     <visual>
@@ -38,12 +36,13 @@
 
   <!-- First big link -->
   <link name="link2">
+    <origin xyz="0 0 0" rpy="0 0 3.14" />
     <inertial>
       <mass value="0.151" />
-      <!-- Stolen from the other URDF. Definitely wrong. -->
       <inertia ixx="3.8554e-05" ixy="9.4075e-07" ixz="1.709e-06" iyy="4.445e-05" iyz="1.2246e-06" izz="2.5729e-05"/>
     </inertial>
     <visual>
+      <origin xyz="0.165 0 0" rpy="0 0 0" />
       <geometry>
         <mesh filename="package://inchworm_description/media/link2.stl" scale="0.001 0.001 0.001" />
       </geometry>
@@ -57,10 +56,10 @@
   <link name="link3">
     <inertial>
       <mass value="0.151" />
-      <!-- Stolen from the other URDF. Definitely wrong. -->
       <inertia ixx="3.8554e-05" ixy="9.4075e-07" ixz="1.709e-06" iyy="4.445e-05" iyz="1.2246e-06" izz="2.5729e-05"/>
     </inertial>
     <visual>
+      <origin xyz="-0.165 0 0" rpy="0 0 3.14" />
       <geometry>
         <mesh filename="package://inchworm_description/media/link3.stl" scale="0.001 0.001 0.001" />
       </geometry>
@@ -74,10 +73,10 @@
   <link name="link4">
     <inertial>
       <mass value="0.151" />
-      <!-- Stolen from the other URDF. Definitely wrong. -->
       <inertia ixx="3.8554e-05" ixy="9.4075e-07" ixz="1.709e-06" iyy="4.445e-05" iyz="1.2246e-06" izz="2.5729e-05"/>
     </inertial>
     <visual>
+      <origin xyz="-0.055 0 0" rpy="0 0 3.14" />
       <geometry>
         <mesh filename="package://inchworm_description/media/link4.stl" scale="0.001 0.001 0.001" />
       </geometry>
@@ -91,10 +90,10 @@
   <link name="other_foot">
     <inertial>
       <mass value="0.151" />
-      <!-- Stolen from the other URDF. Definitely wrong. -->
       <inertia ixx="3.8554e-05" ixy="9.4075e-07" ixz="1.709e-06" iyy="4.445e-05" iyz="1.2246e-06" izz="2.5729e-05"/>
     </inertial>
     <visual>
+      <origin xyz="0 0 0.105" rpy="0 0 0" />
       <geometry>
         <mesh filename="package://inchworm_description/media/link5.stl" scale="0.001 0.001 0.001" />
       </geometry>
@@ -117,7 +116,7 @@
     <parent link="foot" />
     <child  link="link1" />
 
-    <axis xyz="0 0 1" />
+    <axis xyz="0 1 0" />
     <limit effort="10" velocity="1.0" lower="0" upper="6.28" />
   </joint>
 
@@ -133,7 +132,7 @@
   </transmission>
 
   <joint name="link2_to_link1" type="revolute">
-    <origin xyz="0 0.1625 -0.001" rpy="3.14 3.14 -1.57" />
+    <origin xyz="0 0 -0.001" rpy="0 0 0" />
 
     <parent link="link1" />
     <child  link="link2" />
@@ -154,7 +153,7 @@
   </transmission>
 
   <joint name="link3_to_link2" type="revolute">
-    <origin xyz="0.165 0 -0.001" rpy="3.14 0 0" />
+    <origin xyz="0.165 0 -0.001" rpy="3.14 0 3.14" />
 
     <parent link="link2" />
     <child  link="link3" />
@@ -175,7 +174,7 @@
   </transmission>
 
   <joint name="link3_to_link4" type="revolute">
-    <origin xyz="0.055 0 0" rpy="0 0 0" />
+    <origin xyz="-0.165 0 0" rpy="0 0 0" />
 
     <parent link="link3" />
     <child  link="link4" />
@@ -195,8 +194,9 @@
     </actuator>
   </transmission>
 
+  
   <joint name="link4_to_foot" type="revolute">
-    <origin xyz="0.051 0 0" rpy="0 1.57 0" />
+    <origin xyz="0 0 0" rpy="0 -1.57 0" />
 
     <parent link="link4" />
     <child  link="other_foot" />
