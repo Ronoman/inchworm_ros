@@ -1,0 +1,163 @@
+<?xml version="1.0"?>
+<robot name="inchworm">
+  <link name="world" />
+
+  <!-- End effector attached to world -->
+  <link name="foot">
+    <inertial>
+      <mass value="0.151" />
+      <!-- Stolen from the other URDF. Definitely wrong. -->
+      <inertia ixx="3.8554e-05" ixy="9.4075e-07" ixz="1.709e-06" iyy="4.445e-05" iyz="1.2246e-06" izz="2.5729e-05"/>
+    </inertial>
+    <visual>
+      <geometry>
+        <mesh filename="package://inchworm_description/media/link0.stl" scale="0.001 0.001 0.001" />
+      </geometry>
+      <material name="blue">
+        <color rgba="0.0 0.0 1.0 1.0" />
+      </material>
+    </visual>
+  </link>
+
+  <!-- Link attached to EE -->
+  <link name="link1">
+    <inertial>
+      <mass value="0.151" />
+      <!-- Stolen from the other URDF. Definitely wrong. -->
+      <inertia ixx="3.8554e-05" ixy="9.4075e-07" ixz="1.709e-06" iyy="4.445e-05" iyz="1.2246e-06" izz="2.5729e-05"/>
+    </inertial>
+    <visual>
+      <geometry>
+        <mesh filename="package://inchworm_description/media/link1.stl" scale="0.001 0.001 0.001" />
+      </geometry>
+      <material name="blue">
+        <color rgba="0.0 0.0 1.0 1.0" />
+      </material>
+    </visual>
+  </link>
+
+  <!-- First big link -->
+  <link name="link2">
+    <inertial>
+      <mass value="0.151" />
+      <!-- Stolen from the other URDF. Definitely wrong. -->
+      <inertia ixx="3.8554e-05" ixy="9.4075e-07" ixz="1.709e-06" iyy="4.445e-05" iyz="1.2246e-06" izz="2.5729e-05"/>
+    </inertial>
+    <visual>
+      <geometry>
+        <mesh filename="package://inchworm_description/media/link2.stl" scale="0.001 0.001 0.001" />
+      </geometry>
+      <material name="blue">
+        <color rgba="0.0 0.0 1.0 1.0" />
+      </material>
+    </visual>
+  </link>
+
+  <!-- Second big link -->
+  <link name="link3">
+    <inertial>
+      <mass value="0.151" />
+      <!-- Stolen from the other URDF. Definitely wrong. -->
+      <inertia ixx="3.8554e-05" ixy="9.4075e-07" ixz="1.709e-06" iyy="4.445e-05" iyz="1.2246e-06" izz="2.5729e-05"/>
+    </inertial>
+    <visual>
+      <geometry>
+        <mesh filename="package://inchworm_description/media/link3.stl" scale="0.001 0.001 0.001" />
+      </geometry>
+      <material name="blue">
+        <color rgba="0.0 0.0 1.0 1.0" />
+      </material>
+    </visual>
+  </link>
+
+  <!-- Link attached to EE -->
+  <link name="link4">
+    <inertial>
+      <mass value="0.151" />
+      <!-- Stolen from the other URDF. Definitely wrong. -->
+      <inertia ixx="3.8554e-05" ixy="9.4075e-07" ixz="1.709e-06" iyy="4.445e-05" iyz="1.2246e-06" izz="2.5729e-05"/>
+    </inertial>
+    <visual>
+      <geometry>
+        <mesh filename="package://inchworm_description/media/link4.stl" scale="0.001 0.001 0.001" />
+      </geometry>
+      <material name="blue">
+        <color rgba="0.0 0.0 1.0 1.0" />
+      </material>
+    </visual>
+  </link>
+
+  <!-- Other foot -->
+  <link name="other_foot">
+    <inertial>
+      <mass value="0.151" />
+      <!-- Stolen from the other URDF. Definitely wrong. -->
+      <inertia ixx="3.8554e-05" ixy="9.4075e-07" ixz="1.709e-06" iyy="4.445e-05" iyz="1.2246e-06" izz="2.5729e-05"/>
+    </inertial>
+    <visual>
+      <geometry>
+        <mesh filename="package://inchworm_description/media/link5.stl" scale="0.001 0.001 0.001" />
+      </geometry>
+      <material name="blue">
+        <color rgba="0.0 0.0 1.0 1.0" />
+      </material>
+    </visual>
+  </link>
+
+  <joint name="foot_to_world" type="fixed">
+    <origin xyz="0 0 0.05537" rpy="0 0 0" />
+
+    <parent link="world" />
+    <child  link="foot" />
+  </joint>
+
+  <joint name="link1_to_foot" type="revolute">
+    <origin xyz="0 0 0.05463" rpy="1.57 0 0" />
+
+    <parent link="foot" />
+    <child  link="link1" />
+
+    <axis xyz="0 0 1" />
+    <limit effort="10" velocity="1.0" lower="0" upper="6.28" />
+  </joint>
+
+  <joint name="link2_to_link1" type="revolute">
+    <origin xyz="0 0.1625 -0.001" rpy="3.14 3.14 -1.57" />
+
+    <parent link="link1" />
+    <child  link="link2" />
+
+    <axis xyz="0 0 1" />
+    <limit effort="10" velocity="1.0" lower="0" upper="6.28" />
+  </joint>
+
+  <joint name="link3_to_link2" type="revolute">
+    <origin xyz="0.165 0 -0.001" rpy="3.14 0 0" />
+
+    <parent link="link2" />
+    <child  link="link3" />
+
+    <axis xyz="0 0 1" />
+    <limit effort="10" velocity="1.0" lower="0" upper="6.28" />
+  </joint>
+
+  <joint name="link3_to_link4" type="revolute">
+    <origin xyz="0.055 0 0" rpy="0 0 0" />
+
+    <parent link="link3" />
+    <child  link="link4" />
+
+    <axis xyz="0 0 1" />
+    <limit effort="10" velocity="1.0" lower="0" upper="6.28" />
+  </joint>
+
+  <joint name="link4_to_foot" type="revolute">
+    <origin xyz="0.051 0 0" rpy="0 1.57 0" />
+
+    <parent link="link4" />
+    <child  link="other_foot" />
+
+    <axis xyz="0 0 1" />
+    <limit effort="10" velocity="1.0" lower="0" upper="6.28" />
+  </joint>
+</robot>

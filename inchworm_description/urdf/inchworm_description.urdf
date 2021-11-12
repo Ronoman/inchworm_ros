@@ -9,7 +9,7 @@
     <visual>
       <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
       <geometry>
-        <mesh filename="package://inchworm_description/meshes/link_1.STL"/>
+        <mesh filename="package://inchworm_description/media/link1.stl" scale="0.001 0.001 0.001"/>
       </geometry>
       <material name="">
         <color rgba="1.0 1.0 1.0 1.0"/>
@@ -18,7 +18,7 @@
     <collision>
       <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
       <geometry>
-        <mesh filename="package://inchworm_description/meshes/link_1.STL"/>
+        <mesh filename="package://inchworm_description/media/link1.stl" scale="0.001 0.001 0.001"/>
       </geometry>
     </collision>
   </link>
@@ -31,7 +31,7 @@
     <visual>
       <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
       <geometry>
-        <mesh filename="package://inchworm_description/meshes/link_2.STL"/>
+        <mesh filename="package://inchworm_description/media/link2.stl" scale="0.001 0.001 0.001"/>
       </geometry>
       <material name="">
         <color rgba="1.0 1.0 1.0 1.0"/>
@@ -40,7 +40,7 @@
     <collision>
       <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
       <geometry>
-        <mesh filename="package://inchworm_description/meshes/link_2.STL"/>
+        <mesh filename="package://inchworm_description/media/link2.stl" scale="0.001 0.001 0.001"/>
       </geometry>
     </collision>
   </link>
@@ -60,7 +60,7 @@
     <visual>
       <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
       <geometry>
-        <mesh filename="package://inchworm_description/meshes/link_3.STL"/>
+        <mesh filename="package://inchworm_description/media/link3.stl" scale="0.001 0.001 0.001"/>
       </geometry>
       <material name="">
         <color rgba="1.0 1.0 1.0 1.0"/>
@@ -69,7 +69,7 @@
     <collision>
       <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
       <geometry>
-        <mesh filename="package://inchworm_description/meshes/link_3.STL"/>
+        <mesh filename="package://inchworm_description/media/link3.stl" scale="0.001 0.001 0.001"/>
       </geometry>
     </collision>
   </link>
@@ -89,7 +89,7 @@
     <visual>
       <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
       <geometry>
-        <mesh filename="package://inchworm_description/meshes/link_4.STL"/>
+        <mesh filename="package://inchworm_description/meshes/link4.stl" scale="0.001 0.001 0.001"/>
       </geometry>
       <material name="">
         <color rgba="1.0 1.0 1.0 1.0"/>
@@ -98,7 +98,7 @@
     <collision>
       <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
       <geometry>
-        <mesh filename="package://inchworm_description/meshes/link_4.STL"/>
+        <mesh filename="package://inchworm_description/meshes/link4.stl" scale="0.001 0.001 0.001"/>
       </geometry>
     </collision>
   </link>
