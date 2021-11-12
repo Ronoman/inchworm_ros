@@ -121,6 +121,17 @@
     <limit effort="10" velocity="1.0" lower="0" upper="6.28" />
   </joint>
 
+  <transmission name="t1">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="link1_to_foot">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="motor1">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+  </transmission>
+
   <joint name="link2_to_link1" type="revolute">
     <origin xyz="0 0.1625 -0.001" rpy="3.14 3.14 -1.57" />
 
@@ -130,6 +141,17 @@
     <axis xyz="0 0 1" />
     <limit effort="10" velocity="1.0" lower="0" upper="6.28" />
   </joint>
+
+  <transmission name="t2">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="link2_to_link1">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="motor2">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+  </transmission>
 
   <joint name="link3_to_link2" type="revolute">
     <origin xyz="0.165 0 -0.001" rpy="3.14 0 0" />
@@ -141,6 +163,17 @@
     <limit effort="10" velocity="1.0" lower="0" upper="6.28" />
   </joint>
 
+  <transmission name="t3">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="link3_to_link2">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="motor3">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+  </transmission>
+
   <joint name="link3_to_link4" type="revolute">
     <origin xyz="0.055 0 0" rpy="0 0 0" />
 
@@ -151,6 +184,17 @@
     <limit effort="10" velocity="1.0" lower="0" upper="6.28" />
   </joint>
 
+  <transmission name="t4">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="link3_to_link4">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="motor4">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+  </transmission>
+
   <joint name="link4_to_foot" type="revolute">
     <origin xyz="0.051 0 0" rpy="0 1.57 0" />
 
@@ -160,4 +204,21 @@
     <axis xyz="0 0 1" />
     <limit effort="10" velocity="1.0" lower="0" upper="6.28" />
   </joint>
+
+  <transmission name="t5">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="link4_to_foot">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="motor5">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+  </transmission>
+
+  <gazebo>
+    <plugin name="gazebo_ros_control" filename="libgazebo_ros_control.so">
+      <robotNamespace>/inchworm</robotNamespace>
+    </plugin>
+  </gazebo>
 </robot>

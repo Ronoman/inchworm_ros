@@ -12,13 +12,12 @@
   <!-- <node name="gazebo" pkg="gazebo_ros" type="gazebo" args="$(arg gui) $(arg paused) -gazebo_namespace $(arg model_name)" /> -->
   <group ns="$(arg model_name)">
 
-    <param name="robot_description" command="$(find xacro)/xacro $(find inchworm_description)/urdf/$(arg model).urdf"/>
+    <param name="/inchworm/robot_description" command="$(find xacro)/xacro $(find inchworm_description)/urdf/$(arg model).urdf"/>
 
     <node name="tf_footprint_base" pkg="tf" type="static_transform_publisher" args="0 0 0 0 0 0 base_link base_footprint 100" />
 
-    <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher">
-      <!-- <param name="use_gui" value="$(arg gui)"/> -->
-    </node>
+    <node pkg="joint_state_publisher" type="joint_state_publisher" name="joint_state_publisher" output="screen" unless="$(arg gui)" />
+    <node pkg="joint_state_publisher_gui" type="joint_state_publisher_gui" name="joint_state_publisher_gui" output="screen" if="$(arg gui)" />
 
     <rosparam file="$(find inchworm_description)/config/joint_names_inchworm_description.yaml" command="load" />
 
@@ -26,9 +25,15 @@
 
   </group>
 
-  <!-- <rosparam file="$(find inchworm_description)/config/inchworm_control.yaml" command="load" />
+  <rosparam file="$(find inchworm_description)/config/inchworm_control.yaml" command="load" />
 
-  <node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false" output="screen" args="inchworm" /> -->
+  <node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false" output="screen"  args="--namespace=/inchworm
+        joint_state_controller
+        joint_effort_controller_joint_1
+        joint_effort_controller_joint_2
+        joint_effort_controller_joint_3
+        joint_effort_controller_joint_4
+        joint_effort_controller_joint_5" />
 
   <node name="spawn_model" pkg="gazebo_ros" type="spawn_model" args="-param $(arg model_name)/robot_description -urdf -model $(arg model_name)" output="screen" />
 </launch>
