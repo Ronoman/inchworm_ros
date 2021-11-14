@@ -132,7 +132,7 @@
   </transmission>
 
   <joint name="link2_to_link1" type="revolute">
-    <origin xyz="0 0 -0.001" rpy="0 0 0" />
+    <origin xyz="0 0 -0.001" rpy="0 0 1.57" />
 
     <parent link="link1" />
     <child  link="link2" />
