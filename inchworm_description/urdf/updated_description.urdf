@@ -13,7 +13,7 @@
         <mesh filename="package://inchworm_description/media/link0.stl" scale="0.001 0.001 0.001" />
       </geometry>
       <material name="blue">
-        <color rgba="0.0 0.0 1.0 1.0" />
+        <color rgba="0.113 0.321 0.678 1.0" />
       </material>
     </visual>
     <collision>
@@ -35,7 +35,7 @@
         <mesh filename="package://inchworm_description/media/link1.stl" scale="0.001 0.001 0.001" />
       </geometry>
       <material name="blue">
-        <color rgba="0.0 0.0 1.0 1.0" />
+        <color rgba="0.113 0.321 0.678 1.0" />
       </material>
     </visual>
     <collision>
@@ -59,7 +59,7 @@
         <mesh filename="package://inchworm_description/media/link2.stl" scale="0.001 0.001 0.001" />
       </geometry>
       <material name="blue">
-        <color rgba="0.0 0.0 1.0 1.0" />
+        <color rgba="0.113 0.321 0.678 1.0" />
       </material>
     </visual>
     <collision>
@@ -82,7 +82,7 @@
         <mesh filename="package://inchworm_description/media/link3.stl" scale="0.001 0.001 0.001" />
       </geometry>
       <material name="blue">
-        <color rgba="0.0 0.0 1.0 1.0" />
+        <color rgba="0.113 0.321 0.678 1.0" />
       </material>
     </visual>
     <collision>
@@ -105,7 +105,7 @@
         <mesh filename="package://inchworm_description/media/link4.stl" scale="0.001 0.001 0.001" />
       </geometry>
       <material name="blue">
-        <color rgba="0.0 0.0 1.0 1.0" />
+        <color rgba="0.113 0.321 0.678 1.0" />
       </material>
     </visual>
     <collision>
@@ -128,7 +128,7 @@
         <mesh filename="package://inchworm_description/media/link5.stl" scale="0.001 0.001 0.001" />
       </geometry>
       <material name="blue">
-        <color rgba="0.0 0.0 1.0 1.0" />
+        <color rgba="0.113 0.321 0.678 1.0" />
       </material>
     </visual>
     <collision>
@@ -153,7 +153,7 @@
     <child  link="link1" />
 
     <axis xyz="0 1 0" />
-    <limit effort="10" velocity="1.0" lower="0" upper="6.28" />
+    <limit effort="10" velocity="1.0" lower="-6.28" upper="6.28" />
   </joint>
 
   <transmission name="t1">
@@ -174,7 +174,7 @@
     <child  link="link2" />
 
     <axis xyz="0 0 1" />
-    <limit effort="10" velocity="1.0" lower="0" upper="6.28" />
+    <limit effort="10" velocity="1.0" lower="-6.28" upper="6.28" />
   </joint>
 
   <transmission name="t2">
@@ -195,7 +195,7 @@
     <child  link="link3" />
 
     <axis xyz="0 0 1" />
-    <limit effort="10" velocity="1.0" lower="0" upper="6.28" />
+    <limit effort="10" velocity="1.0" lower="-6.28" upper="6.28" />
   </joint>
 
   <transmission name="t3">
@@ -216,7 +216,7 @@
     <child  link="link4" />
 
     <axis xyz="0 0 1" />
-    <limit effort="10" velocity="1.0" lower="0" upper="6.28" />
+    <limit effort="10" velocity="1.0" lower="-6.28" upper="6.28" />
   </joint>
 
   <transmission name="t4">
@@ -238,7 +238,7 @@
     <child  link="other_foot" />
 
     <axis xyz="0 0 1" />
-    <limit effort="10" velocity="1.0" lower="0" upper="6.28" />
+    <limit effort="10" velocity="1.0" lower="-6.28" upper="6.28" />
   </joint>
 
   <transmission name="t5">

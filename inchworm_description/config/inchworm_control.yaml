@@ -9,30 +9,30 @@ inchworm:
   joint_effort_controller_joint_2:
     joint: link2_to_link1
     pid:
-      d: 0
+      d: 0.1
       i: 0.0
-      p: 1.0
+      p: 2.0
     type: effort_controllers/JointPositionController
   joint_effort_controller_joint_3:
     joint: link3_to_link2
     pid:
-      d: 0.15
-      i: 0.1
-      p: 3.5
+      d: 0.1
+      i: 0.0
+      p: 2.0
     type: effort_controllers/JointPositionController
   joint_effort_controller_joint_4:
     joint: link3_to_link4
     pid:
-      d: 0.0
+      d: 0.1
       i: 0.0
-      p: 1.0
+      p: 2.0
     type: effort_controllers/JointPositionController
   joint_effort_controller_joint_5:
     joint: link4_to_foot
     pid:
-      d: 0.0
+      d: 0.15
       i: 0.0
-      p: 1.0
+      p: 2.0
     type: effort_controllers/JointPositionController
   joint_state_controller:
     publish_rate: 10
