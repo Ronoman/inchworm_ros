@@ -21,23 +21,4 @@ joint_state_controller:
   type: joint_state_controller/JointStateController
   publish_rate: 50
 controller_list:
-  - name: ltr_controller
-    action_ns: follow_joint_trajectory
-    default: True
-    type: FollowJointTrajectory
-    joints:
-      - link1_to_foot
-      - link2_to_link1
-      - link3_to_link2
-      - link3_to_link4
-      - link4_to_foot
-  - name: rtl_controller
-    action_ns: follow_joint_trajectory
-    default: True
-    type: FollowJointTrajectory
-    joints:
-      - link1_to_foot
-      - link2_to_link1
-      - link3_to_link2
-      - link3_to_link4
-      - link4_to_foot
+  []

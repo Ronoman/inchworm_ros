@@ -24,6 +24,10 @@
 
   <rosparam file="$(find inchworm_description)/config/inchworm_control.yaml" command="load" />
 
+  <include file="$(find inchworm_moveit)/launch/move_group.launch">
+    <remap from="joint_states" to="inchworm/joint_states" />
+  </include>
+
   <node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false" output="screen"  args="--namespace=/inchworm
         joint_state_controller
         joint_effort_controller_joint_1
