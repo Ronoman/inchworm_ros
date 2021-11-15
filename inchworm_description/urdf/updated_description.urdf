@@ -93,7 +93,7 @@
       <inertia ixx="3.8554e-05" ixy="9.4075e-07" ixz="1.709e-06" iyy="4.445e-05" iyz="1.2246e-06" izz="2.5729e-05"/>
     </inertial>
     <visual>
-      <origin xyz="0 0 0.105" rpy="0 0 0" />
+      <origin xyz="0 0 0" rpy="0 0 0" />
       <geometry>
         <mesh filename="package://inchworm_description/media/link5.stl" scale="0.001 0.001 0.001" />
       </geometry>
@@ -196,7 +196,7 @@
 
   
   <joint name="link4_to_foot" type="revolute">
-    <origin xyz="0 0 0" rpy="0 -1.57 0" />
+    <origin xyz="-0.105 0 0" rpy="0 -1.57 0" />
 
     <parent link="link4" />
     <child  link="other_foot" />
