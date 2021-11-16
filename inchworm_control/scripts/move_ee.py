@@ -8,6 +8,7 @@ import moveit_commander
 
 from tf.transformations import euler_from_quaternion, quaternion_from_euler
 
+from trajectory_msgs.msg import JointTrajectory
 from geometry_msgs.msg import PoseStamped
 from moveit_msgs.srv import GetPositionIK, GetPositionIKRequest, GetPositionIKResponse
 from sensor_msgs.msg import JointState
@@ -59,7 +60,9 @@ if __name__ == "__main__":
     listener = tf2_ros.TransformListener(buffer)
 
     js_sub = rospy.Subscriber("/inchworm/joint_states", JointState, jointStateCB, queue_size=1)
+
     goal_pub = rospy.Publisher("/inchworm/next_goal", PoseStamped, queue_size=1)
+    traj_pub = rospy.Publisher("/inchworm/arm_controller/command", JointTrajectory, queue_size=1)
 
     robot = moveit_commander.RobotCommander()
 
@@ -118,6 +121,13 @@ if __name__ == "__main__":
     print(goal_pose)
 
     ik_srv = rospy.ServiceProxy("/compute_ik", GetPositionIK)
-    res = ik_srv(ik_req)
+    # res = ik_srv(ik_req)
 
-    print(res)
+    group.set_pose_target(goal_pose.pose)
+
+    plan = group.plan()
+    print(plan[1].joint_trajectory)
+
+    input()
+
+    traj_pub.publish(plan[1].joint_trajectory)

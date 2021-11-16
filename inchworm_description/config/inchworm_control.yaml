@@ -37,3 +37,19 @@ inchworm:
   joint_state_controller:
     publish_rate: 10
     type: joint_state_controller/JointStateController
+
+  arm_controller:
+    type: "effort_controllers/JointTrajectoryController"
+    joints:
+      - link1_to_foot
+      - link2_to_link1
+      - link3_to_link2
+      - link3_to_link4
+      - link4_to_foot
+
+    gains:
+      link1_to_foot: {p: 0.5, i: 0, d: 0.01}
+      link2_to_link1: {p: 5.0, i: 0, d: 0.1}
+      link3_to_link2: {p: 5.0, i: 0, d: 0.1}
+      link3_to_link4: {p: 5.0, i: 0, d: 0.1}
+      link4_to_foot: {p: 0.5, i: 0, d: 0.01}

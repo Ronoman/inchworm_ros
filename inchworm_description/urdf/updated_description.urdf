@@ -132,7 +132,7 @@
       </material>
     </visual>
     <collision>
-      <origin xyz="0 0 0.082315" rpy="0 0 0" />
+      <origin xyz="0 0 0.0" rpy="0 0 0" />
       <geometry>
         <box size="0.07 0.07 0.05463" />
       </geometry>
@@ -153,7 +153,7 @@
     <child  link="link1" />
 
     <axis xyz="0 1 0" />
-    <limit effort="10" velocity="1.0" lower="-6.28" upper="6.28" />
+    <limit effort="10" velocity="1.0" lower="-3.14" upper="3.14" />
   </joint>
 
   <transmission name="t1">
@@ -174,7 +174,7 @@
     <child  link="link2" />
 
     <axis xyz="0 0 1" />
-    <limit effort="10" velocity="1.0" lower="-6.28" upper="6.28" />
+    <limit effort="10" velocity="1.0" lower="-3.14" upper="3.14" />
   </joint>
 
   <transmission name="t2">
@@ -195,7 +195,7 @@
     <child  link="link3" />
 
     <axis xyz="0 0 1" />
-    <limit effort="10" velocity="1.0" lower="-6.28" upper="6.28" />
+    <limit effort="10" velocity="1.0" lower="-3.14" upper="3.14" />
   </joint>
 
   <transmission name="t3">
@@ -216,7 +216,7 @@
     <child  link="link4" />
 
     <axis xyz="0 0 1" />
-    <limit effort="10" velocity="1.0" lower="-6.28" upper="6.28" />
+    <limit effort="10" velocity="1.0" lower="-3.14" upper="3.14" />
   </joint>
 
   <transmission name="t4">
@@ -238,7 +238,7 @@
     <child  link="other_foot" />
 
     <axis xyz="0 0 1" />
-    <limit effort="10" velocity="1.0" lower="-6.28" upper="6.28" />
+    <limit effort="10" velocity="1.0" lower="-3.14" upper="3.14" />
   </joint>
 
   <transmission name="t5">
