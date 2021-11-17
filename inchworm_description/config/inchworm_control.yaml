@@ -1,39 +1,4 @@
 inchworm:
-  joint_effort_controller_joint_1:
-    joint: link1_to_foot
-    pid:
-      d: 0.01
-      i: 0.0
-      p: 0.5
-    type: effort_controllers/JointPositionController
-  joint_effort_controller_joint_2:
-    joint: link2_to_link1
-    pid:
-      d: 0.1
-      i: 0.0
-      p: 5.0
-    type: effort_controllers/JointPositionController
-  joint_effort_controller_joint_3:
-    joint: link3_to_link2
-    pid:
-      d: 0.1
-      i: 0.0
-      p: 5.0
-    type: effort_controllers/JointPositionController
-  joint_effort_controller_joint_4:
-    joint: link3_to_link4
-    pid:
-      d: 0.1
-      i: 0.0
-      p: 5.0
-    type: effort_controllers/JointPositionController
-  joint_effort_controller_joint_5:
-    joint: link4_to_foot
-    pid:
-      d: 0.01
-      i: 0.0
-      p: 0.5
-    type: effort_controllers/JointPositionController
   joint_state_controller:
     publish_rate: 10
     type: joint_state_controller/JointStateController
@@ -48,8 +13,20 @@ inchworm:
       - link4_to_foot
 
     gains:
-      link1_to_foot: {p: 0.5, i: 0, d: 0.01}
-      link2_to_link1: {p: 5.0, i: 0, d: 0.1}
-      link3_to_link2: {p: 5.0, i: 0, d: 0.1}
-      link3_to_link4: {p: 5.0, i: 0, d: 0.1}
-      link4_to_foot: {p: 0.5, i: 0, d: 0.01}
+      link1_to_foot: {p: 1.5, i: 0, d: 0.01}
+      link2_to_link1: {p: 25.0, i: 0, d: 0.1}
+      link3_to_link2: {p: 25.0, i: 0, d: 0.1}
+      link3_to_link4: {p: 25.0, i: 0, d: 0.1}
+      link4_to_foot: {p: 1.5, i: 0, d: 0.01}
+
+    constraints:
+      link1_to_foot:
+        goal: 0.025
+      link2_to_link1:
+        goal: 0.025
+      link3_to_link2:
+        goal: 0.025
+      link3_to_link4:
+        goal: 0.025
+      link4_to_foot:
+        goal: 0.025

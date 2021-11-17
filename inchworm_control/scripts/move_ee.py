@@ -80,13 +80,6 @@ if __name__ == "__main__":
 
     print(f"Current orientation (deg):\n\tRoll: {r:.2f}\n\tPitch: {p:.2f}\n\tYaw: {y:.2f}")
 
-    ik_req = GetPositionIKRequest()
-
-    ik_req.ik_request.group_name = group_name
-    ik_req.ik_request.robot_state.joint_state = current_joint_states
-    ik_req.ik_request.avoid_collisions = True
-    ik_req.ik_request.ik_link_name = "other_foot"
-
     print("Following are relative to reference frame.")
 
     print("Position in meters:")
@@ -102,7 +95,7 @@ if __name__ == "__main__":
     quat = rpyToQuat(roll, pitch, yaw)
 
     goal_pose = PoseStamped()
-    goal_pose.header.frame_id = group.get_planning_frame()
+    goal_pose.header.frame_id = "world"
     goal_pose.header.stamp = rospy.Time.now()
 
     goal_pose.pose.position.x = x
@@ -114,20 +107,11 @@ if __name__ == "__main__":
     goal_pose.pose.orientation.z = quat[2]
     goal_pose.pose.orientation.w = quat[3]
 
-    ik_req.ik_request.pose_stamped = goal_pose
-    ik_req.ik_request.timeout = rospy.Duration(5)
-
     goal_pub.publish(goal_pose)
-    print(goal_pose)
 
-    ik_srv = rospy.ServiceProxy("/compute_ik", GetPositionIK)
-    # res = ik_srv(ik_req)
+    group.set_goal_position_tolerance(0.01)
+    group.set_pose_target(goal_pose)
 
-    group.set_pose_target(goal_pose.pose)
+    group.go(wait=True)
 
-    plan = group.plan()
-    print(plan[1].joint_trajectory)
-
-    input()
-
-    traj_pub.publish(plan[1].joint_trajectory)
+    # traj_pub.publish(plan[1].joint_trajectory)

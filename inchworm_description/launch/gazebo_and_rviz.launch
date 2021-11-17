@@ -32,7 +32,5 @@
 
   <node name="rviz" pkg="rviz" type="rviz" args="-d $(find inchworm_description)/config/inchworm_frames.rviz" />
 
-  <include file="$(find inchworm_moveit)/launch/move_group.launch">
-    <remap from="/joint_states" to="/inchworm/joint_states" />
-  </include>
+  <include file="$(find inchworm_moveit)/launch/move_group.launch" />
 </launch>
