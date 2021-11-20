@@ -2,8 +2,8 @@
 <robot name="inchworm">
   <link name="world" />
 
-  <!-- End effector attached to world -->
-  <link name="foot">
+  <!-- Bottom foot -->
+  <link name="iw_foot_bottom">
     <inertial>
       <mass value="0.151" />
       <inertia ixx="3.8554e-05" ixy="9.4075e-07" ixz="1.709e-06" iyy="4.445e-05" iyz="1.2246e-06" izz="2.5729e-05"/>
@@ -24,8 +24,8 @@
     </collision>
   </link>
 
-  <!-- Link attached to EE -->
-  <link name="link1">
+  <!-- Bottom ankle -->
+  <link name="iw_ankle_bottom">
     <inertial>
       <mass value="0.151" />
       <inertia ixx="3.8554e-05" ixy="9.4075e-07" ixz="1.709e-06" iyy="4.445e-05" iyz="1.2246e-06" izz="2.5729e-05"/>
@@ -46,8 +46,8 @@
     </collision>
   </link>
 
-  <!-- First big link -->
-  <link name="link2">
+  <!-- Bottom beam -->
+  <link name="iw_ankle_bottom">
     <origin xyz="0 0 0" rpy="0 0 3.14" />
     <inertial>
       <mass value="0.151" />
@@ -70,7 +70,7 @@
     </collision>
   </link>
 
-  <!-- Second big link -->
+  <!-- Top beam (U beam) -->
   <link name="link3">
     <inertial>
       <mass value="0.151" />
@@ -93,7 +93,7 @@
     </collision>
   </link>
 
-  <!-- Link attached to EE -->
+  <!-- Top ankle -->
   <link name="link4">
     <inertial>
       <mass value="0.151" />
@@ -116,7 +116,7 @@
     </collision>
   </link>
 
-  <!-- Other foot -->
+  <!-- Top foot -->
   <link name="other_foot">
     <inertial>
       <mass value="0.151" />
@@ -139,17 +139,17 @@
     </collision>
   </link>
 
-  <joint name="foot_to_world" type="fixed">
+  <joint name="iw_foot_bottom_to_world" type="fixed">
     <origin xyz="0 0 0.05537" rpy="0 0 0" />
 
     <parent link="world" />
-    <child  link="foot" />
+    <child  link="iw_foot_bottom" />
   </joint>
 
-  <joint name="link1_to_foot" type="revolute">
+  <joint name="iw_ankle_bottom_to_foot" type="revolute">
     <origin xyz="0 0 0.05463" rpy="1.57 0 0" />
 
-    <parent link="foot" />
+    <parent link="iw_foot_bottom" />
     <child  link="link1" />
 
     <axis xyz="0 1 0" />
@@ -167,11 +167,11 @@
     </actuator>
   </transmission>
 
-  <joint name="link2_to_link1" type="revolute">
+  <joint name="iw_ankle_bottom_to_link1" type="revolute">
     <origin xyz="0 0 -0.001" rpy="0 0 1.57" />
 
     <parent link="link1" />
-    <child  link="link2" />
+    <child  link="iw_ankle_bottom" />
 
     <axis xyz="0 0 1" />
     <limit effort="10" velocity="1.0" lower="-3.14" upper="3.14" />
@@ -179,7 +179,7 @@
 
   <transmission name="t2">
     <type>transmission_interface/SimpleTransmission</type>
-    <joint name="link2_to_link1">
+    <joint name="iw_ankle_bottom_to_link1">
       <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
     </joint>
     <actuator name="motor2">
@@ -191,7 +191,7 @@
   <joint name="link3_to_link2" type="revolute">
     <origin xyz="0.165 0 -0.001" rpy="3.14 0 3.14" />
 
-    <parent link="link2" />
+    <parent link="iw_ankle_bottom" />
     <child  link="link3" />
 
     <axis xyz="0 0 1" />
