@@ -1,6 +1,6 @@
 <launch>
   <arg name="model_name" default="inchworm"/>
-  <arg name="model" default="updated_description"/>
+  <arg name="model" default="inchworm_description"/>
   <arg name="gui" default="true"/>
   <arg name="paused" default="true"/>
 

@@ -45,8 +45,12 @@
         <joint type="fixed" name="inchworm_mate">
             <!-- TODO: Determine correct pose offset for foot -->
             <pose>0 0 0 0 0 0</pose>
-            <parent></parent>
-            <child></child>
+
+            <!-- Strings must match the beginning of link names.
+                 This should match both shingles and roof, as links are
+                 prefixed with `iw` on inchworm and `env` on shingle/roof. -->
+            <parent>iw</parent>
+            <child>env</child>
             <physics>
                 <provide_feedback>true</provide_feedback>
                 <ode>
