@@ -2,7 +2,7 @@
 <launch>
   <arg name="paused" default="false"/>
   <arg name="gazebo_gui" default="true"/>
-  <arg name="urdf_path" default="$(find inchworm_description)/urdf/updated_description.urdf"/>
+  <arg name="urdf_path" default="$(find inchworm_description)/urdf/inchworm_description.urdf"/>
 
   <!-- startup simulated world -->
   <include file="$(find gazebo_ros)/launch/empty_world.launch">
