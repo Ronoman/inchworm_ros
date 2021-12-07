@@ -5,7 +5,7 @@ import rospy, rospkg, math
 from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
 
 if __name__ == "__main__":
-    rospy.init_node("basic_control")
+    rospy.init_node("run_trajectory")
 
     pub = rospy.Publisher("/inchworm/arm_controller/command", JointTrajectory, queue_size=1)
 

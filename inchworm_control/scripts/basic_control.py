@@ -10,11 +10,14 @@ if __name__ == "__main__":
     pub = rospy.Publisher("/inchworm/arm_controller/command", JointTrajectory, queue_size=1)
 
     while True:
+        # We need to create a JointTrajectory to pass to the arm_controller
         msg = JointTrajectory()
         msg.header.frame_id = "world"
 
+        # These are the five joints on the robot.
         msg.joint_names = ["link1_to_foot", "link2_to_link1", "link3_to_link2", "link3_to_link4", "link4_to_foot"]
 
+        # To 
         msg.points.append(JointTrajectoryPoint())
 
         msg.points[0].positions = [0] * 5
