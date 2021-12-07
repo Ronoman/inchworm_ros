@@ -31,7 +31,7 @@ if __name__ == "__main__":
 
         msg.points.append(JointTrajectoryPoint())
 
-        msg.points[-1].positions = [0, -pt[0], pt[1], pt[2], 0]
+        msg.points[-1].positions = [0, pt[0], pt[1], pt[2], 0]
         msg.points[-1].velocities = [0] * 5
         msg.points[-1].accelerations = [0] * 5
 

@@ -173,7 +173,7 @@
     <parent link="link1" />
     <child  link="link2" />
 
-    <axis xyz="0 0 1" />
+    <axis xyz="0 0 -1" />
     <limit effort="10" velocity="1.0" lower="-3.14" upper="3.14" />
   </joint>
 
