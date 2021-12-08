@@ -52,6 +52,22 @@ def rpyToQuat(roll, pitch, yaw):
 
     return quat
 
+def printJointAngles():
+    rads = current_joint_states.position
+    angles = [(float(math.degrees(r))) for r in rads]
+    names = current_joint_states.name
+    joint0 = names.index('link1_to_foot')
+    joint1 = names.index('link2_to_link1')
+    joint2 = names.index('link3_to_link2')
+    joint3 = names.index('link3_to_link4')
+    joint4 = names.index('link4_to_foot')
+    
+    print(f"Joint 0: {angles[joint0]}")
+    print(f"Joint 1: {angles[joint1]}")
+    print(f"Joint 2: {angles[joint2]}")
+    print(f"Joint 3: {angles[joint3]}")
+    print(f"Joint 4: {angles[joint4]}")
+
 if __name__ == "__main__":
     moveit_commander.roscpp_initialize(sys.argv)
     rospy.init_node("move_ee")
@@ -113,5 +129,7 @@ if __name__ == "__main__":
     group.set_pose_target(goal_pose)
 
     group.go(wait=True)
+
+    printJointAngles()
 
     # traj_pub.publish(plan[1].joint_trajectory)
