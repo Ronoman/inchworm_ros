@@ -37,9 +37,10 @@ if __name__ == "__main__":
 
         msg.points[-1].time_from_start = rospy.Duration((i + 1) * 5)
 
-    msg.header.stamp = rospy.Time.now()
-
     print(msg)
     input()
+    rospy.sleep(1)
+
+    msg.header.stamp = rospy.Time.now()
 
     pub.publish(msg)
