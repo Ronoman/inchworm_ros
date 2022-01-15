@@ -7,7 +7,7 @@ import math
 import rospy
 
 from sensor_msgs.msg import JointState
-from std_msgs.msg import Empty
+from std_msgs.msg import Empty, String
 
 from matplotlib import pyplot as plt
 
@@ -18,6 +18,8 @@ expected_joint_angles = []
 actual_joint_angles = []
 
 timestamps = []
+
+debug_pub = None
 
 def jointStateCB(msg):
     global ser, expected_joint_angles, actual_joint_angles
@@ -47,7 +49,12 @@ def jointStateCB(msg):
     print(f"Writing:\n\t{serial_string}")
     ser.write(serial_string.encode())
 
+    read_string = ""
     read_string = str(ser.readline(), encoding="utf8").strip("\r\n")
+
+    while read_string[0] == "E":
+        debug_pub.publish(String(read_string))
+        read_string = str(ser.readline(), encoding="utf8").strip("\r\n")
 
     print(f"Read:\n\t{read_string}")
 
@@ -66,8 +73,8 @@ def plotCB(_):
 
     ts = processTimestamps(ts_copy)
 
-    expected_1 = [j[1] for j in expected_copy]
-    actual_1 = [j[1] for j in actual_copy]
+    expected_1 = [j[4] for j in expected_copy]
+    actual_1 =   [j[4] for j in actual_copy]
 
     print(len(ts))
     print(len(actual_1))
@@ -132,6 +139,8 @@ if __name__ == "__main__":
 
     joint_sub = rospy.Subscriber("/inchworm/joint_states", JointState, jointStateCB, queue_size=1)
     plot_sub = rospy.Subscriber("/plot", Empty, plotCB, queue_size=1)
+
+    debug_pub = rospy.Publisher("/debug", String, queue_size=1)
 
     rospy.spin()
 
