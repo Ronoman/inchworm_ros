@@ -73,8 +73,8 @@ def plotCB(_):
 
     ts = processTimestamps(ts_copy)
 
-    expected_1 = [j[4] for j in expected_copy]
-    actual_1 =   [j[4] for j in actual_copy]
+    expected_1 = [j[0] for j in expected_copy]
+    actual_1 =   [j[0] for j in actual_copy]
 
     print(len(ts))
     print(len(actual_1))
