@@ -52,7 +52,7 @@ def jointStateCB(msg):
     read_string = ""
     read_string = str(ser.readline(), encoding="utf8").strip("\r\n")
 
-    while read_string[0] == "E":
+    while read_string[0] == "E" and not rospy.is_shutdown():
         debug_pub.publish(String(read_string))
         read_string = str(ser.readline(), encoding="utf8").strip("\r\n")
 
