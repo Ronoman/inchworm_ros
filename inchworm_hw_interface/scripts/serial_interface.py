@@ -7,6 +7,9 @@ import math
 import rospy
 
 from sensor_msgs.msg import JointState
+from std_msgs.msg import Empty, String
+
+from matplotlib import pyplot as plt
 
 ser = None
 
@@ -15,6 +18,8 @@ expected_joint_angles = []
 actual_joint_angles = []
 
 timestamps = []
+
+debug_pub = None
 
 def jointStateCB(msg):
     global ser, expected_joint_angles, actual_joint_angles
@@ -44,7 +49,12 @@ def jointStateCB(msg):
     print(f"Writing:\n\t{serial_string}")
     ser.write(serial_string.encode())
 
+    read_string = ""
     read_string = str(ser.readline(), encoding="utf8").strip("\r\n")
+
+    while read_string[0] == "E":
+        debug_pub.publish(String(read_string))
+        read_string = str(ser.readline(), encoding="utf8").strip("\r\n")
 
     print(f"Read:\n\t{read_string}")
 
@@ -52,12 +62,40 @@ def jointStateCB(msg):
 
     if not len(joint_vals) == 5:
         return
-    
-    # print(joint_vals)
 
     actual_joint_angles.append(joint_vals)
     timestamps.append(rospy.Time.now())
 
+def plotCB(_):
+    expected_copy = expected_joint_angles[:]
+    actual_copy = actual_joint_angles[:]
+    ts_copy = timestamps[:]
+
+    ts = processTimestamps(ts_copy)
+
+    expected_1 = [j[4] for j in expected_copy]
+    actual_1 =   [j[4] for j in actual_copy]
+
+    print(len(ts))
+    print(len(actual_1))
+    print(len(expected_1))
+
+    plt.plot(ts, expected_1, color="red", label="Expected")
+    plt.plot(ts, actual_1, color="blue", label="Actual")
+
+    plt.legend()
+
+    plt.title("Expected vs Actual joint values")
+
+    plt.show()
+
+def processTimestamps(timestamps):
+    out = [0]
+    
+    for i,t in enumerate(timestamps[1:]):
+        out.append((t - timestamps[0]).to_sec())
+
+    return out
 
 def plot():
     # 5 element array, where each element is a single joint. Indexes into these sub arrays correspond with timestamps array
@@ -100,6 +138,9 @@ if __name__ == "__main__":
     ser = serial.Serial("/dev/" + device)
 
     joint_sub = rospy.Subscriber("/inchworm/joint_states", JointState, jointStateCB, queue_size=1)
+    plot_sub = rospy.Subscriber("/plot", Empty, plotCB, queue_size=1)
+
+    debug_pub = rospy.Publisher("/debug", String, queue_size=1)
 
     rospy.spin()
 
