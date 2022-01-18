@@ -7,7 +7,13 @@ project(inchworm_hw_interface)
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
-find_package(catkin REQUIRED)
+find_package(catkin REQUIRED
+    hardware_interface
+    controller_manager
+    joint_limits_interface
+    roscpp
+    rosparam_shortcuts
+)
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -99,10 +105,14 @@ find_package(catkin REQUIRED)
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-#  INCLUDE_DIRS include
-#  LIBRARIES inchworm_hw_interface
-#  CATKIN_DEPENDS other_catkin_pkg
-#  DEPENDS system_lib
+    INCLUDE_DIRS include
+    CATKIN_DEPENDS
+        controller_manager
+        hardware_interface
+        joint_limits_interface
+        roscpp
+        rosparam_shortcuts
+    LIBRARIES inchworm_hw_interface
 )
 
 ###########
@@ -112,14 +122,18 @@ catkin_package(
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
 include_directories(
-# include
-# ${catkin_INCLUDE_DIRS}
+  include
+  ${catkin_INCLUDE_DIRS}
 )
 
 ## Declare a C++ library
-# add_library(${PROJECT_NAME}
-#   src/${PROJECT_NAME}/inchworm_hw_interface.cpp
-# )
+add_library(inchworm_hw_interface
+    src/inchworm_hw_interface.cpp
+)
+add_dependencies(${PROJECT_NAME} ${inchworm_hw_interface_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(inchworm_hw_interface
+    ${catkin_LIBRARIES}
+)
 
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
@@ -160,6 +174,13 @@ include_directories(
 #   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 # )
 
+install(
+TARGETS
+    inchworm_hw_interface
+LIBRARY DESTINATION
+    ${CATKIN_PACKAGE_LIB_DESTINATION}
+)
+
 ## Mark executables for installation
 ## See http://docs.ros.org/melodic/api/catkin/html/howto/format1/building_executables.html
 # install(TARGETS ${PROJECT_NAME}_node
@@ -181,6 +202,12 @@ include_directories(
 #   PATTERN ".svn" EXCLUDE
 # )
 
+message(STATUS "Include dest: ${CATKIN_PACKAGE_INCLUDE_DESTINATION}")
+install(DIRECTORY include/${PROJECT_NAME}/
+  DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
+  FILES_MATCHING PATTERN "*.h"
+  PATTERN ".svn" EXCLUDE
+)
 ## Mark other files for installation (e.g. launch and bag files, etc.)
 # install(FILES
 #   # myfile1

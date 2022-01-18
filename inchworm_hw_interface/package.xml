@@ -50,6 +50,12 @@
   <!--   <doc_depend>doxygen</doc_depend> -->
   <buildtool_depend>catkin</buildtool_depend>
 
+  <depend>controller_manager</depend>
+  <depend>hardware_interface</depend>
+  <depend>joint_limits_interface</depend>
+  <depend>roscpp</depend>
+  <depend>rosparam_shortcuts</depend>
+
 
   <!-- The export tag contains other, unspecified, tags -->
   <export>
