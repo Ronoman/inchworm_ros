@@ -15,9 +15,12 @@ BAUD = 9600
 # If True, then the serial port is not connected. All writes are simply logged
 DEBUG = False
 
+VERBOSE = True
+
 # Publishers for each kind of message embedded software can send to us
 heartbeat_pub = None
 joint_poses_pub = None
+joint_goal_pub = None
 pid_consts_pub = None
 magnet_state_pub = None
 debug_pub = None
@@ -33,6 +36,9 @@ serial_port = None
 ser_mutex = Lock()
 
 def send_serial(to_send):
+    # Embedded software expects all messages to be newline terminated
+    to_send += b"\n"
+
     if DEBUG:
         suppress = ["send_joint_goal"]
 
@@ -41,6 +47,11 @@ def send_serial(to_send):
             print(to_send)
             print()
     else:
+        if VERBOSE:
+            print(f"Sending {chr(to_send[0])}")
+            print(len(to_send))
+            #print(to_send)
+
         ser_mutex.acquire()
         serial_port.write(to_send)
         ser_mutex.release()
@@ -74,6 +85,28 @@ def joint_poses(byte_arr):
 
     joint_poses_pub.publish(joint_state_msg)
 
+def joint_goal(byte_arr):
+    # Unpack 10 contiguous doubles
+    poses = struct.unpack("<" + "d"*5, byte_arr)
+
+    joint_state_msg = JointState()
+
+    joint_state_msg.header.stamp = rospy.Time.now()
+
+    # TODO: Figure out the naming convention for joints, because this is bad and inconsistent
+    joint_state_msg.name = ["j0", "j1", "j2", "j3", "j4"]
+
+    for pos in poses[:5]:
+        joint_state_msg.position.append(pos)
+
+    # for vel in poses[5:10]:
+    #     joint_state_msg.velocity.append(vel)
+
+    # for effort in poses[10:]:
+    #     joint_state_msg.effort.append(effort)
+
+    joint_goal_pub.publish(joint_state_msg)
+
 def pid_consts(byte_arr):
     consts = struct.unpack(">" + "d"*30, byte_arr)
 
@@ -99,7 +132,8 @@ def pid_consts(byte_arr):
     pid_consts_pub.publish(consts_msg)
 
 def magnet_state(byte_arr):
-    mag_states = struct.unpack(">ii", byte_arr)
+    print(byte_arr)
+    mag_states = struct.unpack("<ii", byte_arr)
 
     mag_state_msg = MagnetState()
 
@@ -109,26 +143,35 @@ def magnet_state(byte_arr):
     magnet_state_pub.publish(mag_state_msg)
 
 def debug(byte_arr):
-    message = struct.unpack(">100s")
+    print(byte_arr)
+    message = struct.unpack(">100s", byte_arr)
 
     debug_msg = String(message)
 
     debug_pub.publish(debug_msg)
 
 def fault(byte_arr):
-    message = struct.unpack(">100s")
+    message = struct.unpack(">100s", byte_arr)
 
     fault_msg = String(message)
 
     fault_pub.publish(fault_msg)
 
 def send_heartbeat(msg):
-    to_send = struct.pack(">cxxxi", b"h", msg.data)
+    command = struct.pack(">cxxxxxxx", b"h")
+    data = struct.pack("<i", msg.data)
+
+    to_send = command + data
 
     send_serial(to_send)
 
 def send_joint_goal(msg):
-    to_send = struct.pack(">cxxx" + "d"*10, b"g", *msg.position, *msg.effort)
+    print("Sending joint goal")
+
+    command = struct.pack(">cxxxxxxx", b"g")
+    data = struct.pack("<" + "d"*5, *msg.position)
+
+    to_send = command + data
 
     send_serial(to_send)
 
@@ -151,20 +194,29 @@ def send_pid_consts(msg):
     for pid in b:
         consts_arr.extend([pid.p, pid.i, pid.d])
 
-    to_send = struct.pack(">cxxx" + "d"*30, b"p", *consts_arr)
+    command = struct.pack(">cxxxxxxx", b"p")
+    data = struct.pack("<" + "d"*30, *consts_arr)
+
+    to_send = command + data
 
     send_serial(to_send)
 
 def send_magnet_states(msg):
-    to_send = struct.pack(">cxxxii", b"m", msg.magnet1, msg.magnet2)
+    command = struct.pack(">cxxxxxxx", b"m")
+    data = struct.pack("<ii", msg.magnet1, msg.magnet2)
+
+    to_send = command + data
+
+    print(to_send)
 
     send_serial(to_send)
 
 def init_pubs():
-    global heartbeat_pub, joint_poses_pub, pid_consts_pub, magnet_state_pub, debug_pub, fault_pub
+    global heartbeat_pub, joint_poses_pub, joint_goal_pub, pid_consts_pub, magnet_state_pub, debug_pub, fault_pub
 
     heartbeat_pub = rospy.Publisher("heartbeat_res", Int32, queue_size=1)
     joint_poses_pub = rospy.Publisher("joint_states", JointState, queue_size=1)
+    joint_goal_pub = rospy.Publisher("joint_goal", JointState, queue_size=1)
     pid_consts_pub = rospy.Publisher("pid_consts", PIDConsts, queue_size=1)
     magnet_state_pub = rospy.Publisher("magnet_states", MagnetState, queue_size=1)
     debug_pub = rospy.Publisher("debug", String, queue_size=1)
@@ -174,7 +226,7 @@ def init_subs():
     global heartbeat_sub, joint_goal_sub, pid_consts_sub, magnet_state_sub
 
     heartbeat_sub = rospy.Subscriber("heartbeat_req", Int32, send_heartbeat, queue_size=5)
-    joint_goal_sub = rospy.Subscriber("inchworm/joint_states", JointState, send_joint_goal, queue_size=5)
+    joint_goal_sub = rospy.Subscriber("inchworm/joint_states", JointState, send_joint_goal, queue_size=1)
     pid_consts_sub = rospy.Subscriber("update_pid", PIDConsts, send_pid_consts, queue_size=5)
     magnet_state_sub = rospy.Subscriber("set_magnet_states", MagnetState, send_magnet_states, queue_size=5)
 
@@ -191,6 +243,7 @@ def init_serial():
 
     # If there are no devices matching the pattern, assume we should be in debug mode
     if len(acm_devices) == 0:
+        print("No ACM device found, enabling debug mode.")
         DEBUG = True
         return None
 
@@ -207,6 +260,16 @@ def init_serial():
 
     ser = serial.Serial("/dev/" + device, BAUD, timeout=2)
 
+    # Definitely secure handshake protocol. You don't say "hhhhh" when you're first greeting someone?
+    ser.write(b"hhhhh")
+
+    res = ser.read(5)
+
+    if not res.decode("utf8") == "hhhhh":
+        print("Response not correct from robot.")
+    else:
+        print("Received startup message, communication established.")
+
     return ser
 
 # Maps type characters from incoming serial messages to parser functions
@@ -214,43 +277,60 @@ def init_serial():
 # Value: (message_size, handler_fn)
 # More info in https://docs.google.com/document/d/1m7oZZbM0VJFrIxo1KRNSXnIhmvcEmCzY7amgNRJE87Q/edit?usp=sharing
 char_fn_map = {
-    "h": (8, heartbeat),
-    "j": (84, joint_poses),
-    "p": (244, pid_consts),
-    "m": (12, magnet_state),
-    "d": (104, debug),
-    "f": (104, fault)
+    b"h": (12, heartbeat),
+    # 8 command + sizeof(double[10])
+    b"j": (88, joint_poses),
+    # 8 command + sizeof(double[5])
+    b"g": (48, joint_goal),
+    b"p": (244, pid_consts),
+    b"m": (16, magnet_state),
+    b"d": (108, debug),
+    b"f": (108, fault)
 }
 
 if __name__ == "__main__":
     rospy.init_node("message_parser")
 
+    serial_port = init_serial()
+
     init_pubs()
     init_subs()
-
-    serial_port = init_serial()
 
     while not rospy.is_shutdown():
         # Read in the type char if the serial port initialized
         if serial_port is not None:
-            ser_mutex.acquire()
-            type_char = str(serial_port.read(1), encoding="utf8").string("\r\n")
-            ser_mutex.release()
+            type_char = serial_port.read(1)
         else:
             rospy.sleep(1)
             continue
 
         if type_char in char_fn_map:
-            # Skip 3 padding bytes
-            ser_mutex.acquire()
-            _ = serial_port.read(3)
-            ser_mutex.release()
+            print(f"Received {type_char.decode()} message")
+
+            # Skip 7 padding bytes
+            _ = serial_port.read(7)
 
             # Read in the specified number of bytes, minus 4 for type_char+3*padding bytes
-            byte_arr = serial_port.read(char_fn_map[type_char][0] - 4)
+            byte_arr = serial_port.read(char_fn_map[type_char][0] - 8)
+
+            #if VERBOSE:
+            #    print(byte_arr)
 
             # Pass the byte array to the appropriate handler
             char_fn_map[type_char][1](byte_arr)
         else:
-            rospy.logerr(f"Invalid message received from robot with type_char {type_char}. Quitting")
-            sys.exit()
+            # rospy.logerr(f"Invalid message received from robot with type_char {type_char}. Waiting for next type_char")
+
+            # byte_arr = []
+
+            # char = serial_port.read(1)
+            # while not char in:
+            #     byte_arr.append(char)
+            #     char = serial_port.read(1)
+            #     print(b''.join(byte_arr).decode())
+
+            # debug_msg = String(b''.join(byte_arr).decode("utf-8"))
+
+            # sys.exit()
+
+            continue
