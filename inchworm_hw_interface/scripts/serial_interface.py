@@ -135,7 +135,7 @@ if __name__ == "__main__":
 
     print(device)
 
-    ser = serial.Serial("/dev/" + device)
+    ser = serial.Serial("/dev/" + device, timeout=1)
 
     joint_sub = rospy.Subscriber("/inchworm/joint_states", JointState, jointStateCB, queue_size=1)
     plot_sub = rospy.Subscriber("/plot", Empty, plotCB, queue_size=1)
