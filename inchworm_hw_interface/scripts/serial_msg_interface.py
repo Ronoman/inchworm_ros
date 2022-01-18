@@ -66,7 +66,10 @@ def joint_poses(byte_arr):
     for pos in poses[:5]:
         joint_state_msg.position.append(pos)
 
-    for effort in poses[5:]:
+    for vel in poses[5:10]:
+        joint_state_msg.velocity.append(vel)
+
+    for effort in poses[10:]:
         joint_state_msg.effort.append(effort)
 
     joint_poses_pub.publish(joint_state_msg)

@@ -24,4 +24,5 @@ Needed improvements for serial_interface
 - Live plotting of joints (-> PlotJuggler)
 
 Jan 17 2022
-- Implemented better messaging interface with the robot
+- Implemented better messaging interface with the robot. Not yet tested with embedded software
+- 
