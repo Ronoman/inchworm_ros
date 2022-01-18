@@ -1,17 +1,21 @@
 #!/usr/bin/env python3
 
-import serial, rospy, subprocess, sys, struct
+import serial, rospy, subprocess, sys, struct, inspect
 
 from threading import Lock
 
 from std_msgs.msg import Int32, String
 from sensor_msgs.msg import JointState
 
-# from inchworm_hw_interface.msgs import MagnetState, PIDConsts
+from inchworm_hw_interface.msg import MagnetState, PIDConsts, PID
 
+# Baud rate to communicate with the Teensy
 BAUD = 9600
-DEBUG = True
 
+# If True, then the serial port is not connected. All writes are simply logged
+DEBUG = False
+
+# Publishers for each kind of message embedded software can send to us
 heartbeat_pub = None
 joint_poses_pub = None
 pid_consts_pub = None
@@ -19,6 +23,7 @@ magnet_state_pub = None
 debug_pub = None
 fault_pub = None
 
+# Subscribers for each kind of message we can send to embedded software
 heartbeat_sub = None
 joint_goal_sub = None
 pid_consts_sub = None
@@ -26,6 +31,19 @@ magnet_state_sub = None
 
 serial_port = None
 ser_mutex = Lock()
+
+def send_serial(to_send):
+    if DEBUG:
+        suppress = ["send_joint_goal"]
+
+        if not inspect.stack()[1].function in suppress:
+            print(f"Function {inspect.stack()[1].function} sending:")
+            print(to_send)
+            print()
+    else:
+        ser_mutex.acquire()
+        serial_port.write(to_send)
+        ser_mutex.release()
 
 def heartbeat(byte_arr):
     seq = struct.unpack(">i", byte_arr)
@@ -46,7 +64,7 @@ def joint_poses(byte_arr):
     joint_state_msg.name = ["j0", "j1", "j2", "j3", "j4"]
 
     for pos in poses[:5]:
-        joint_state_msg.positions.append(pos)
+        joint_state_msg.position.append(pos)
 
     for effort in poses[5:]:
         joint_state_msg.effort.append(effort)
@@ -56,12 +74,36 @@ def joint_poses(byte_arr):
 def pid_consts(byte_arr):
     consts = struct.unpack(">" + "d"*30, byte_arr)
 
-    # TODO: Finish implementing
+    tuples = ((consts[3*i], consts[3*i+1], consts[3*i+2]) for i in range(len(consts)))
 
-    return
+    consts_msg = PIDConsts()
+
+    for i in range(5):
+        forward = PID()
+        backward = PID()
+
+        forward.p = tuples[i][0]
+        forward.i = tuples[i][1]
+        forward.d = tuples[i][2]
+
+        backward.p = tuples[i+5][0]
+        backward.i = tuples[i+5][1]
+        backward.d = tuples[i+5][2]
+
+        consts_msg.forward.append(forward)
+        consts_msg.backward.append(backward)
+
+    pid_consts_pub.publish(consts_msg)
 
 def magnet_state(byte_arr):
     mag_states = struct.unpack(">ii", byte_arr)
+
+    mag_state_msg = MagnetState()
+
+    mag_state_msg.magnet1 = mag_states[0]
+    mag_state_msg.magnet2 = mag_states[1]
+
+    magnet_state_pub.publish(mag_state_msg)
 
 def debug(byte_arr):
     message = struct.unpack(">100s")
@@ -78,38 +120,50 @@ def fault(byte_arr):
     fault_pub.publish(fault_msg)
 
 def send_heartbeat(msg):
-    to_send = struct.pack(">cxxxi", "h", msg.data)
+    to_send = struct.pack(">cxxxi", b"h", msg.data)
 
-    ser_mutex.acquire()
-    serial_port.write(to_send)
-    ser_mutex.release()
-
-    if DEBUG:
-        print(to_send)
+    send_serial(to_send)
 
 def send_joint_goal(msg):
-    to_send = struct.pack(">cxxx" + "d"*10, "g", *msg.position, *msg.effort)
+    to_send = struct.pack(">cxxx" + "d"*10, b"g", *msg.position, *msg.effort)
 
-    ser_mutex.acquire()
-    serial_port.write(to_send)
-    ser_mutex.release()
-
-    if DEBUG:
-        print(to_send)
+    send_serial(to_send)
 
 def send_pid_consts(msg):
-    pass
+    consts_arr = []
+
+    f = msg.forward
+    b = msg.backward
+
+    if not len(f) == len(b):
+        rospy.logerr(f"send_pid_consts: Mismatch on joint count. f: {f} b: {b}")
+
+    # len(f) === len(b) by now, so we can just check one
+    if len(f) != 5:
+        rospy.logerr(f"send_pid_consts: Got {len(f)} joints, needed 5")
+        return
+
+    for pid in f:
+        consts_arr.extend([pid.p, pid.i, pid.d])
+    for pid in b:
+        consts_arr.extend([pid.p, pid.i, pid.d])
+
+    to_send = struct.pack(">cxxx" + "d"*30, b"p", *consts_arr)
+
+    send_serial(to_send)
 
 def send_magnet_states(msg):
-    pass
+    to_send = struct.pack(">cxxxii", b"m", msg.magnet1, msg.magnet2)
+
+    send_serial(to_send)
 
 def init_pubs():
     global heartbeat_pub, joint_poses_pub, pid_consts_pub, magnet_state_pub, debug_pub, fault_pub
 
     heartbeat_pub = rospy.Publisher("heartbeat_res", Int32, queue_size=1)
     joint_poses_pub = rospy.Publisher("joint_states", JointState, queue_size=1)
-    # pid_consts_pub = rospy.Publisher("pid_consts", PIDConsts, queue_siz=1)
-    # magnet_state_pub = rospy.Publisher("magnet_states", MagnetState, queue_size=1)
+    pid_consts_pub = rospy.Publisher("pid_consts", PIDConsts, queue_size=1)
+    magnet_state_pub = rospy.Publisher("magnet_states", MagnetState, queue_size=1)
     debug_pub = rospy.Publisher("debug", String, queue_size=1)
     fault_pub = rospy.Publisher("fault", String, queue_size=1)
 
@@ -118,10 +172,12 @@ def init_subs():
 
     heartbeat_sub = rospy.Subscriber("heartbeat_req", Int32, send_heartbeat, queue_size=5)
     joint_goal_sub = rospy.Subscriber("inchworm/joint_states", JointState, send_joint_goal, queue_size=5)
-    # pid_consts_sub = rospy.Subscriber("update_pid", PIDConsts, send_pid_consts, queue_size=5)
-    # magnet_state_sub = rospy.Subscriber("set_magnet_states", MagnetState, send_magnet_states, queue_size=5)
+    pid_consts_sub = rospy.Subscriber("update_pid", PIDConsts, send_pid_consts, queue_size=5)
+    magnet_state_sub = rospy.Subscriber("set_magnet_states", MagnetState, send_magnet_states, queue_size=5)
 
 def init_serial():
+    global DEBUG
+
     out = subprocess.run(["ls", "/dev"], capture_output=True)
 
     devices = str(out.stdout, encoding="utf8").split("\n")
@@ -130,8 +186,14 @@ def init_serial():
     
     device = ""
 
-    if len(acm_devices) == 1:
+    # If there are no devices matching the pattern, assume we should be in debug mode
+    if len(acm_devices) == 0:
+        DEBUG = True
+        return None
+
+    elif len(acm_devices) == 1:
         device = acm_devices[0]
+
     else:
         print("Valid devices:")
         print("\n".join(acm_devices))
@@ -166,10 +228,14 @@ if __name__ == "__main__":
     serial_port = init_serial()
 
     while not rospy.is_shutdown():
-        # Read in the type char
-        ser_mutex.acquire()
-        type_char = str(serial_port.read(1), encoding="utf8").string("\r\n")
-        ser_mutex.release()
+        # Read in the type char if the serial port initialized
+        if serial_port is not None:
+            ser_mutex.acquire()
+            type_char = str(serial_port.read(1), encoding="utf8").string("\r\n")
+            ser_mutex.release()
+        else:
+            rospy.sleep(1)
+            continue
 
         if type_char in char_fn_map:
             # Skip 3 padding bytes
