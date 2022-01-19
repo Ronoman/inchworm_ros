@@ -49,7 +49,6 @@ def send_serial(to_send):
     else:
         if VERBOSE:
             print(f"Sending {chr(to_send[0])}")
-            print(len(to_send))
             #print(to_send)
 
         ser_mutex.acquire()
@@ -57,7 +56,10 @@ def send_serial(to_send):
         ser_mutex.release()
 
 def heartbeat(byte_arr):
-    seq = struct.unpack(">i", byte_arr)
+    print("Receiving heartbeat")
+    print(byte_arr)
+    seq = struct.unpack("<ixxxx", byte_arr)[0]
+    print(seq)
 
     heartbeat_msg = Int32(seq)
 
@@ -143,31 +145,32 @@ def magnet_state(byte_arr):
     magnet_state_pub.publish(mag_state_msg)
 
 def debug(byte_arr):
-    print(byte_arr)
     message = struct.unpack(">100s", byte_arr)
+    message = message[0][:message[0].index(b"\n")]
 
-    debug_msg = String(message)
+    debug_msg = String(message.decode("utf-8"))
 
     debug_pub.publish(debug_msg)
 
 def fault(byte_arr):
     message = struct.unpack(">100s", byte_arr)
+    message = message[0][:message[0].index(b"\n")]
 
-    fault_msg = String(message)
+    fault_msg = String(message.decode("utf-8"))
 
     fault_pub.publish(fault_msg)
 
 def send_heartbeat(msg):
     command = struct.pack(">cxxxxxxx", b"h")
-    data = struct.pack("<i", msg.data)
+    data = struct.pack("<ixxxx", msg.data)
 
     to_send = command + data
+
+    print(to_send)
 
     send_serial(to_send)
 
 def send_joint_goal(msg):
-    print("Sending joint goal")
-
     command = struct.pack(">cxxxxxxx", b"g")
     data = struct.pack("<" + "d"*5, *msg.position)
 
@@ -261,11 +264,12 @@ def init_serial():
     ser = serial.Serial("/dev/" + device, BAUD, timeout=2)
 
     # Definitely secure handshake protocol. You don't say "hhhhh" when you're first greeting someone?
-    ser.write(b"hhhhh")
+    handshake = b"hhhhh"
+    ser.write(handshake)
 
     res = ser.read(5)
 
-    if not res.decode("utf8") == "hhhhh":
+    if not res == handshake:
         print("Response not correct from robot.")
     else:
         print("Received startup message, communication established.")
@@ -277,7 +281,7 @@ def init_serial():
 # Value: (message_size, handler_fn)
 # More info in https://docs.google.com/document/d/1m7oZZbM0VJFrIxo1KRNSXnIhmvcEmCzY7amgNRJE87Q/edit?usp=sharing
 char_fn_map = {
-    b"h": (12, heartbeat),
+    b"h": (16, heartbeat),
     # 8 command + sizeof(double[10])
     b"j": (88, joint_poses),
     # 8 command + sizeof(double[5])
@@ -304,8 +308,10 @@ if __name__ == "__main__":
             rospy.sleep(1)
             continue
 
+        # If it's a valid command, parse it. Otherwise, skip this character
         if type_char in char_fn_map:
-            print(f"Received {type_char.decode()} message")
+            if VERBOSE:
+                print(f"Received {type_char.decode()} message")
 
             # Skip 7 padding bytes
             _ = serial_port.read(7)
@@ -313,24 +319,8 @@ if __name__ == "__main__":
             # Read in the specified number of bytes, minus 4 for type_char+3*padding bytes
             byte_arr = serial_port.read(char_fn_map[type_char][0] - 8)
 
-            #if VERBOSE:
+            # if VERBOSE:
             #    print(byte_arr)
 
             # Pass the byte array to the appropriate handler
             char_fn_map[type_char][1](byte_arr)
-        else:
-            # rospy.logerr(f"Invalid message received from robot with type_char {type_char}. Waiting for next type_char")
-
-            # byte_arr = []
-
-            # char = serial_port.read(1)
-            # while not char in:
-            #     byte_arr.append(char)
-            #     char = serial_port.read(1)
-            #     print(b''.join(byte_arr).decode())
-
-            # debug_msg = String(b''.join(byte_arr).decode("utf-8"))
-
-            # sys.exit()
-
-            continue
