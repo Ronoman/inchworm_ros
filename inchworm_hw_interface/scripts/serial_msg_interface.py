@@ -67,7 +67,7 @@ def heartbeat(byte_arr):
 
 def joint_poses(byte_arr):
     # Unpack 10 contiguous doubles
-    poses = struct.unpack(">" + "d"*10, byte_arr)
+    poses = struct.unpack("<" + "d"*5, byte_arr)
 
     joint_state_msg = JointState()
 
@@ -79,11 +79,11 @@ def joint_poses(byte_arr):
     for pos in poses[:5]:
         joint_state_msg.position.append(pos)
 
-    for vel in poses[5:10]:
-        joint_state_msg.velocity.append(vel)
+    # for vel in poses[5:10]:
+    #     joint_state_msg.velocity.append(vel)
 
-    for effort in poses[10:]:
-        joint_state_msg.effort.append(effort)
+    # for effort in poses[10:]:
+    #     joint_state_msg.effort.append(effort)
 
     joint_poses_pub.publish(joint_state_msg)
 
@@ -110,9 +110,9 @@ def joint_goal(byte_arr):
     joint_goal_pub.publish(joint_state_msg)
 
 def pid_consts(byte_arr):
-    consts = struct.unpack(">" + "d"*30, byte_arr)
+    consts = struct.unpack("<" + "d"*30, byte_arr)
 
-    tuples = ((consts[3*i], consts[3*i+1], consts[3*i+2]) for i in range(len(consts)))
+    tuples = list((consts[3*i], consts[3*i+1], consts[3*i+2]) for i in range(int(len(consts)/3)))
 
     consts_msg = PIDConsts()
 
@@ -148,7 +148,12 @@ def debug(byte_arr):
     message = struct.unpack(">100s", byte_arr)
     message = message[0][:message[0].index(b"\n")]
 
-    debug_msg = String(message.decode("utf-8"))
+    try:
+        debug_msg = String(message.decode("utf-8"))
+    except UnicodeDecodeError:
+        fault_msg = String("Bad message parsed while reading debug")
+        fault_pub.publish(fault_msg)
+        return
 
     debug_pub.publish(debug_msg)
 
@@ -156,7 +161,10 @@ def fault(byte_arr):
     message = struct.unpack(">100s", byte_arr)
     message = message[0][:message[0].index(b"\n")]
 
-    fault_msg = String(message.decode("utf-8"))
+    try:
+        fault_msg = String(message.decode("utf-8"))
+    except UnicodeDecodeError:
+        fault_msg = String("Bad message parsed while reading fault")
 
     fault_pub.publish(fault_msg)
 
@@ -202,6 +210,9 @@ def send_pid_consts(msg):
 
     to_send = command + data
 
+    print(to_send)
+    print(len(to_send))
+
     send_serial(to_send)
 
 def send_magnet_states(msg):
@@ -229,7 +240,7 @@ def init_subs():
     global heartbeat_sub, joint_goal_sub, pid_consts_sub, magnet_state_sub
 
     heartbeat_sub = rospy.Subscriber("heartbeat_req", Int32, send_heartbeat, queue_size=5)
-    joint_goal_sub = rospy.Subscriber("inchworm/joint_states", JointState, send_joint_goal, queue_size=1)
+    joint_goal_sub = rospy.Subscriber("joint_state_test", JointState, send_joint_goal, queue_size=1)
     pid_consts_sub = rospy.Subscriber("update_pid", PIDConsts, send_pid_consts, queue_size=5)
     magnet_state_sub = rospy.Subscriber("set_magnet_states", MagnetState, send_magnet_states, queue_size=5)
 
@@ -283,10 +294,10 @@ def init_serial():
 char_fn_map = {
     b"h": (16, heartbeat),
     # 8 command + sizeof(double[10])
-    b"j": (88, joint_poses),
+    b"j": (48, joint_poses),
     # 8 command + sizeof(double[5])
     b"g": (48, joint_goal),
-    b"p": (244, pid_consts),
+    b"p": (248, pid_consts),
     b"m": (16, magnet_state),
     b"d": (108, debug),
     b"f": (108, fault)
