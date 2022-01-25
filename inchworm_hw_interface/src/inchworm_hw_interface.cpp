@@ -48,8 +48,7 @@ InchwormHWInterface::InchwormHWInterface(const ros::NodeHandle& nh)
   : name_("inchworm_hw_interface"), nh_(nh), use_rosparam_joint_limits_(false)
 {
   // Load rosparams
-  ros::NodeHandle rpnh(
-      nh_, "hardware_interface");  // TODO(davetcoleman): change the namespace to "inchworm_hw_interface" aka name_
+  ros::NodeHandle rpnh(nh_, "inchworm_hw_interface");
   std::size_t error = 0;
   error += !rosparam_shortcuts::get(name_, rpnh, "joints", joint_names_);
   rosparam_shortcuts::shutdownIfError(name_, error);
