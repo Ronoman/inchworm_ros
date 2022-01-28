@@ -1,10 +1,10 @@
 inchworm_hw_interface:
   joints:
-    - j0
-    - j1
-    - j2
-    - j3
-    - j4
+    - link1_to_foot
+    - link2_to_link1
+    - link3_to_link2
+    - link3_to_link4
+    - link4_to_foot
 
 # joint_state_controller is not needed, since the serial_msg_interface directly publishes JointState
 # joint_state_controller:
@@ -13,24 +13,24 @@ inchworm_hw_interface:
 position_trajectory_controller:
   type: position_controllers/JointTrajectoryController
   joints:
-    - j0
-    - j1
-    - j2
-    - j3
-    - j4
+    - link1_to_foot
+    - link2_to_link1
+    - link3_to_link2
+    - link3_to_link4
+    - link4_to_foot
   # TOLERANCE:
   constraints:
     goal_time: 5.0
-    j0:
+    link1_to_foot:
       trajectory: 0.02
       goal: 0.01
-    j1:
+    link2_to_link1:
       trajectory: 0.02
       goal: 0.01
-    j3:
+    link3_to_link4:
       trajectory: 0.02
       goal: 0.01
-    j4:
+    link4_to_foot:
       trajectory: 0.02
       goal: 0.01
     j5:

@@ -36,25 +36,32 @@
    Desc:   Helper ros_control hardware interface that loads configurations
 */
 
-#include "../include/inchworm_hw_interface.h"
+#include <ros_control_boilerplate/generic_hw_interface.h>
 #include <limits>
 
 // ROS parameter loading
 #include <rosparam_shortcuts/rosparam_shortcuts.h>
 
-namespace inchworm_hw_interface
+namespace ros_control_boilerplate
 {
-InchwormHWInterface::InchwormHWInterface(const ros::NodeHandle& nh)
-  : name_("inchworm_hw_interface"), nh_(nh), use_rosparam_joint_limits_(false)
+GenericHWInterface::GenericHWInterface(const ros::NodeHandle& nh, urdf::Model* urdf_model)
+  : name_("generic_hw_interface"), nh_(nh), use_rosparam_joint_limits_(false), use_soft_limits_if_available_(false)
 {
+  // Check if the URDF model needs to be loaded
+  if (urdf_model == NULL)
+    loadURDF(nh, "robot_description");
+  else
+    urdf_model_ = urdf_model;
+
   // Load rosparams
-  ros::NodeHandle rpnh(nh_, "inchworm_hw_interface");
+  ros::NodeHandle rpnh(
+      nh_, "hardware_interface");  // TODO(davetcoleman): change the namespace to "generic_hw_interface" aka name_
   std::size_t error = 0;
   error += !rosparam_shortcuts::get(name_, rpnh, "joints", joint_names_);
   rosparam_shortcuts::shutdownIfError(name_, error);
 }
 
-void InchwormHWInterface::init()
+void GenericHWInterface::init()
 {
   num_joints_ = joint_names_.size();
 
@@ -106,10 +113,10 @@ void InchwormHWInterface::init()
   registerInterface(&velocity_joint_interface_);  // From RobotHW base class.
   registerInterface(&effort_joint_interface_);    // From RobotHW base class.
 
-  ROS_INFO_STREAM_NAMED(name_, "InchwormHWInterface Ready.");
+  ROS_INFO_STREAM_NAMED(name_, "GenericHWInterface Ready.");
 }
 
-void InchwormHWInterface::registerJointLimits(const hardware_interface::JointHandle& joint_handle_position,
+void GenericHWInterface::registerJointLimits(const hardware_interface::JointHandle& joint_handle_position,
                                              const hardware_interface::JointHandle& joint_handle_velocity,
                                              const hardware_interface::JointHandle& joint_handle_effort,
                                              std::size_t joint_id)
@@ -124,6 +131,42 @@ void InchwormHWInterface::registerJointLimits(const hardware_interface::JointHan
   joint_limits_interface::JointLimits joint_limits;     // Position
   joint_limits_interface::SoftJointLimits soft_limits;  // Soft Position
   bool has_joint_limits = false;
+  bool has_soft_limits = false;
+
+  // Get limits from URDF
+  if (urdf_model_ == NULL)
+  {
+    ROS_WARN_STREAM_NAMED(name_, "No URDF model loaded, unable to get joint limits");
+    return;
+  }
+
+  // Get limits from URDF
+  urdf::JointConstSharedPtr urdf_joint = urdf_model_->getJoint(joint_names_[joint_id]);
+
+  // Get main joint limits
+  if (urdf_joint == NULL)
+  {
+    ROS_ERROR_STREAM_NAMED(name_, "URDF joint not found " << joint_names_[joint_id]);
+    return;
+  }
+
+  // Get limits from URDF
+  if (joint_limits_interface::getJointLimits(urdf_joint, joint_limits))
+  {
+    has_joint_limits = true;
+    ROS_DEBUG_STREAM_NAMED(name_, "Joint " << joint_names_[joint_id] << " has URDF position limits ["
+                                           << joint_limits.min_position << ", " << joint_limits.max_position << "]");
+    if (joint_limits.has_velocity_limits)
+      ROS_DEBUG_STREAM_NAMED(name_, "Joint " << joint_names_[joint_id] << " has URDF velocity limit ["
+                                             << joint_limits.max_velocity << "]");
+  }
+  else
+  {
+    if (urdf_joint->type != urdf::Joint::CONTINUOUS)
+      ROS_WARN_STREAM_NAMED(name_, "Joint " << joint_names_[joint_id]
+                                            << " does not have a URDF "
+                                               "position limit");
+  }
 
   // Get limits from ROS param
   if (use_rosparam_joint_limits_)
@@ -137,6 +180,22 @@ void InchwormHWInterface::registerJointLimits(const hardware_interface::JointHan
         ROS_DEBUG_STREAM_NAMED(name_, "Joint " << joint_names_[joint_id] << " has rosparam velocity limit ["
                                                << joint_limits.max_velocity << "]");
     }  // the else debug message provided internally by joint_limits_interface
+  }
+
+  // Get soft limits from URDF
+  if (use_soft_limits_if_available_)
+  {
+    if (joint_limits_interface::getSoftJointLimits(urdf_joint, soft_limits))
+    {
+      has_soft_limits = true;
+      ROS_DEBUG_STREAM_NAMED(name_, "Joint " << joint_names_[joint_id] << " has soft joint limits.");
+    }
+    else
+    {
+      ROS_DEBUG_STREAM_NAMED(name_, "Joint " << joint_names_[joint_id]
+                                             << " does not have soft joint "
+                                                "limits");
+    }
   }
 
   // Quit we we haven't found any limits in URDF or rosparam server
@@ -168,32 +227,49 @@ void InchwormHWInterface::registerJointLimits(const hardware_interface::JointHan
     joint_effort_limits_[joint_id] = joint_limits.max_effort;
   }
 
-  ROS_DEBUG_STREAM_NAMED(name_, "Using saturation limits (not soft limits)");
-  
-  const joint_limits_interface::PositionJointSaturationHandle sat_handle_position(joint_handle_position, joint_limits);
-  pos_jnt_sat_interface_.registerHandle(sat_handle_position);
-  
-  const joint_limits_interface::VelocityJointSaturationHandle sat_handle_velocity(joint_handle_velocity, joint_limits);
-  vel_jnt_sat_interface_.registerHandle(sat_handle_velocity);
-  
-  const joint_limits_interface::EffortJointSaturationHandle sat_handle_effort(joint_handle_effort, joint_limits);
-  eff_jnt_sat_interface_.registerHandle(sat_handle_effort);
+  if (has_soft_limits)  // Use soft limits
+  {
+    ROS_DEBUG_STREAM_NAMED(name_, "Using soft saturation limits");
+    const joint_limits_interface::PositionJointSoftLimitsHandle soft_handle_position(joint_handle_position,
+                                                                                     joint_limits, soft_limits);
+    pos_jnt_soft_limits_.registerHandle(soft_handle_position);
+    const joint_limits_interface::VelocityJointSoftLimitsHandle soft_handle_velocity(joint_handle_velocity,
+                                                                                     joint_limits, soft_limits);
+    vel_jnt_soft_limits_.registerHandle(soft_handle_velocity);
+    const joint_limits_interface::EffortJointSoftLimitsHandle soft_handle_effort(joint_handle_effort, joint_limits,
+                                                                                 soft_limits);
+    eff_jnt_soft_limits_.registerHandle(soft_handle_effort);
+  }
+  else  // Use saturation limits
+  {
+    ROS_DEBUG_STREAM_NAMED(name_, "Using saturation limits (not soft limits)");
+
+    const joint_limits_interface::PositionJointSaturationHandle sat_handle_position(joint_handle_position, joint_limits);
+    pos_jnt_sat_interface_.registerHandle(sat_handle_position);
+
+    const joint_limits_interface::VelocityJointSaturationHandle sat_handle_velocity(joint_handle_velocity, joint_limits);
+    vel_jnt_sat_interface_.registerHandle(sat_handle_velocity);
+
+    const joint_limits_interface::EffortJointSaturationHandle sat_handle_effort(joint_handle_effort, joint_limits);
+    eff_jnt_sat_interface_.registerHandle(sat_handle_effort);
+  }
 }
 
-void InchwormHWInterface::reset()
+void GenericHWInterface::reset()
 {
   // Reset joint limits state, in case of mode switch or e-stop
   pos_jnt_sat_interface_.reset();
+  pos_jnt_soft_limits_.reset();
 }
 
-void InchwormHWInterface::printState()
+void GenericHWInterface::printState()
 {
   // WARNING: THIS IS NOT REALTIME SAFE
   // FOR DEBUGGING ONLY, USE AT YOUR OWN ROBOT's RISK!
   ROS_INFO_STREAM_THROTTLE(1, std::endl << printStateHelper());
 }
 
-std::string InchwormHWInterface::printStateHelper()
+std::string GenericHWInterface::printStateHelper()
 {
   std::stringstream ss;
   std::cout.precision(15);
@@ -207,7 +283,7 @@ std::string InchwormHWInterface::printStateHelper()
   return ss.str();
 }
 
-std::string InchwormHWInterface::printCommandHelper()
+std::string GenericHWInterface::printCommandHelper()
 {
   std::stringstream ss;
   std::cout.precision(15);
@@ -220,4 +296,36 @@ std::string InchwormHWInterface::printCommandHelper()
   }
   return ss.str();
 }
-}  // namespace inchworm_hw_interface
+
+void GenericHWInterface::loadURDF(const ros::NodeHandle& nh, std::string param_name)
+{
+  std::string urdf_string;
+  urdf_model_ = new urdf::Model();
+
+  // search and wait for robot_description on param server
+  while (urdf_string.empty() && ros::ok())
+  {
+    std::string search_param_name;
+    if (nh.searchParam(param_name, search_param_name))
+    {
+      ROS_INFO_STREAM_NAMED(name_, "Waiting for model URDF on the ROS param server at location: " << nh.getNamespace()
+                                                                                                  << search_param_name);
+      nh.getParam(search_param_name, urdf_string);
+    }
+    else
+    {
+      ROS_INFO_STREAM_NAMED(name_, "Waiting for model URDF on the ROS param server at location: " << nh.getNamespace()
+                                                                                                  << param_name);
+      nh.getParam(param_name, urdf_string);
+    }
+
+    usleep(100000);
+  }
+
+  if (!urdf_model_->initString(urdf_string))
+    ROS_ERROR_STREAM_NAMED(name_, "Unable to load URDF model");
+  else
+    ROS_DEBUG_STREAM_NAMED(name_, "Received URDF from param server");
+}
+
+}  // namespace ros_control_boilerplate
