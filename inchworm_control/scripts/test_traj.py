@@ -17,13 +17,18 @@ if __name__ == "__main__":
     for i in range(10):
         zero_pose.header.stamp = rospy.Time.now()
         state_pub.publish(zero_pose)
-        rospy.sleep(0.1)
+        rospy.sleep(1)
 
-    lower_bound = 30
-    upper_bound = 0
+    joint = int(input("Motor (0-4): "))
+
+    lower_bound = int(input("Start pose (deg): "))
+    upper_bound = int(input("End pose (deg): "))
 
     total_time = 3
     timestep = 0.1
+
+    print(f"Motion time: {total_time}s")
+    print(f"Timestep: {timestep*1000}ms")
 
     pts = np.linspace(lower_bound, upper_bound, int(total_time/timestep))
 
@@ -37,9 +42,7 @@ if __name__ == "__main__":
         state.name = ["j0", "j1", "j2", "j3", "j4"]
         state.position = [0]*5
 
-        state.position[1] = pts[i]
-        state.position[2] = pts[i]
-        state.position[3] = pts[i]
+        state.position[joint] = pts[i]
 
         state_pub.publish(state)
 

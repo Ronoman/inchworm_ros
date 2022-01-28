@@ -231,7 +231,7 @@ def init_pubs():
     heartbeat_pub = rospy.Publisher("heartbeat_res", Int32, queue_size=1)
     joint_poses_pub = rospy.Publisher("joint_states", JointState, queue_size=1)
     joint_goal_pub = rospy.Publisher("joint_goal", JointState, queue_size=1)
-    pid_consts_pub = rospy.Publisher("pid_consts", PIDConsts, queue_size=1)
+    pid_consts_pub = rospy.Publisher("pid_consts", PIDConsts, latch=True, queue_size=1)
     magnet_state_pub = rospy.Publisher("magnet_states", MagnetState, queue_size=1)
     debug_pub = rospy.Publisher("debug", String, queue_size=1)
     fault_pub = rospy.Publisher("fault", String, queue_size=1)
@@ -322,7 +322,10 @@ if __name__ == "__main__":
         # If it's a valid command, parse it. Otherwise, skip this character
         if type_char in char_fn_map:
             if VERBOSE:
-                print(f"Received {type_char.decode()} message")
+                # Message command characters to ignore
+                suppress = ["d", "j"]
+                if type_char.decode() not in suppress:
+                    print(f"Received {type_char.decode()} message")
 
             # Skip 7 padding bytes
             _ = serial_port.read(7)
