@@ -9,11 +9,11 @@ generic_hw_control_loop:
 # Settings for ros_control hardware interface
 hardware_interface:
   joints:
-    - link1_to_foot
-    - link2_to_link1
-    - link3_to_link2
-    - link3_to_link4
-    - link4_to_foot
+    - iw_ankle_foot_bottom
+    - iw_beam_ankle_bottom
+    - iw_mid_joint
+    - iw_beam_ankle_top
+    - iw_ankle_foot_top
   sim_control_mode: 1  # 0: position, 1: velocity
 # Publish all joint states
 # Creates the /joint_states topic necessary in ROS
@@ -26,8 +26,8 @@ controller_list:
     default: True
     type: FollowJointTrajectory
     joints:
-      - link1_to_foot
-      - link2_to_link1
-      - link3_to_link2
-      - link3_to_link4
-      - link4_to_foot
+      - iw_ankle_foot_bottom
+      - iw_beam_ankle_bottom
+      - iw_mid_joint
+      - iw_beam_ankle_top
+      - iw_ankle_foot_top

@@ -8,11 +8,11 @@
       <plot mode="TimeSeries" style="Lines">
        <range right="68.779979" top="0.140076" bottom="-0.205994" left="63.792729"/>
        <limitY/>
-       <curve name="/hw_interface/joint_states/link1_to_foot/position" color="#1f77b4"/>
-       <curve name="/hw_interface/joint_states/link2_to_link1/position" color="#d62728"/>
-       <curve name="/hw_interface/joint_states/link3_to_link2/position" color="#1ac938"/>
-       <curve name="/hw_interface/joint_states/link3_to_link4/position" color="#ff7f0e"/>
-       <curve name="/hw_interface/joint_states/link4_to_foot/position" color="#f14cc1"/>
+       <curve name="/hw_interface/joint_states/iw_ankle_foot_bottom/position" color="#1f77b4"/>
+       <curve name="/hw_interface/joint_states/iw_beam_ankle_bottom/position" color="#d62728"/>
+       <curve name="/hw_interface/joint_states/iw_mid_joint/position" color="#1ac938"/>
+       <curve name="/hw_interface/joint_states/iw_beam_ankle_top/position" color="#ff7f0e"/>
+       <curve name="/hw_interface/joint_states/iw_ankle_foot_top/position" color="#f14cc1"/>
       </plot>
      </DockArea>
     </DockSplitter>

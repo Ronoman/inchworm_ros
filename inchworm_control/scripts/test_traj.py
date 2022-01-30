@@ -11,7 +11,7 @@ if __name__ == "__main__":
     state_pub = rospy.Publisher("joint_state_test", JointState, queue_size=1)
 
     zero_pose = JointState()
-    zero_pose.name = ["link1_to_foot", "link2_to_link1", "link3_to_link2", "link3_to_link4", "link4_to_foot"]
+    zero_pose.name = ["iw_ankle_foot_bottom", "iw_beam_ankle_bottom", "iw_mid_joint", "iw_beam_ankle_top", "iw_ankle_foot_top"]
     zero_pose.position = [0]*5
 
     for i in range(10):
@@ -39,7 +39,7 @@ if __name__ == "__main__":
     for i in range(len(pts)):
         state = JointState()
 
-        state.name = ["link1_to_foot", "link2_to_link1", "link3_to_link2", "link3_to_link4", "link4_to_foot"]
+        state.name = ["iw_ankle_foot_bottom", "iw_beam_ankle_bottom", "iw_mid_joint", "iw_beam_ankle_top", "iw_ankle_foot_top"]
         state.position = [0]*5
 
         state.position[joint] = pts[i]

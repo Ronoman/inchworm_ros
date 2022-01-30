@@ -18,7 +18,7 @@ if __name__ == "__main__":
     msg = JointTrajectory()
     msg.header.frame_id = "world"
 
-    msg.joint_names = ["link1_to_foot", "link2_to_link1", "link3_to_link2", "link3_to_link4", "link4_to_foot"]
+    msg.joint_names = ["iw_ankle_foot_bottom", "iw_beam_ankle_bottom", "iw_mid_joint", "iw_beam_ankle_top", "iw_ankle_foot_top"]
 
     traj_pts = []
 

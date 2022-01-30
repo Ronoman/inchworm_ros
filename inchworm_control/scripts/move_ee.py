@@ -56,11 +56,11 @@ def printJointAngles():
     rads = current_joint_states.position
     angles = [(float(math.degrees(r))) for r in rads]
     names = current_joint_states.name
-    joint0 = names.index('link1_to_foot')
-    joint1 = names.index('link2_to_link1')
-    joint2 = names.index('link3_to_link2')
-    joint3 = names.index('link3_to_link4')
-    joint4 = names.index('link4_to_foot')
+    joint0 = names.index('iw_ankle_foot_bottom')
+    joint1 = names.index('iw_beam_ankle_bottom')
+    joint2 = names.index('iw_mid_joint')
+    joint3 = names.index('iw_beam_ankle_top')
+    joint4 = names.index('iw_ankle_foot_top')
     
     print(f"Joint 0: {angles[joint0]}")
     print(f"Joint 1: {angles[joint1]}")
@@ -88,7 +88,7 @@ if __name__ == "__main__":
     while current_joint_states is None:
         rospy.sleep(1)
 
-    trans = getTransform("foot", "other_foot", buffer, listener).transform
+    trans = getTransform("iw_foot_bottom", "iw_foot_top", buffer, listener).transform
     (r, p, y) = transToRPY(trans)
 
     print(f"Reference frame: {group.get_planning_frame()}")

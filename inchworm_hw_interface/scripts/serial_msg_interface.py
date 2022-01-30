@@ -78,7 +78,7 @@ def joint_poses(byte_arr):
     joint_state_msg.header.stamp = rospy.Time.now()
 
     # TODO: Figure out the naming convention for joints, because this is bad and inconsistent
-    joint_state_msg.name = ["link1_to_foot", "link2_to_link1", "link3_to_link2", "link3_to_link4", "link4_to_foot"]
+    joint_state_msg.name = ["iw_ankle_foot_bottom", "iw_beam_ankle_bottom", "iw_mid_joint", "iw_beam_ankle_top", "iw_ankle_foot_top"]
 
     for pos in poses[:5]:
         joint_state_msg.position.append(math.radians(pos))
@@ -100,7 +100,7 @@ def joint_goal(byte_arr):
     joint_state_msg.header.stamp = rospy.Time.now()
 
     # TODO: Figure out the naming convention for joints, because this is bad and inconsistent
-    joint_state_msg.name = ["link1_to_foot", "link2_to_link1", "link3_to_link2", "link3_to_link4", "link4_to_foot"]
+    joint_state_msg.name = ["iw_ankle_foot_bottom", "iw_beam_ankle_bottom", "iw_mid_joint", "iw_beam_ankle_top", "iw_ankle_foot_top"]
 
     for pos in poses[:5]:
         joint_state_msg.position.append(math.radians(pos))
