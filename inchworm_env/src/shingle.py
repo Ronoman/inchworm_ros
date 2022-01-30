@@ -1,7 +1,7 @@
 import enum
 from enum import Enum
-from tkinter import LEFT
 
+from inchworm_env.msg import ShingleMsg
 # all x and y are in array coords currently
 
 
@@ -44,7 +44,7 @@ class Shingle:
     neighbors_status = [-1 * 6]
     on_frontier = False
     edge = EdgeStatus.NO_EDGE
-    shingle_type = ShingleType.NORMAL_SHINGLE
+    is_half_shingle = False
     roof = None
     shingle_status = ShingleStatus.UNINSTALLED
     
@@ -52,9 +52,9 @@ class Shingle:
     def __init__(self, id, is_half_shingle):
         self.id = id
         self.on_frontier = False
-        if is_half_shingle:
-            self.shingle_type = ShingleType.HALF_SHINGLE
-        pass
+        self.is_half_shingle = is_half_shingle
+
+
 
     def place_shingle(self, x, y,):
         self.x_corrd = x
@@ -82,4 +82,18 @@ class Shingle:
     def update_neighbor(self, id, n_locatation, n_status):
         self.neighbors_ids[n_locatation] = id
         self.neighbors_status = n_status
+
+
+    def to_message(self):
+        msg = ShingleMsg()
+        msg.id = self.id
+        msg.is_placed = self.is_placed
+        msg.x_corrd = self.x_coord
+        msg.y_corrd = self.y_coord
+        msg.neighbors_ids = self.neighbors_ids
+        msg.neighbors_status = self.neighbors_status
+        msg.on_frontier = self.on_frontier
+        msg.is_half_shingle = self.is_half_shingle
+        msg.shingle_status = self.shingle_status
+        return msg
         
