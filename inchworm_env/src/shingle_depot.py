@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 
-import rospy, rospkg, math, shingle, sys
+import rospy, rospkg, math, shingle, sys, std_msgs
 
-from inchworm_env.msg import Shingle
+from inchworm_env.msg import ShingleMsg
+from inchworm_env.srv import *
 
 
 
@@ -32,7 +33,7 @@ def createShingle(req, shingle_depot):
     # TODO: include a check to make sure that a robot is within one shingle of the depot
     shingle_count = shingle_depot.increment_shingle_count()
     new_shingle = Shingle(shingle_count, req.half_shingle)
-    return inchworm_env.srv.RequestShingleResponse(new_shingle)
+    return RequestShingleResponse(new_shingle)
 
 def moveShingleDepot(location, shingle_depot):
     if location > shingle_depot.depot_position:
@@ -46,13 +47,13 @@ if __name__ == "__main__":
 
     roof_width = sys.argv[1]
 
-    shingle_depot = ShingleDepot()
+    shingle_depot = ShingleDepot(roof_width)
 
-    s = rospy.Service('request_new_shingle', inchworm_env.srv.RequestShingle, lambda msg: createShingle(msg, shingle_depot))
+    s = rospy.Service('request_new_shingle', RequestShingle, lambda msg: createShingle(msg, shingle_depot))
     
-    rospy.Subscriber("move_depot", int, lambda msg: moveShingleDepot(msg, shingle_depot))
+    rospy.Subscriber("move_depot", std_msgs.msg.Int8, lambda msg: moveShingleDepot(msg, shingle_depot))
 
-    position_pub = rospy.Publisher("/shingle_depot/position", int, queue_size=1)
+    position_pub = rospy.Publisher("/shingle_depot/position", std_msgs.msg.Int8, queue_size=1)
     last_depot_postion = shingle_depot.get_location()
     while not rospy.is_shutdown():
         if last_depot_postion != shingle_depot.get_location():

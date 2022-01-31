@@ -4,9 +4,18 @@ import rospy, rospkg, math, sys
 
 from inchworm_env.msg import ShingleMsg, RoofState
 from roof import Roof
+from shingle import Shingle, ShingleStatus
 
 
 def placeShingle(req, roof):
+    shingle = Shingle(req.shingle)
+    # need to create responce message 
+    if (roof[req.x_coord][req.y_coord] == None):
+        shingle.shingle_status = ShingleStatus.PLACED
+        shingle.x_coord = req.x_coord
+        shingle.y_coord = req.y_coord
+        roof[req.x_coord][req.y_coord] = shingle
+        
     pass
 
 def pickupShingle(req, roof):

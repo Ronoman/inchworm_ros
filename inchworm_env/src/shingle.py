@@ -53,6 +53,18 @@ class Shingle:
         self.is_half_shingle = is_half_shingle
 
 
+    def __init__(self, msg):
+        self.id = msg.id
+        self.is_placed = msg.is_placed
+        self.x_coord = msg.x_corrd
+        self.y_coord = msg.y_corrd
+        self.neighbors_ids = msg.neighbors_ids
+        self.neighbors_status = msg.neighbors_status
+        self.on_frontier = msg.on_frontier
+        self.is_half_shingle = msg.is_half_shingle
+        self.shingle_status = msg.shingle_status
+
+
 
     def place_shingle(self, x, y,):
         self.x_corrd = x

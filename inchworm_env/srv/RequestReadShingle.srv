@@ -1,5 +1,4 @@
 Header header
-int8 robot_id
-bool half_shingle
+int8 shingle_id
 ---
 ShingleMsg shingle
