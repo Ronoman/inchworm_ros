@@ -37,7 +37,6 @@ class ShingleType(Enum):
 class Shingle:
 
     id = -1
-    is_placed = False
     x_coord = -1
     y_coord = -1
     neighbors_ids = [-1 * 6]
@@ -45,7 +44,6 @@ class Shingle:
     on_frontier = False
     edge = EdgeStatus.NO_EDGE
     shingle_type = ShingleType.NORMAL_SHINGLE
-    roof = None
     shingle_status = ShingleStatus.UNINSTALLED
     
 
@@ -71,9 +69,7 @@ class Shingle:
     def install_shingle(self, x, y, roof):
         self.x_corrd = x
         self.y_corrd = y
-        self.is_placed = True
         self.on_frontier = True
-        self.roof = roof
         self.shingle_status = ShingleStatus.INSTALLED
 
 

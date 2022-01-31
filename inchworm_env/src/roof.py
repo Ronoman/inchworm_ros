@@ -6,7 +6,7 @@ from inchworm_env.src.shingle import NeighborIndex
 
 
 class Roof():
-
+    # these arrays are used to lookup the correct NeighborIndex based on the difference in array coords
     EVEN_ROW_N_LOOKUP = [(1, 0), (1, -1), (0, -1), (-1, 0), (0, 1), (1, 1)]
     ODD_ROW_N_LOOKUP = [(1, 0), (0, -1), (-1, -1), (-1, 0), (-1, 1), (0, 1)]
     width = 0
@@ -56,5 +56,5 @@ class Roof():
         
         
 
-    # write hex to array coords function
+
                 
