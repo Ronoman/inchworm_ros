@@ -4,6 +4,8 @@ from inchworm_env.src.shingle import NeighborIndex
 
 # all x and y are in array coords currently
 
+from inchworm_env.msg import ShingleMsg, RoofState
+import rospy
 
 class Roof():
     # these arrays are used to lookup the correct NeighborIndex based on the difference in array coords
@@ -11,7 +13,7 @@ class Roof():
     ODD_ROW_N_LOOKUP = [(1, 0), (0, -1), (-1, -1), (-1, 0), (-1, 1), (0, 1)]
     width = 0
     height = 0
-    shingle_array = []
+    shingle_array = [[]]
 
     def __init__(self, width, height):
         self.shingle_array = [[None] * width] * height
@@ -46,7 +48,14 @@ class Roof():
             return self.ODD_ROW_N_LOOKUP.index((delta_x, delta_y))
 
 
-
+    def spawn_first_row(self):
+        for i in range(self.width):
+            is_half_shingle = False
+            if i + 1 == self.width:
+                is_half_shingle == True
+            new_shingle = Shingle(i, is_half_shingle)
+            self.shingle_array[i][0] = new_shingle
+        
 
     def update_shingle_neighbor(self, target_shingle_x, target_shingle_y, shingle_n_x, shingle_n_y, n_id, n_status):
         # figure out what the neighbor is based on x, y
@@ -55,6 +64,20 @@ class Roof():
         target_shingle.update_neighbor(n_id, n_index, n_status)
         
         
+    def to_message(self):
+        roof_state = RoofState()
+        roof_state.width = self.width
+        roof_state.height = self.height
+        shingle_array_temp = []
+        for i in range(self.width):
+            shingle_array_temp.extend(self.shingle_array[i])
+        shingle_array_msg = []
+        for shingle in shingle_array_temp:
+            shingle_array_msg.append(shingle.to_message())
+        roof_state.shingles = shingle_array_msg
+        roof_state.header.stamp = rospy.Time.now()
+        return roof_state
+
 
 
                 
