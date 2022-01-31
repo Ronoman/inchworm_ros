@@ -4,7 +4,10 @@
   <arg name="gui" default="true"/>
   <arg name="paused" default="true"/>
 
-  <include file="$(find gazebo_ros)/launch/empty_world.launch">
+  <arg name="real_robot" default="false" />
+
+  <!-- Launch Gazebo, only if we're not running on the real robot-->
+  <include file="$(find gazebo_ros)/launch/empty_world.launch" unless="$(arg real_robot)">
     <arg name="gui" default="true"/>
     <arg name="paused" default="false"/>
   </include>
@@ -26,11 +29,13 @@
 
   <node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false" output="screen"  args="--namespace=/inchworm
         joint_state_controller
-        arm_controller" />
+        arm_controller" unless="$(arg real_robot)"/>
 
   <node name="spawn_model" pkg="gazebo_ros" type="spawn_model" args="-param $(arg model_name)/robot_description -urdf -model $(arg model_name)" output="screen" />
 
   <node name="rviz" pkg="rviz" type="rviz" args="-d $(find inchworm_description)/rviz/inchworm_frames.rviz" />
+
+  <node name="serial_interface" pkg="inchworm_hw_interface" type="serial_msg_interface.py" output="screen" ns="hw_interface" />
 
   <include file="$(find inchworm_moveit)/launch/move_group.launch" />
 </launch>

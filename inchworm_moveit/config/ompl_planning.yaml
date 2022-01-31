@@ -154,5 +154,5 @@ ltr:
     - LazyPRMstar
     - SPARS
     - SPARStwo
-  projection_evaluator: joints(link1_to_foot,link2_to_link1)
+  projection_evaluator: joints(iw_ankle_foot_bottom,iw_beam_ankle_bottom)
   longest_valid_segment_fraction: 0.005
