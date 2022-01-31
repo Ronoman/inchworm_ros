@@ -5,6 +5,22 @@ import rospy, rospkg, math, sys
 from inchworm_env.msg import ShingleMsg, RoofState
 from roof import Roof
 
+
+def placeShingle(req, roof):
+    pass
+
+def pickupShingle(req, roof):
+    pass
+
+def installShingle(req, roof):
+    pass
+
+def update_shingle(req, roof):
+    pass
+
+def read_shingle(req, roof):
+    pass
+
 if __name__ == "__main__":
     rospy.init_node("roof_manager")
 
@@ -17,8 +33,19 @@ if __name__ == "__main__":
     rospack = rospkg.RosPack()
     # publish roof state
 
-    pub = rospy.Publisher("roof/roof_state", RoofState, queue_size=1)
+    roof_pub = rospy.Publisher("roof/roof_state", RoofState, queue_size=1)
     # sub to update shingle topic
     # service call to do varius things to shingles
     while not rospy.is_shutdown():
+        roof_pub.publish(roof.to_message())
         pass
+
+
+''' 
+    services needed:
+        place shingle service
+        pick up placed shingle
+        install shingle
+        update shingle
+        read shingle - not nessarly needed, could just make it parse the roof state, but this would make it closer to the actual robot functinality 
+'''

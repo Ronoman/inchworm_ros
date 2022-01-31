@@ -1,4 +1,3 @@
-import enum
 from enum import Enum
 
 from inchworm_env.msg import ShingleMsg
@@ -43,7 +42,7 @@ class Shingle:
     neighbors_status = [-1 * 6]
     on_frontier = False
     edge = EdgeStatus.NO_EDGE
-    shingle_type = ShingleType.NORMAL_SHINGLE
+    is_half_shingle = False
 
     shingle_status = ShingleStatus.UNINSTALLED
     

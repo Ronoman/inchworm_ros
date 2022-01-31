@@ -74,7 +74,7 @@ class Roof():
         shingle_array_msg = []
         for shingle in shingle_array_temp:
             shingle_array_msg.append(shingle.to_message())
-        roof_state.shingles = shingle_array_msg
+        roof_state.shingles = shingle_array_msg # idea - make this an occupancy grid instead, although it might be useful to have this message floating around
         roof_state.header.stamp = rospy.Time.now()
         return roof_state
 
