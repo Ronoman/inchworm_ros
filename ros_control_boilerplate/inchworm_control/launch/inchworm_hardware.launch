@@ -24,11 +24,13 @@
   </group>
 
   <!-- Convert joint states to /tf tranforms -->
-    <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher">
-      <remap from="robot_description" to="inchworm/robot_description" />
-      <remap from="joint_states" to="inchworm/joint_states" />
-    </node>
+  <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher">
+    <remap from="robot_description" to="inchworm/robot_description" />
+    <remap from="joint_states" to="inchworm/joint_states" />
+  </node>
 
-  <node name="rviz" type="rviz" pkg="rviz" args="-d $(find inchworm_description)/rviz/hardware_viz.rviz" />
+  <include file="$(find inchworm_moveit)/launch/move_group.launch" />
+
+  <node name="rviz" type="rviz" pkg="rviz" args="-d $(find inchworm_description)/rviz/inchworm_frames.rviz" />
 
 </launch>
