@@ -79,7 +79,7 @@ class Shingle():
         
 
     
-    def install_shingle(self, x, y, roof):
+    def install_shingle(self, x, y):
         self.x_coord = x
         self.y_coord = y
         self.on_frontier = True

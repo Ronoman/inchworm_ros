@@ -15,30 +15,30 @@ class Roof():
     shingle_array = [[]]
 
     def __init__(self, width, height):
-        self.shingle_array = [[None] * width] * height
+        self.shingle_array = [ [None]*width for i in range(height)]
         self.width = width
         self.height = height
         pass
 
     def place_shingle(self, shingle, x, y):
-        self.shingle_array[x][y] = shingle
+        self.shingle_array[y][x] = shingle
         shingle.place_shingle(x, y, self)
 
 
     def pickup_shingle(self, x, y):
-        shingle = self.shingle_array[x][y].pickup_shingle()
-        self.shingle_array[x][y] = None
+        shingle = self.shingle_array[y][x].pickup_shingle()
+        self.shingle_array[y][x] = None
         return shingle
 
     def install_shingle(self, shingle, x, y):
-        self.shingle_array[x][y] = shingle
+        self.shingle_array[y][x] = shingle
         shingle.install_shingle(x, y, self)
 
     def get_shingle(self, x, y):
-        return self.shingle_array[x][y]
+        return self.shingle_array[y][x]
     
     def set_shingle(self, x, y, shingle):
-        self.shingle_array[x][y] = shingle
+        self.shingle_array[y][x] = shingle
     
     def get_shingle_n_index(self, t_x, t_y, n_x, n_y):
         delta_x = t_x - n_x
@@ -55,12 +55,13 @@ class Roof():
             if i + 1 == self.width:
                 is_half_shingle == True
             new_shingle = Shingle(i, is_half_shingle)
-            self.shingle_array[i][0] = new_shingle
+            new_shingle.install_shingle(i, 0)
+            self.shingle_array[0][i] = new_shingle
         
 
     def update_shingle_neighbor(self, target_shingle_x, target_shingle_y, shingle_n_x, shingle_n_y, n_id, n_status):
-        # figure out what the neighbor is based on x, y
-        target_shingle = self.shingle_array[target_shingle_x][target_shingle_y]
+        # figure out what the neighbor is based on x, y 
+        target_shingle = self.shingle_array[target_shingle_y][target_shingle_x]
         n_index = self.get_shingle_n_index(target_shingle_x, target_shingle_y, shingle_n_x, shingle_n_y)
         target_shingle.update_neighbor(n_id, n_index, n_status)
         
@@ -73,6 +74,8 @@ class Roof():
         for i in range(self.width):
             shingle_array_temp.extend(self.shingle_array[i])
         shingle_array_msg = []
+        rospy.loginfo(self.shingle_array)
+
         for shingle in shingle_array_temp:
             if shingle is None:
                 shingle_array_msg.append(0)
