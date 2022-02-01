@@ -35,7 +35,7 @@
 
   <node name="rviz" pkg="rviz" type="rviz" args="-d $(find inchworm_description)/rviz/inchworm_frames.rviz" />
 
-  <node name="serial_interface" pkg="inchworm_hw_interface" type="serial_msg_interface.py" output="screen" ns="hw_interface" />
+  <node name="serial_interface" pkg="inchworm_hw_interface" type="serial_msg_interface.py" output="screen" ns="inchworm" />
 
   <include file="$(find inchworm_moveit)/launch/move_group.launch" />
 </launch>

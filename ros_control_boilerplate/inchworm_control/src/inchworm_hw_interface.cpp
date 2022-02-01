@@ -46,8 +46,8 @@ InchwormHWInterface::InchwormHWInterface(ros::NodeHandle& nh, urdf::Model* urdf_
 {
   ROS_INFO_NAMED("inchworm_hw_interface", "InchwormHWInterface Ready.");
 
-  joint_state_sub = nh.subscribe("/hw_interface/joint_states", 1000, &InchwormHWInterface::updateJointStates, this);
-  joint_goal_pub = nh.advertise<sensor_msgs::JointState>("/hw_interface/joint_goal", 1000);
+  joint_state_sub = nh.subscribe("joint_states", 1000, &InchwormHWInterface::updateJointStates, this);
+  joint_goal_pub = nh.advertise<sensor_msgs::JointState>("set_joint_goal", 1000);
 }
 
 void InchwormHWInterface::updateJointStates(const sensor_msgs::JointState::ConstPtr& msg)
@@ -74,11 +74,11 @@ void InchwormHWInterface::write(ros::Duration& elapsed_time)
 
   sensor_msgs::JointState command;
 
-  // command.name.push_back("iw_ankle_foot_bottom");
-  // command.name.push_back("iw_beam_ankle_bottom");
+  command.name.push_back("iw_ankle_foot_bottom");
+  command.name.push_back("iw_beam_ankle_bottom");
   command.name.push_back("iw_mid_joint");
-  // command.name.push_back("iw_beam_ankle_top");
-  // command.name.push_back("iw_ankle_foot_top");
+  command.name.push_back("iw_beam_ankle_top");
+  command.name.push_back("iw_ankle_foot_top");
 
   command.position = joint_position_command_;
 
