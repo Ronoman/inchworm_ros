@@ -5,40 +5,58 @@ import numpy as np
 
 from sensor_msgs.msg import JointState
 
+start_pose = None
+
+def poseCB(msg):
+    global start_pose
+
+    start_pose = msg
+
 if __name__ == "__main__":
     rospy.init_node("test_traj")
 
-    state_pub = rospy.Publisher("/hw_interface/joint_goal", JointState, queue_size=1)
+    goal_pub = rospy.Publisher("/hw_interface/set_joint_goal", JointState, queue_size=1)
+    state_sub = rospy.Subscriber("/hw_interface/joint_goal", JointState, poseCB)
 
-    zero_pose = JointState()
-    zero_pose.name = ["iw_ankle_foot_bottom", "iw_beam_ankle_bottom", "iw_mid_joint", "iw_beam_ankle_top", "iw_ankle_foot_top"]
-    zero_pose.position = [0]*5
+    while not rospy.is_shutdown() and start_pose is None:
+        print(start_pose)
+        rospy.sleep(0.5)
 
-    joint = int(input("Motor (0-4): "))
+    start_pose_copy = start_pose
 
-    lower_bound = int(input("Start pose (deg): "))
-    upper_bound = int(input("End pose (deg): "))
+    target_positions = []
 
-    total_time = 3
-    timestep = 0.1
+    for i in range(5):
+        target_positions.append(float(input(f"Joint {i} target pose (rads): ")))
+    total_time  = float(input("Total time (s): "))
+
+    timestep = 0.05
 
     print(f"Motion time: {total_time}s")
     print(f"Timestep: {timestep*1000}ms")
 
-    pts = np.linspace(lower_bound, upper_bound, int(total_time/timestep))
+    interp_pts = []
+
+    for i in range(5):
+        interp_pts.append(np.linspace(start_pose_copy.position[i], target_positions[i], int(total_time/timestep)))
 
     start = rospy.Time.now()
 
     input("Press enter to start trajectory")
 
-    for i in range(len(pts)):
+    # Converts an array of the form [[joint 1 positions], [joint 2 positions], ..., [joint 5 positions]] to
+    #                               [[j1, j2, j3, j4, j5 timestep 1], [j1, j2, j3, j4, j5 timestep 2], ...]
+    # so that it can be put easily into a JointState message
+    joint_states = list(zip(*interp_pts))
+
+    for i in range(len(joint_states)):
         state = JointState()
 
         state.name = ["iw_ankle_foot_bottom", "iw_beam_ankle_bottom", "iw_mid_joint", "iw_beam_ankle_top", "iw_ankle_foot_top"]
         state.position = [0]*5
 
-        state.position[joint] = pts[i]
+        state.position = joint_states[i]
 
-        state_pub.publish(state)
+        goal_pub.publish(state)
 
         rospy.sleep(timestep)
