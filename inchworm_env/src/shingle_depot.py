@@ -33,7 +33,9 @@ def createShingle(req, shingle_depot):
     # TODO: include a check to make sure that a robot is within one shingle of the depot
     shingle_count = shingle_depot.increment_shingle_count()
     new_shingle = Shingle(shingle_count, req.half_shingle)
-    return RequestShingleResponse(new_shingle)
+    responce = RequestShingleResponse()
+    responce.shingle = new_shingle.to_message()
+    return 
 
 def moveShingleDepot(location, shingle_depot):
     if location > shingle_depot.depot_position:
