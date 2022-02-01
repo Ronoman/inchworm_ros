@@ -50,6 +50,7 @@ class Roof():
 
 
     def spawn_first_row(self):
+        rospy.loginfo("spawining first row of shingles")
         for i in range(self.width):
             is_half_shingle = False
             if i + 1 == self.width:
@@ -74,7 +75,7 @@ class Roof():
         for i in range(self.width):
             shingle_array_temp.extend(self.shingle_array[i])
         shingle_array_msg = []
-        rospy.loginfo(self.shingle_array)
+        # rospy.loginfo(self.shingle_array)
 
         for shingle in shingle_array_temp:
             if shingle is None:

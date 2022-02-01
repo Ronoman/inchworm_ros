@@ -38,7 +38,7 @@ def createShingle(req, shingle_depot):
     return 
 
 def moveShingleDepot(location, shingle_depot):
-    if location > shingle_depot.depot_position:
+    if location.data > shingle_depot.depot_position:
         shingle_depot.move_shingle_depot_up()
 
 
@@ -54,17 +54,23 @@ if __name__ == "__main__":
 
     shingle_depot = ShingleDepot(roof_width)
 
-    request_shingle_service = rospy.Service('request_new_shingle', RequestShingle, lambda msg: createShingle(msg, shingle_depot))
+    request_shingle_service = rospy.Service('/request_new_shingle', RequestShingle, lambda msg: createShingle(msg, shingle_depot))
     
-    rospy.Subscriber("move_depot", std_msgs.msg.Int8, lambda msg: moveShingleDepot(msg, shingle_depot))
+    rospy.Subscriber("/move_depot", std_msgs.msg.Int8, lambda msg: moveShingleDepot(msg, shingle_depot))
 
     position_pub = rospy.Publisher("/shingle_depot/position", std_msgs.msg.Int8, queue_size=1)
     last_depot_postion = shingle_depot.get_location()
-
+    onceFlag = True
     r = rospy.Rate(hz)
     while not rospy.is_shutdown():
+        r.sleep()
+        if onceFlag:
+            position_pub.publish(shingle_depot.get_location())
+            rospy.loginfo("publishing inital position")
+            onceFlag = False
         if last_depot_postion != shingle_depot.get_location():
+            rospy.loginfo("publishing update position")
             position_pub.publish(shingle_depot.get_location())
             last_depot_postion = shingle_depot.get_location()
-        r.sleep()
+        
     # 

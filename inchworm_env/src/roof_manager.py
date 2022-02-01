@@ -80,15 +80,15 @@ if __name__ == "__main__":
 
     # publish roof state
 
-    roof_pub = rospy.Publisher("roof/roof_state", RoofState, queue_size=1)
+    roof_pub = rospy.Publisher("/roof/roof_state", RoofState, queue_size=1)
 
     # create services
 
-    read_shingle_service = rospy.Service('read_shingle', ReadShingle, lambda msg: read_shingle(msg, roof))
-    update_shingle_service = rospy.Service('update_shingle', UpdateShingle, lambda msg: update_shingle(msg, roof))
-    install_shingle_service = rospy.Service('install_shingle', InstallShingle, lambda msg: install_shingle(msg, roof))
-    pickup_shingle_service = rospy.Service('pickup_shingle', PickupShingle, lambda msg: pickup_shingle(msg, roof))
-    place_shingle_service = rospy.Service('place_shingle', PlaceShingle, lambda msg: place_shingle(msg, roof))
+    read_shingle_service = rospy.Service('/read_shingle', ReadShingle, lambda msg: read_shingle(msg, roof))
+    update_shingle_service = rospy.Service('/update_shingle', UpdateShingle, lambda msg: update_shingle(msg, roof))
+    install_shingle_service = rospy.Service('/install_shingle', InstallShingle, lambda msg: install_shingle(msg, roof))
+    pickup_shingle_service = rospy.Service('/pickup_shingle', PickupShingle, lambda msg: pickup_shingle(msg, roof))
+    place_shingle_service = rospy.Service('/place_shingle', PlaceShingle, lambda msg: place_shingle(msg, roof))
 
     r = rospy.Rate(hz)
     while not rospy.is_shutdown():
