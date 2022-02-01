@@ -62,12 +62,12 @@ add_message_files(
 ## Generate services in the 'srv' folder
 add_service_files(
   FILES
-  RequestInstallShingle.srv  
-  RequestPlaceShingle.srv  
+  InstallShingle.srv  
+  PlaceShingle.srv  
   RequestShingle.srv
-  RequestPickupShingle.srv
-  RequestReadShingle.srv  
-  RequestUpdateShingle.srv
+  PickupShingle.srv
+  ReadShingle.srv  
+  UpdateShingle.srv
 )
 
 ## Generate actions in the 'action' folder

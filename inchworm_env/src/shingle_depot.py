@@ -45,20 +45,26 @@ def moveShingleDepot(location, shingle_depot):
     
 if __name__ == "__main__":
     rospy.init_node("shingle_depot")
-    rospack = rospkg.RosPack()
 
-    roof_width = sys.argv[1]
+    roof_width = int(sys.argv[1])
+
+    hz = 10
+    if len(sys.argv) == 3:
+        hz = sys.argv[2]
 
     shingle_depot = ShingleDepot(roof_width)
 
-    s = rospy.Service('request_new_shingle', RequestShingle, lambda msg: createShingle(msg, shingle_depot))
+    request_shingle_service = rospy.Service('request_new_shingle', RequestShingle, lambda msg: createShingle(msg, shingle_depot))
     
     rospy.Subscriber("move_depot", std_msgs.msg.Int8, lambda msg: moveShingleDepot(msg, shingle_depot))
 
     position_pub = rospy.Publisher("/shingle_depot/position", std_msgs.msg.Int8, queue_size=1)
     last_depot_postion = shingle_depot.get_location()
+
+    r = rospy.Rate(hz)
     while not rospy.is_shutdown():
         if last_depot_postion != shingle_depot.get_location():
             position_pub.publish(shingle_depot.get_location())
             last_depot_postion = shingle_depot.get_location()
+        r.sleep()
     # 

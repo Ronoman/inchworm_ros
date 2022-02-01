@@ -1,4 +1,4 @@
 Header header
 int8 height
 int8 width
-ShingleMsg[] shingles
+int8[] shingles

@@ -1,6 +1,5 @@
-from inchworm_env.src.shingle import Shingle
-from inchworm_env.src.shingle import ShingleStatus
-from inchworm_env.src.shingle import NeighborIndex
+from shingle import Shingle, ShingleStatus, NeighborIndex
+
 
 # all x and y are in array coords currently
 
@@ -17,6 +16,8 @@ class Roof():
 
     def __init__(self, width, height):
         self.shingle_array = [[None] * width] * height
+        self.width = width
+        self.height = height
         pass
 
     def place_shingle(self, shingle, x, y):
@@ -73,7 +74,14 @@ class Roof():
             shingle_array_temp.extend(self.shingle_array[i])
         shingle_array_msg = []
         for shingle in shingle_array_temp:
-            shingle_array_msg.append(shingle.to_message())
+            if shingle is None:
+                shingle_array_msg.append(0)
+            elif shingle.shingle_status == ShingleStatus.PLACED:
+                shingle_array_msg.append(1)
+            elif shingle.shingle_status == ShingleStatus.INSTALLED:
+                shingle_array_msg.append(2)
+            else:
+                shingle_array_msg.append(-1) # this should not happen, if it does there is an error some were
         roof_state.shingles = shingle_array_msg # idea - make this an occupancy grid instead, although it might be useful to have this message floating around
         roof_state.header.stamp = rospy.Time.now()
         return roof_state

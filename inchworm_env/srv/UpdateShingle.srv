@@ -1,5 +1,4 @@
 Header header
-int8 shingle_id
 ShingleMsg shingle
 ---
 bool returnStatus
