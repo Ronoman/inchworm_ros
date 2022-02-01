@@ -8,16 +8,11 @@ from sensor_msgs.msg import JointState
 if __name__ == "__main__":
     rospy.init_node("test_traj")
 
-    state_pub = rospy.Publisher("joint_state_test", JointState, queue_size=1)
+    state_pub = rospy.Publisher("/hw_interface/joint_goal", JointState, queue_size=1)
 
     zero_pose = JointState()
     zero_pose.name = ["iw_ankle_foot_bottom", "iw_beam_ankle_bottom", "iw_mid_joint", "iw_beam_ankle_top", "iw_ankle_foot_top"]
     zero_pose.position = [0]*5
-
-    for i in range(10):
-        zero_pose.header.stamp = rospy.Time.now()
-        state_pub.publish(zero_pose)
-        rospy.sleep(1)
 
     joint = int(input("Motor (0-4): "))
 
