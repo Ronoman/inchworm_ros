@@ -1,18 +1,23 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <root>
  <tabbed_widget name="Main Window" parent="main_window">
-  <Tab containers="1" tab_name="tab1">
+  <Tab tab_name="tab1" containers="1">
    <Container>
-    <DockSplitter count="1" sizes="1" orientation="-">
+    <DockSplitter count="1" orientation="-" sizes="1">
      <DockArea name="...">
-      <plot mode="TimeSeries" style="Lines">
-       <range right="68.779979" top="0.140076" bottom="-0.205994" left="63.792729"/>
+      <plot style="Lines" mode="TimeSeries">
+       <range bottom="-0.786557" left="227.437934" top="15.385038" right="232.428761"/>
        <limitY/>
        <curve name="/hw_interface/joint_states/iw_ankle_foot_bottom/position" color="#1f77b4"/>
        <curve name="/hw_interface/joint_states/iw_beam_ankle_bottom/position" color="#d62728"/>
        <curve name="/hw_interface/joint_states/iw_mid_joint/position" color="#1ac938"/>
        <curve name="/hw_interface/joint_states/iw_beam_ankle_top/position" color="#ff7f0e"/>
        <curve name="/hw_interface/joint_states/iw_ankle_foot_top/position" color="#f14cc1"/>
+       <curve name="/current_goal/iw_ankle_foot_bottom/position" color="#1f77b4"/>
+       <curve name="/current_goal/iw_ankle_foot_top/position" color="#d62728"/>
+       <curve name="/current_goal/iw_beam_ankle_bottom/position" color="#1ac938"/>
+       <curve name="/current_goal/iw_beam_ankle_top/position" color="#ff7f0e"/>
+       <curve name="/current_goal/iw_mid_joint/position" color="#f14cc1"/>
       </plot>
      </DockArea>
     </DockSplitter>
@@ -42,9 +47,9 @@
   </plugin>
   <plugin ID="UDP Server"/>
   <plugin ID="WebSocket Server"/>
-  <plugin ID="CSV Exporter" status="idle"/>
-  <plugin ID="ROS /rosout Visualization" status="idle"/>
-  <plugin ID="ROS Topic Re-Publisher" status="idle"/>
+  <plugin status="idle" ID="CSV Exporter"/>
+  <plugin status="idle" ID="ROS /rosout Visualization"/>
+  <plugin status="idle" ID="ROS Topic Re-Publisher"/>
  </Plugins>
  <!-- - - - - - - - - - - - - - - -->
  <previouslyLoaded_Datafiles/>
