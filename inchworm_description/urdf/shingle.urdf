@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+  <robot name="shingle">
+  <link name="world"/>
+  
+  <link name="body">
+      <collision name="collision1">
+         <pose>0.0436072 0.0072239 0.127 </pose>
+	  <origin> 0 0 0  0 0 0</origin>
+	  <geometry>
+            <box>
+	      <size>0.087122 0.014478 0.254</size>
+            </box>
+          </geometry>
+        </collision> <collision name="collision2">
+	  <pose>0.09144 0.022117 0.127 0 0 1.728216842 </pose>
+	  <origin> 0 0 0  0 0 0</origin>
+	  <geometry>
+            <box>
+	      <size>0.013652 0.183003 0.254</size>
+            </box>
+          </geometry>
+        </collision>       
+	<visual name="visual">
+          <geometry>
+		  <mesh filename="package://inchworm_description/media/Demo_Shingle.dae" />
+          </geometry>
+        </visual>
+      </link>
+  </robot>
