@@ -1,6 +1,6 @@
 <launch>
-  <arg name="model_name" default="inchworm"/>
-  <arg name="model" default="updated_description"/>
+  <arg name="model_name" default="shingle"/>
+  <arg name="model" default="shingle"/>
   <arg name="gui" default="true"/>
   <arg name="paused" default="true"/>
 
@@ -15,7 +15,8 @@
   <!-- <node name="gazebo" pkg="gazebo_ros" type="gazebo" args="$(arg gui) $(arg paused) -gazebo_namespace $(arg model_name)" /> -->
   <group ns="$(arg model_name)">
 
-    <param name="/inchworm/robot_description" command="$(find xacro)/xacro $(find inchworm_description)/urdf/$(arg model).urdf"/>
+    <!-- Add another for the shingle (or robot if its loading in the shingle)-->
+    <param name="/$(arg model_name)/robot_description" command="$(find xacro)/xacro $(find inchworm_description)/urdf/$(arg model).urdf"/>
 
     <!-- <node name="tf_footprint_base" pkg="tf" type="static_transform_publisher" args="0 0 0 0 0 0 base_link base_footprint 100" /> -->
 
@@ -31,6 +32,7 @@
         joint_state_controller
         arm_controller" unless="$(arg real_robot)"/>
 
+  <!-- Add a second one -->
   <node name="spawn_model" pkg="gazebo_ros" type="spawn_model" args="-param $(arg model_name)/robot_description -urdf -model $(arg model_name)" output="screen" />
 
   <node name="rviz" pkg="rviz" type="rviz" args="-d $(find inchworm_description)/rviz/inchworm_frames.rviz" />
