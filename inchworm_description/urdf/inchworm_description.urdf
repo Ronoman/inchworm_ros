@@ -9,7 +9,7 @@
       <inertia ixx="3.8554e-05" ixy="9.4075e-07" ixz="1.709e-06" iyy="4.445e-05" iyz="1.2246e-06" izz="2.5729e-05"/>
     </inertial>
     <visual>
-      <origin xyz="-0.035 0.0425 -0.0425" rpy="1.57 0 0" />
+      <origin xyz="-0.035 0.0425 0" rpy="1.57 0 0" />
       <geometry>
         <mesh filename="package://inchworm_description/meshes/ee.stl" scale="0.001 0.001 0.001" />
       </geometry>
@@ -18,7 +18,7 @@
       </material>
     </visual>
     <collision>
-      <origin xyz="0 0 -0.027685" rpy="0 0 0" />
+      <origin xyz="0 0 0.03" rpy="0 0 0" />
       <geometry>
         <box size="0.07 0.07 0.05463" />
       </geometry>
@@ -123,7 +123,7 @@
       <inertia ixx="3.8554e-05" ixy="9.4075e-07" ixz="1.709e-06" iyy="4.445e-05" iyz="1.2246e-06" izz="2.5729e-05"/>
     </inertial>
     <visual>
-      <origin xyz="-0.035 0.0425 -0.0425" rpy="1.57 0 0" />
+      <origin xyz="-0.035 0.0425 0" rpy="1.57 0 0" />
       <geometry>
         <mesh filename="package://inchworm_description/meshes/ee.stl" scale="0.001 0.001 0.001" />
       </geometry>
@@ -132,7 +132,7 @@
       </material>
     </visual>
     <collision>
-      <origin xyz="0 0 -0.027685" rpy="0 0 0" />
+      <origin xyz="0 0 0.03" rpy="0 0 0" />
       <geometry>
         <box size="0.07 0.07 0.05463" />
       </geometry>
@@ -140,14 +140,14 @@
   </link>
 
   <joint name="foot_to_world" type="fixed">
-    <origin xyz="0 0 0.05537" rpy="0 0 0" />
+    <origin xyz="0 0 0" rpy="0 0 0" />
 
     <parent link="world" />
     <child  link="iw_foot_bottom" />
   </joint>
 
   <joint name="iw_ankle_foot_bottom" type="revolute">
-    <origin xyz="0 0 0.0625" rpy="1.57 0 0" />
+    <origin xyz="0 0 0.105" rpy="1.57 0 0" />
 
     <parent link="iw_foot_bottom" />
     <child  link="iw_ankle_bottom" />
@@ -174,7 +174,7 @@
     <child  link="iw_beam_bottom" />
 
     <axis xyz="0 0 -1" />
-    <limit effort="10" velocity="1.0" lower="-3.14" upper="3.14" />
+    <limit effort="10" velocity="1.0" lower="-0.785" upper="3.14" />
   </joint>
 
   <transmission name="t2">
@@ -195,7 +195,7 @@
     <child  link="iw_beam_top" />
 
     <axis xyz="0 0 1" />
-    <limit effort="10" velocity="1.0" lower="-3.14" upper="3.14" />
+    <limit effort="10" velocity="1.0" lower="-0.785" upper="3.14" />
   </joint>
 
   <transmission name="t3">
@@ -216,7 +216,7 @@
     <child  link="iw_ankle_top" />
 
     <axis xyz="0 0 1" />
-    <limit effort="10" velocity="1.0" lower="-3.14" upper="3.14" />
+    <limit effort="10" velocity="1.0" lower="-0.785" upper="3.14" />
   </joint>
 
   <transmission name="t4">
@@ -232,7 +232,7 @@
 
   
   <joint name="iw_ankle_foot_top" type="revolute">
-    <origin xyz="-0.0625 0 0" rpy="0 1.57 0" />
+    <origin xyz="-0.105 0 0" rpy="0 1.57 0" />
 
     <parent link="iw_ankle_top" />
     <child  link="iw_foot_top" />

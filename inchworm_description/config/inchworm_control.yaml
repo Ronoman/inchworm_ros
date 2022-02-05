@@ -3,7 +3,7 @@ inchworm:
     publish_rate: 10
     type: joint_state_controller/JointStateController
 
-  arm_controller:
+  position_trajectory_controller:
     type: "effort_controllers/JointTrajectoryController"
     joints:
       - iw_ankle_foot_bottom

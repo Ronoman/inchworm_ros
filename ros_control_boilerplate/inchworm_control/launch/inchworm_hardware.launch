@@ -7,7 +7,7 @@
   <arg     if="$(arg debug)" name="launch_prefix" value="gdb --ex run --args" />
 
   <!-- Load example URDF -->
-  <param name="/inchworm/robot_description" command="$(find xacro)/xacro $(find inchworm_description)/urdf/updated_description.urdf"/>
+  <param name="/inchworm/robot_description" command="$(find xacro)/xacro $(find inchworm_description)/urdf/inchworm_description.urdf"/>
 
   <group ns="inchworm">
 

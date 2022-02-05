@@ -2,7 +2,7 @@
 <launch>
 
   <!-- Load example URDF -->
-  <param name="robot_description" command="$(find xacro)/xacro '$(find inchworm_description)/urdf/updated_description.urdf'" />
+  <param name="robot_description" command="$(find xacro)/xacro '$(find inchworm_description)/urdf/inchworm_description.urdf'" />
     
   <!-- Show in Rviz  -->
   <node name="rviz" pkg="rviz" type="rviz" args="-d $(find inchworm_description)/launch/inchworm.rviz"/>

@@ -7,10 +7,10 @@ from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
 if __name__ == "__main__":
     rospy.init_node("basic_control")
 
-    pub = rospy.Publisher("/inchworm/arm_controller/command", JointTrajectory, queue_size=1)
+    pub = rospy.Publisher("/inchworm/position_trajectory_controller/command", JointTrajectory, queue_size=1)
 
     while True:
-        # We need to create a JointTrajectory to pass to the arm_controller
+        # We need to create a JointTrajectory to pass to the position_trajectory_controller
         msg = JointTrajectory()
         msg.header.frame_id = "world"
 
@@ -28,8 +28,8 @@ if __name__ == "__main__":
 
         for i in range(5):
 
-            pos = float(input(f"Joint {i} position (deg): "))
-            msg.points[0].positions[i] = math.radians(pos)
+            pos = float(input(f"Joint {i} position (rad): "))
+            msg.points[0].positions[i] = (pos)
 
         msg.header.stamp = rospy.Time.now()
 
