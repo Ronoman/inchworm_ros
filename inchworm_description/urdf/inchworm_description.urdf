@@ -11,7 +11,7 @@
     <visual>
       <origin xyz="-0.035 0.0425 -0.0425" rpy="1.57 0 0" />
       <geometry>
-        <mesh filename="package://inchworm_description/media/ee.stl" scale="0.001 0.001 0.001" />
+        <mesh filename="package://inchworm_description/meshes/ee.stl" scale="0.001 0.001 0.001" />
       </geometry>
       <material name="blue">
         <color rgba="0.113 0.321 0.678 1.0" />
@@ -33,7 +33,7 @@
     </inertial>
     <visual>
       <geometry>
-        <mesh filename="package://inchworm_description/media/ankle.stl" scale="0.001 0.001 0.001" />
+        <mesh filename="package://inchworm_description/meshes/ankle.stl" scale="0.001 0.001 0.001" />
       </geometry>
       <material name="blue">
         <color rgba="0.113 0.321 0.678 1.0" />
@@ -57,7 +57,7 @@
     <visual>
       <origin xyz="0.185 -0.03 0.022" rpy="0 3.14 0" />
       <geometry>
-        <mesh filename="package://inchworm_description/media/beam_bottom.stl" scale="0.001 0.001 0.001" />
+        <mesh filename="package://inchworm_description/meshes/beam_bottom.stl" scale="0.001 0.001 0.001" />
       </geometry>
       <material name="blue">
         <color rgba="0.113 0.321 0.678 1.0" />
@@ -80,7 +80,7 @@
     <visual>
       <origin xyz="0.02 0.0575 -0.0325" rpy="0 0 3.14" />
       <geometry>
-        <mesh filename="package://inchworm_description/media/link3.stl" scale="0.001 0.001 0.001" />
+        <mesh filename="package://inchworm_description/meshes/beam_top.stl" scale="0.001 0.001 0.001" />
       </geometry>
       <material name="blue">
         <color rgba="0.113 0.321 0.678 1.0" />
@@ -100,9 +100,9 @@
       <inertia ixx="3.8554e-05" ixy="9.4075e-07" ixz="1.709e-06" iyy="4.445e-05" iyz="1.2246e-06" izz="2.5729e-05"/>
     </inertial>
     <visual>
-      <origin xyz="-0.055 0 0" rpy="0 0 3.14" />
+      <origin xyz="0 0 0" rpy="0 0 -1.57" />
       <geometry>
-        <mesh filename="package://inchworm_description/media/link4.stl" scale="0.001 0.001 0.001" />
+        <mesh filename="package://inchworm_description/meshes/ankle.stl" scale="0.001 0.001 0.001" />
       </geometry>
       <material name="blue">
         <color rgba="0.113 0.321 0.678 1.0" />
@@ -125,7 +125,7 @@
     <visual>
       <origin xyz="-0.035 0.0425 -0.0425" rpy="1.57 0 0" />
       <geometry>
-        <mesh filename="package://inchworm_description/media/ee.stl" scale="0.001 0.001 0.001" />
+        <mesh filename="package://inchworm_description/meshes/ee.stl" scale="0.001 0.001 0.001" />
       </geometry>
       <material name="blue">
         <color rgba="0.113 0.321 0.678 1.0" />
