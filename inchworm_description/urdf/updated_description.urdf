@@ -9,8 +9,9 @@
       <inertia ixx="3.8554e-05" ixy="9.4075e-07" ixz="1.709e-06" iyy="4.445e-05" iyz="1.2246e-06" izz="2.5729e-05"/>
     </inertial>
     <visual>
+      <origin xyz="-0.035 0.0425 -0.0425" rpy="1.57 0 0" />
       <geometry>
-        <mesh filename="package://inchworm_description/media/link0.stl" scale="0.001 0.001 0.001" />
+        <mesh filename="package://inchworm_description/media/ee.stl" scale="0.001 0.001 0.001" />
       </geometry>
       <material name="blue">
         <color rgba="0.113 0.321 0.678 1.0" />
@@ -32,7 +33,7 @@
     </inertial>
     <visual>
       <geometry>
-        <mesh filename="package://inchworm_description/media/link1.stl" scale="0.001 0.001 0.001" />
+        <mesh filename="package://inchworm_description/media/ankle.stl" scale="0.001 0.001 0.001" />
       </geometry>
       <material name="blue">
         <color rgba="0.113 0.321 0.678 1.0" />
@@ -54,9 +55,9 @@
       <inertia ixx="3.8554e-05" ixy="9.4075e-07" ixz="1.709e-06" iyy="4.445e-05" iyz="1.2246e-06" izz="2.5729e-05"/>
     </inertial>
     <visual>
-      <origin xyz="0.165 0 0" rpy="0 0 0" />
+      <origin xyz="0.185 -0.03 0.022" rpy="0 3.14 0" />
       <geometry>
-        <mesh filename="package://inchworm_description/media/link2.stl" scale="0.001 0.001 0.001" />
+        <mesh filename="package://inchworm_description/media/beam_bottom.stl" scale="0.001 0.001 0.001" />
       </geometry>
       <material name="blue">
         <color rgba="0.113 0.321 0.678 1.0" />
@@ -77,7 +78,7 @@
       <inertia ixx="3.8554e-05" ixy="9.4075e-07" ixz="1.709e-06" iyy="4.445e-05" iyz="1.2246e-06" izz="2.5729e-05"/>
     </inertial>
     <visual>
-      <origin xyz="-0.165 0 0" rpy="0 0 3.14" />
+      <origin xyz="0.02 0.0575 -0.0325" rpy="0 0 3.14" />
       <geometry>
         <mesh filename="package://inchworm_description/media/link3.stl" scale="0.001 0.001 0.001" />
       </geometry>
@@ -93,7 +94,6 @@
     </collision>
   </link>
 
-  <!-- Link attached to EE -->
   <link name="iw_ankle_top">
     <inertial>
       <mass value="0.151" />
@@ -116,16 +116,16 @@
     </collision>
   </link>
 
-  <!-- Other foot -->
+  
   <link name="iw_foot_top">
     <inertial>
       <mass value="0.151" />
       <inertia ixx="3.8554e-05" ixy="9.4075e-07" ixz="1.709e-06" iyy="4.445e-05" iyz="1.2246e-06" izz="2.5729e-05"/>
     </inertial>
     <visual>
-      <origin xyz="0 0 0" rpy="0 0 0" />
+      <origin xyz="-0.035 0.0425 -0.0425" rpy="1.57 0 0" />
       <geometry>
-        <mesh filename="package://inchworm_description/media/link5.stl" scale="0.001 0.001 0.001" />
+        <mesh filename="package://inchworm_description/media/ee.stl" scale="0.001 0.001 0.001" />
       </geometry>
       <material name="blue">
         <color rgba="0.113 0.321 0.678 1.0" />
@@ -147,7 +147,7 @@
   </joint>
 
   <joint name="iw_ankle_foot_bottom" type="revolute">
-    <origin xyz="0 0 0.05463" rpy="1.57 0 0" />
+    <origin xyz="0 0 0.0625" rpy="1.57 0 0" />
 
     <parent link="iw_foot_bottom" />
     <child  link="iw_ankle_bottom" />
@@ -168,7 +168,7 @@
   </transmission>
 
   <joint name="iw_beam_ankle_bottom" type="revolute">
-    <origin xyz="0 0 -0.001" rpy="0 0 1.57" />
+    <origin xyz="0 0 0.001" rpy="0 0 1.57" />
 
     <parent link="iw_ankle_bottom" />
     <child  link="iw_beam_bottom" />
@@ -232,7 +232,7 @@
 
   
   <joint name="iw_ankle_foot_top" type="revolute">
-    <origin xyz="-0.105 0 0" rpy="0 -1.57 0" />
+    <origin xyz="-0.0625 0 0" rpy="0 1.57 0" />
 
     <parent link="iw_ankle_top" />
     <child  link="iw_foot_top" />
