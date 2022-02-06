@@ -15,9 +15,10 @@
   <!-- Everything to be launched in the robot namespace. Robot description, robot state publisher -->
   <group ns="$(arg model)">
 
+    <!-- Robot description for RViz -->
     <param name="/inchworm/robot_description" command="$(find xacro)/xacro $(find inchworm_description)/urdf/$(arg model)_description.urdf"/>
-
-    <!-- <node name="tf_footprint_base" pkg="tf" type="static_transform_publisher" args="0 0 0 0 0 0 base_link base_footprint 100" /> -->
+    <!-- Robot description for gazebo + magnet sim -->
+    <param name="/inchworm/robot_description_sdf" command="$(find xacro)/xacro $(find inchworm_description)/urdf/$(arg model)_description.sdf" />
 
     <rosparam file="$(find inchworm_description)/config/joint_names_inchworm_description.yaml" command="load" />
 
@@ -32,8 +33,8 @@
         joint_state_controller
         position_trajectory_controller" unless="$(arg real_robot)"/>
 
-  <!-- Spawn the robot into the sim -->
-  <node name="spawn_model" pkg="gazebo_ros" type="spawn_model" args="-param $(arg model)/robot_description -urdf -model $(arg model)" output="screen" />
+  <!-- Spawn the robot sdf into the sim -->
+  <node name="spawn_model" pkg="gazebo_ros" type="spawn_model" args="-param $(arg model)/robot_description_sdf -sdf -model $(arg model)" output="screen" />
 
   <param name="iw_soup_sdf" command="$(find xacro)/xacro $(find inchworm_description)/urdf/magnet_sim.sdf" />
   <node name="magnet_sim_spawner" pkg="gazebo_ros" type="spawn_model" respawn="false" 

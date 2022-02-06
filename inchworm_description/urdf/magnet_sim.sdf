@@ -4,7 +4,10 @@
 
   <model name="inchworm_soup">
     <plugin name="assembly_soup" filename="libassembly_soup_plugin.so">
-      <model_name>inchworm</model_name>
+      <model_names>
+        <name>inchworm</name>
+        <!-- <name>shingle</name> -->
+      </model_names>
 
       <tf_world_frame>world</tf_world_frame>
       <publish_active_mates>1</publish_active_mates>

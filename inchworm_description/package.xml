@@ -15,9 +15,17 @@ for inchworm_description robot</p>
   <depend>rviz</depend>
   <depend>joint_state_publisher</depend>
   <depend>gazebo</depend>
+
   <exec_depend>gazebo_plugins</exec_depend>
   <exec_depend>assembly_sim</exec_depend>
+  <exec_depend>gazebo_ros</exec_depend>
   <export>
-    <architecture_independent />
-  </export>
+  <!-- https://answers.gazebosim.org//question/6568/uri-paths-to-packages-in-the-sdf-model-file/ -->
+    <!-- gazebo_ros_paths_plugin automatically adds these to
+        GAZEBO_PLUGIN_PATH and GAZEBO_MODEL_PATH when you do this export inside
+        the package.xml file. You can than use URIs of type model://my_package/stuff. -->
+    <gazebo_ros                                                                 
+        gazebo_plugin_path="${prefix}/lib"
+        gazebo_model_path="${prefix}/.." /> 
+</export>
 </package>
