@@ -13,14 +13,28 @@ def insertXacroMacro(sdf, name):
 
   tree = ET.fromstring(sdf)
 
+  # Convert top level tag into a model tag
   model = list(tree)[0]
   model.tag = "model"
   model.set("name", name)
 
+  # Convert stupid link names to normal link names
+  #   (the stupid names are so that RViz grabs the right transforms to visualize)
+  for link in model.findall("link"):
+    link_name = link.get("name")
+    link.set("name", link_name.split("/")[0])
+
   macro = ET.Element("xacro:macro")
   macro.set("name", name)
+  macro.set("params", "x y z rx ry rz")
   macro.insert(0, model)
 
+  # Create a pose that depends on these parameters
+  pose = ET.Element("pose")
+  pose.text = "${x} ${y} ${z} ${rx} ${ry} ${rz}"
+  model.insert(0, pose)
+
+  # Create a new root that the model is a child of
   new_root = ET.Element('sdf')
   new_root.set("version", "1.7")
   new_root.set("xmlns:xacro", "http://www.ros.org/wiki/xacro")
@@ -30,8 +44,6 @@ def insertXacroMacro(sdf, name):
   return ET.tostring(new_root).decode("utf-8")
 
 def generateModelSpawner(macro_names):
-  tree = ET.ElementTree()
-  
   # Parent SDF tag
   sdf = ET.Element("sdf")
   sdf.set("version", "1.7")
@@ -75,6 +87,9 @@ def generateModelSpawner(macro_names):
     include.set("filename", f"$(find inchworm_description)/sdf/{name}.sdf")
 
     macro = ET.Element("xacro:" + name)
+
+    for param in "x y z rx ry rz".split(" "):
+      macro.set(param, "0")
 
     model.append(macro)
     sdf.insert(0, include)

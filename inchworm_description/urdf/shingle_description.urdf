@@ -7,7 +7,7 @@
       <inertia ixx="3.8554e-05" ixy="9.4075e-07" ixz="1.709e-06" iyy="4.445e-05" iyz="1.2246e-06" izz="2.5729e-05"/>
     </inertial>
     <visual>
-      <origin xyz="-0.035 0.0425 0" rpy="1.57 0 0" />
+      <origin xyz="0 0 0" rpy="0 0 0" />
       <geometry>
         <box size="0.254 0.182 0.02" />
       </geometry>
@@ -15,15 +15,15 @@
         <color rgba="0.2 0 0 1.0" />
       </material>
     </visual>
-    <collision>
-      <origin xyz="0 0 0.03" rpy="0 0 0" />
+    <!-- <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
       <geometry>
         <box size="0.254 0.182 0.02" />
       </geometry>
-    </collision>
+    </collision> -->
   </link>
 
-  <gazebo reference="shingle">
+  <gazebo reference="shingle/shingle">
     <gravity>0</gravity>
   </gazebo>
 </robot>
