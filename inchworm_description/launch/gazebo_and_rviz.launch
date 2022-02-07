@@ -17,8 +17,9 @@
 
     <!-- Robot description for RViz -->
     <param name="/inchworm/robot_description" command="$(find xacro)/xacro $(find inchworm_description)/urdf/$(arg model)_description.urdf"/>
+
     <!-- Robot description for gazebo + magnet sim -->
-    <param name="/inchworm/robot_description_sdf" command="$(find xacro)/xacro $(find inchworm_description)/urdf/$(arg model)_description.sdf" />
+    <param name="/inchworm/robot_description_sdf" command="$(find xacro)/xacro $(find inchworm_description)/sdf/all_models.sdf" />
 
     <rosparam file="$(find inchworm_description)/config/joint_names_inchworm_description.yaml" command="load" />
 
@@ -34,13 +35,13 @@
         position_trajectory_controller" unless="$(arg real_robot)"/>
 
   <!-- Spawn the robot sdf into the sim -->
-  <node name="spawn_model" pkg="gazebo_ros" type="spawn_model" args="-param $(arg model)/robot_description_sdf -sdf -model $(arg model)" output="screen" />
+  <node name="spawn_model" pkg="gazebo_ros" type="spawn_model" args="-param $(arg model)/robot_description_sdf -sdf -model $(arg model) -z 5" output="screen" />
 
-  <param name="iw_soup_sdf" command="$(find xacro)/xacro $(find inchworm_description)/urdf/magnet_sim.sdf" />
+  <!-- <param name="iw_soup_sdf" command="$(find xacro)/xacro $(find inchworm_description)/urdf/magnet_sim.sdf" />
   <node name="magnet_sim_spawner" pkg="gazebo_ros" type="spawn_model" respawn="false" 
     args="-b -sdf -model iw_soup -param iw_soup_sdf" 
     launch-prefix="bash -c 'sleep 2; $0 $@' " 
-    output="screen" />
+    output="screen" /> -->
 
   <!-- Startup RViz-->
   <node name="rviz" pkg="rviz" type="rviz" args="-d $(find inchworm_description)/rviz/inchworm_frames.rviz" />

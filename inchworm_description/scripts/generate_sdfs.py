@@ -13,32 +13,73 @@ def insertXacroMacro(sdf, name):
 
   tree = ET.fromstring(sdf)
 
-  root = list(tree)[0]
-  root.tag = "xacro:macro"
-  root.set("name", name)
+  model = list(tree)[0]
+  model.tag = "model"
+  model.set("name", name)
+
+  macro = ET.Element("xacro:macro")
+  macro.set("name", name)
+  macro.insert(0, model)
 
   new_root = ET.Element('sdf')
   new_root.set("version", "1.7")
+  new_root.set("xmlns:xacro", "http://www.ros.org/wiki/xacro")
 
-  new_root.insert(0, root)
+  new_root.insert(0, macro)
 
   return ET.tostring(new_root).decode("utf-8")
 
 def generateModelSpawner(macro_names):
   tree = ET.ElementTree()
   
+  # Parent SDF tag
   sdf = ET.Element("sdf")
   sdf.set("version", "1.7")
   sdf.set("xmlns:xacro", "http://www.ros.org/wiki/xacro")
 
+  # Create and insert magnet include
+  magnet_include = ET.Element("xacro:include")
+  magnet_include.set("filename", "$(find inchworm_description)/urdf/inchworm_magnets.sdf")
+  sdf.insert(0, magnet_include)
+
+  # The master model that everything is loaded under. <name>_soup is a convention from lcsr_assembly. Name overwritten by launch file.
+  model = ET.Element("model")
+  model.set("name", "inchworm_soup")
+
+  # Dynamically generate and insert magnet plugin
+  plugin = ET.Element("plugin")
+  plugin.set("name", "assembly_soup")
+  plugin.set("filename", "libassembly_soup_plugin.so")
+
+  # Magnet sim reference frame for published transforms
+  world_frame = ET.Element("tf_world_frame")
+  world_frame.text = "world"
+  plugin.insert(0, world_frame)
+
+  # Whether to publish the mate list
+  publish_mates = ET.Element("publish_active_mates")
+  publish_mates.text = "1"
+  plugin.insert(1, publish_mates)
+
+  # Add the mate models and atoms to the plugin
+  plugin.insert(2, ET.Element("xacro:inchworm_mate"))
+  plugin.insert(3, ET.Element("xacro:iw_foot_atom"))
+  plugin.insert(4, ET.Element("xacro:shingle_atom"))
+
+  # Insert the plugin parameters into the soup model
+  model.insert(0, plugin)
+
   for name in macro_names:
     include = ET.Element("xacro:include")
-    include.set("filename", "$(find inchworm_description)/urdf/" + name + ".urdf")
+
+    include.set("filename", f"$(find inchworm_description)/sdf/{name}.sdf")
 
     macro = ET.Element("xacro:" + name)
 
-    sdf.append(macro)
+    model.append(macro)
     sdf.insert(0, include)
+
+  sdf.append(model)
 
   return ET.tostring(sdf).decode("utf-8")
 
@@ -56,13 +97,13 @@ def main():
   desc_loc = rospack.get_path("inchworm_description")
   
   # Scan and grab every file that ends in .urdf in /urdf
-  urdf_files = glob.glob(desc_loc + "/urdf/*.urdf")
+  urdf_files = glob.glob(f"{desc_loc}/urdf/*.urdf")
 
   # For each URDF
   for urdf in urdf_files:
     sdf_filename = urdf.split("/")[-1][:-4] + "sdf"
 
-    sdf_path = desc_loc + "/sdf/" + sdf_filename
+    sdf_path = f"{desc_loc}/sdf/{sdf_filename}"
 
     # Generate an SDF with the gazebo command line interface
     proc = subprocess.Popen(["gz", "sdf", "-p", urdf], stdout=subprocess.PIPE)
@@ -77,17 +118,17 @@ def main():
       f.write(new_sdf)
 
   # Reset all_models.sdf file
-  if os.path.exists(desc_loc + "/sdf/all_models.sdf"):
-    os.remove(desc_loc + "/sdf/all_models.sdf")
+  if os.path.exists(f"{desc_loc}/sdf/all_models.sdf"):
+    os.remove(f"{desc_loc}/sdf/all_models.sdf")
 
-  sdf_files = glob.glob(desc_loc + "/sdf/*.sdf")
+  sdf_files = glob.glob(f"{desc_loc}/sdf/*.sdf")
   macro_names = [f.split("/")[-1][:-4] for f in sdf_files]
 
   print(macro_names)
 
   all_sdfs = generateModelSpawner(macro_names)
 
-  with open(desc_loc + "/sdf/all_models.sdf", "w+") as f:
+  with open(f"{desc_loc}/sdf/all_models.sdf", "w+") as f:
     f.write(all_sdfs)
 
 if __name__ == "__main__":

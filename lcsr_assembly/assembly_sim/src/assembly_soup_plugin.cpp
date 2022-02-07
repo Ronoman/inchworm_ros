@@ -399,7 +399,7 @@ namespace assembly_sim
         ++it_fa)
     {
       AtomPtr female_atom = *it_fa;
-      //gzwarn<<"Inspecting female atom: "<<female_atom->link->GetName()<<std::endl;
+      gzwarn<<"Inspecting female atom: "<<female_atom->link->GetName()<<std::endl;
 
       // Get the link associated with this atom
       // If any male mates match this link, ignore them
@@ -421,6 +421,8 @@ namespace assembly_sim
         {
           AtomPtr male_atom = *it_ma;
 
+          gzwarn << "Inspecting male atom: " << male_atom->link->GetName() << std::endl;
+
           // You can't mate with yourself
           if(male_atom == female_atom) { continue; }
 
@@ -430,9 +432,9 @@ namespace assembly_sim
           {
             if (parents[0] == male_atom->link)
               {
-                //gzwarn << "match found, not making joint " << std::endl;
-                //gzwarn << "male link: " << male_atom->link <<std::endl;
-                //gzwarn << "parent link: " << parents[0] <<std::endl;
+                gzwarn << "match found, not making joint " << std::endl;
+                gzwarn << "male link: " << male_atom->link <<std::endl;
+                gzwarn << "parent link: " << parents[0] <<std::endl;
                 continue;
               }
           }

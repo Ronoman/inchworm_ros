@@ -1,0 +1,294 @@
+<sdf version="1.7" xmlns:xacro="http://www.ros.org/wiki/xacro"><xacro:macro name="inchworm_description"><model name="inchworm_description">
+    <joint name="foot_to_world" type="fixed">
+      <pose relative_to="__model__">0 0 0 0 -0 0</pose>
+      <parent>world</parent>
+      <child>iw_foot_bottom</child>
+    </joint>
+    <link name="iw_foot_bottom">
+      <pose relative_to="foot_to_world">0 0 0 0 -0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 -0 0</pose>
+        <mass>0.151</mass>
+        <inertia>
+          <ixx>3.8554e-05</ixx>
+          <ixy>9.4075e-07</ixy>
+          <ixz>1.709e-06</ixz>
+          <iyy>4.445e-05</iyy>
+          <iyz>1.2246e-06</iyz>
+          <izz>2.5729e-05</izz>
+        </inertia>
+      </inertial>
+      <collision name="iw_foot_bottom_collision">
+        <pose>0 0 0.03 0 -0 0</pose>
+        <geometry>
+          <box>
+            <size>0.07 0.07 0.05463</size>
+          </box>
+        </geometry>
+      </collision>
+      <visual name="iw_foot_bottom_visual">
+        <pose>-0.035 0.0425 0 1.57 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>0.001 0.001 0.001</scale>
+            <uri>model://inchworm_description/meshes/ee.stl</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <joint name="iw_ankle_foot_bottom" type="revolute">
+      <pose relative_to="iw_foot_bottom">0 0 0.105 1.57 -0 0</pose>
+      <parent>iw_foot_bottom</parent>
+      <child>iw_ankle_bottom</child>
+      <axis>
+        <xyz>0 -1 0</xyz>
+        <limit>
+          <lower>-3.14</lower>
+          <upper>3.14</upper>
+          <effort>10</effort>
+          <velocity>1</velocity>
+        </limit>
+        <dynamics>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+      </axis>
+    </joint>
+    <link name="iw_ankle_bottom">
+      <pose relative_to="iw_ankle_foot_bottom">0 0 0 0 -0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 -0 0</pose>
+        <mass>0.151</mass>
+        <inertia>
+          <ixx>3.8554e-05</ixx>
+          <ixy>9.4075e-07</ixy>
+          <ixz>1.709e-06</ixz>
+          <iyy>4.445e-05</iyy>
+          <iyz>1.2246e-06</iyz>
+          <izz>2.5729e-05</izz>
+        </inertia>
+      </inertial>
+      <collision name="iw_ankle_bottom_collision">
+        <pose>0 -0.02 0 0 -0 0</pose>
+        <geometry>
+          <box>
+            <size>0.045 0.08 0.08</size>
+          </box>
+        </geometry>
+      </collision>
+      <visual name="iw_ankle_bottom_visual">
+        <pose>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>0.001 0.001 0.001</scale>
+            <uri>model://inchworm_description/meshes/ankle.stl</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <joint name="iw_beam_ankle_bottom" type="revolute">
+      <pose relative_to="iw_ankle_bottom">0 0 0.001 0 -0 1.57</pose>
+      <parent>iw_ankle_bottom</parent>
+      <child>iw_beam_bottom</child>
+      <axis>
+        <xyz>0 0 -1</xyz>
+        <limit>
+          <lower>-0.785</lower>
+          <upper>3.14</upper>
+          <effort>10</effort>
+          <velocity>1</velocity>
+        </limit>
+        <dynamics>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+      </axis>
+    </joint>
+    <link name="iw_beam_bottom">
+      <pose relative_to="iw_beam_ankle_bottom">0 0 0 0 -0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 -0 0</pose>
+        <mass>0.151</mass>
+        <inertia>
+          <ixx>3.8554e-05</ixx>
+          <ixy>9.4075e-07</ixy>
+          <ixz>1.709e-06</ixz>
+          <iyy>4.445e-05</iyy>
+          <iyz>1.2246e-06</iyz>
+          <izz>2.5729e-05</izz>
+        </inertia>
+      </inertial>
+      <collision name="iw_beam_bottom_collision">
+        <pose>0.0825 0 0 0 -0 0</pose>
+        <geometry>
+          <box>
+            <size>0.22 0.05 0.08</size>
+          </box>
+        </geometry>
+      </collision>
+      <visual name="iw_beam_bottom_visual">
+        <pose>0.185 -0.03 0.022 3.14159 0.001593 3.14159</pose>
+        <geometry>
+          <mesh>
+            <scale>0.001 0.001 0.001</scale>
+            <uri>model://inchworm_description/meshes/beam_bottom.stl</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <joint name="iw_mid_joint" type="revolute">
+      <pose relative_to="iw_beam_bottom">0.165 0 -0.001 3.14 -0 3.14</pose>
+      <parent>iw_beam_bottom</parent>
+      <child>iw_beam_top</child>
+      <axis>
+        <xyz>0 0 1</xyz>
+        <limit>
+          <lower>-0.785</lower>
+          <upper>3.14</upper>
+          <effort>10</effort>
+          <velocity>1</velocity>
+        </limit>
+        <dynamics>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+      </axis>
+    </joint>
+    <link name="iw_beam_top">
+      <pose relative_to="iw_mid_joint">0 0 0 0 -0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 -0 0</pose>
+        <mass>0.151</mass>
+        <inertia>
+          <ixx>3.8554e-05</ixx>
+          <ixy>9.4075e-07</ixy>
+          <ixz>1.709e-06</ixz>
+          <iyy>4.445e-05</iyy>
+          <iyz>1.2246e-06</iyz>
+          <izz>2.5729e-05</izz>
+        </inertia>
+      </inertial>
+      <collision name="iw_beam_top_collision">
+        <pose>-0.0825 0 0 0 -0 0</pose>
+        <geometry>
+          <box>
+            <size>0.22 0.05 0.08</size>
+          </box>
+        </geometry>
+      </collision>
+      <visual name="iw_beam_top_visual">
+        <pose>0.02 0.0575 -0.0325 0 -0 3.14</pose>
+        <geometry>
+          <mesh>
+            <scale>0.001 0.001 0.001</scale>
+            <uri>model://inchworm_description/meshes/beam_top.stl</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <joint name="iw_beam_ankle_top" type="revolute">
+      <pose relative_to="iw_beam_top">-0.165 0 0 0 -0 0</pose>
+      <parent>iw_beam_top</parent>
+      <child>iw_ankle_top</child>
+      <axis>
+        <xyz>0 0 1</xyz>
+        <limit>
+          <lower>-0.785</lower>
+          <upper>3.14</upper>
+          <effort>10</effort>
+          <velocity>1</velocity>
+        </limit>
+        <dynamics>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+      </axis>
+    </joint>
+    <link name="iw_ankle_top">
+      <pose relative_to="iw_beam_ankle_top">0 0 0 0 -0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 -0 0</pose>
+        <mass>0.151</mass>
+        <inertia>
+          <ixx>3.8554e-05</ixx>
+          <ixy>9.4075e-07</ixy>
+          <ixz>1.709e-06</ixz>
+          <iyy>4.445e-05</iyy>
+          <iyz>1.2246e-06</iyz>
+          <izz>2.5729e-05</izz>
+        </inertia>
+      </inertial>
+      <collision name="iw_ankle_top_collision">
+        <pose>-0.02 0 0 0 -0 0</pose>
+        <geometry>
+          <box>
+            <size>0.08 0.045 0.08</size>
+          </box>
+        </geometry>
+      </collision>
+      <visual name="iw_ankle_top_visual">
+        <pose>0 0 0 0 0 -1.57</pose>
+        <geometry>
+          <mesh>
+            <scale>0.001 0.001 0.001</scale>
+            <uri>model://inchworm_description/meshes/ankle.stl</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <joint name="iw_ankle_foot_top" type="revolute">
+      <pose relative_to="iw_ankle_top">-0.105 0 0 0 1.57 0</pose>
+      <parent>iw_ankle_top</parent>
+      <child>iw_foot_top</child>
+      <axis>
+        <xyz>0 0 -1</xyz>
+        <limit>
+          <lower>-3.14</lower>
+          <upper>3.14</upper>
+          <effort>10</effort>
+          <velocity>1</velocity>
+        </limit>
+        <dynamics>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+      </axis>
+    </joint>
+    <link name="iw_foot_top">
+      <pose relative_to="iw_ankle_foot_top">0 0 0 0 -0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 -0 0</pose>
+        <mass>0.151</mass>
+        <inertia>
+          <ixx>3.8554e-05</ixx>
+          <ixy>9.4075e-07</ixy>
+          <ixz>1.709e-06</ixz>
+          <iyy>4.445e-05</iyy>
+          <iyz>1.2246e-06</iyz>
+          <izz>2.5729e-05</izz>
+        </inertia>
+      </inertial>
+      <collision name="iw_foot_top_collision">
+        <pose>0 0 0.03 0 -0 0</pose>
+        <geometry>
+          <box>
+            <size>0.07 0.07 0.05463</size>
+          </box>
+        </geometry>
+      </collision>
+      <visual name="iw_foot_top_visual">
+        <pose>-0.035 0.0425 0 1.57 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>0.001 0.001 0.001</scale>
+            <uri>model://inchworm_description/meshes/ee.stl</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <static>0</static>
+    <plugin name="gazebo_ros_control" filename="libgazebo_ros_control.so">
+      <robotNamespace>/inchworm</robotNamespace>
+    </plugin>
+  </model>
+</xacro:macro></sdf>

@@ -16,6 +16,15 @@
         <min_distance>0.002</min_distance>
       </dipole>
 
+      <max_force>18 18 44.5</max_force>
+      <max_torque>10 10 10</max_torque>
+      <max_distance>0.01</max_distance>
+
+      <attach_threshold>
+        <linear>0.005</linear>
+        <angular>0.01</angular>
+      </attach_threshold>
+
       <joint type="fixed" name="iw">
         <pose>0 0 0 0 0 0</pose>
         <parent>iw_foot</parent>
@@ -42,7 +51,7 @@
   <!-- Shingle atoms -->
   <xacro:macro name="shingle_atom" params="">
     <!-- Shingle <-> Inchworm -->
-    <atom_model type="shingle_iw">
+    <atom_model type="shingle">
       <mate_point type="iw" gender="female">
         <pose>0 0 -0.02 0 0 0</pose>
       </mate_point>

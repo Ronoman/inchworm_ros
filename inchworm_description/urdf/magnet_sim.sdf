@@ -1,25 +1,22 @@
 <?xml version='1.0'?>
 <sdf version="1.4" xmlns:xacro="http://www.ros.org/wiki/xacro" >
-  <xacro:include filename="$(find inchworm_description)/urdf/inchworm_magnets.sdf" />
+  <xacro:macro name="magnet_sim" >
+    <xacro:include filename="$(find inchworm_description)/urdf/inchworm_magnets.sdf" />
 
-  <model name="inchworm_soup">
-    <plugin name="assembly_soup" filename="libassembly_soup_plugin.so">
-      <model_names>
-        <name>inchworm</name>
-        <!-- <name>shingle</name> -->
-      </model_names>
+    <model name="inchworm_soup">
+      <plugin name="assembly_soup" filename="libassembly_soup_plugin.so">
+        <tf_world_frame>world</tf_world_frame>
+        <publish_active_mates>1</publish_active_mates>
 
-      <tf_world_frame>world</tf_world_frame>
-      <publish_active_mates>1</publish_active_mates>
+        <!-- Invoke mate model macros -->
+        <xacro:inchworm_mate />
 
-      <!-- Invoke mate model macros -->
-      <xacro:inchworm_mate />
+        <!-- Invoke atom model macros -->
+        <xacro:iw_foot_atom />
+        <xacro:shingle_atom />
+      </plugin>
 
-      <!-- Invoke atom model macros -->
-      <xacro:iw_foot_atom />
-      <xacro:shingle_atom />
-    </plugin>
-
-    <!-- Invoke model macros (if needed, hopefully not) -->
-  </model>
+      <!-- Invoke model macros (if needed, hopefully not) -->
+    </model>
+  </xacro:macro>
 </sdf>
