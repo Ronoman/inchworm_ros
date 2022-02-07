@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 
-import glob, subprocess, rospkg
+import glob, subprocess, rospkg, os
 
 import xml.etree.ElementTree as ET
+
+rospack = None
 
 def insertXacroMacro(sdf, name):
   '''
@@ -11,16 +13,34 @@ def insertXacroMacro(sdf, name):
 
   tree = ET.fromstring(sdf)
 
-  root = tree.getchildren()[0]
+  root = list(tree)[0]
   root.tag = "xacro:macro"
-  root["name"] = name
+  root.set("name", name)
 
   new_root = ET.Element('sdf')
-  new_root["version"] = "1.7"
+  new_root.set("version", "1.7")
 
   new_root.insert(0, root)
 
-  return ET.tostring(new_root)
+  return ET.tostring(new_root).decode("utf-8")
+
+def generateModelSpawner(macro_names):
+  tree = ET.ElementTree()
+  
+  sdf = ET.Element("sdf")
+  sdf.set("version", "1.7")
+  sdf.set("xmlns:xacro", "http://www.ros.org/wiki/xacro")
+
+  for name in macro_names:
+    include = ET.Element("xacro:include")
+    include.set("filename", "$(find inchworm_description)/urdf/" + name + ".urdf")
+
+    macro = ET.Element("xacro:" + name)
+
+    sdf.append(macro)
+    sdf.insert(0, include)
+
+  return ET.tostring(sdf).decode("utf-8")
 
 def main():
   '''
@@ -32,34 +52,43 @@ def main():
 
   rospack = rospkg.RosPack()
 
+  # Path to the inchworm_description package
   desc_loc = rospack.get_path("inchworm_description")
-
-  print(desc_loc)
   
   # Scan and grab every file that ends in .urdf in /urdf
-  filenames = glob.glob(desc_loc + "/urdf/*.urdf")
+  urdf_files = glob.glob(desc_loc + "/urdf/*.urdf")
 
   # For each URDF
-  for urdf in filenames:
+  for urdf in urdf_files:
     sdf_filename = urdf.split("/")[-1][:-4] + "sdf"
 
     sdf_path = desc_loc + "/sdf/" + sdf_filename
 
-    # Generate an SDF with command line interface
+    # Generate an SDF with the gazebo command line interface
     proc = subprocess.Popen(["gz", "sdf", "-p", urdf], stdout=subprocess.PIPE)
     sdf_data = proc.stdout.read().decode("utf-8")
 
     # Convert into an XML object
     # Wrap the <model> tag with a <xacro:macro> tag
-    new_sdf = insertXacroMacro(sdf_data, sdf_filename[:-3])
-    #print(new_sdf)
+    new_sdf = insertXacroMacro(sdf_data, sdf_filename[:-4])
+
     # Write the contents to `sdf/<same_name>.sdf`
-    with open(sdf_path, 'w') as f:
+    with open(sdf_path, 'w+') as f:
       f.write(new_sdf)
 
-  # Generate all_models.sdf file and write to sdf/all_models.sdf
-    # Create SDF template
-    # Within the master model, invoke each macro that was generated in the previous step
+  # Reset all_models.sdf file
+  if os.path.exists(desc_loc + "/sdf/all_models.sdf"):
+    os.remove(desc_loc + "/sdf/all_models.sdf")
+
+  sdf_files = glob.glob(desc_loc + "/sdf/*.sdf")
+  macro_names = [f.split("/")[-1][:-4] for f in sdf_files]
+
+  print(macro_names)
+
+  all_sdfs = generateModelSpawner(macro_names)
+
+  with open(desc_loc + "/sdf/all_models.sdf", "w+") as f:
+    f.write(all_sdfs)
 
 if __name__ == "__main__":
   main()
