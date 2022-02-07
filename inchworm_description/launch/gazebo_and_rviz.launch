@@ -35,7 +35,7 @@
         position_trajectory_controller" unless="$(arg real_robot)"/>
 
   <!-- Spawn the robot sdf into the sim -->
-  <node name="spawn_model" pkg="gazebo_ros" type="spawn_model" args="-param $(arg model)/robot_description_sdf -sdf -model $(arg model) -z 5" output="screen" />
+  <node name="spawn_model" pkg="gazebo_ros" type="spawn_model" args="-param $(arg model)/robot_description_sdf -sdf -model $(arg model)" output="screen" />
 
   <!-- <param name="iw_soup_sdf" command="$(find xacro)/xacro $(find inchworm_description)/urdf/magnet_sim.sdf" />
   <node name="magnet_sim_spawner" pkg="gazebo_ros" type="spawn_model" respawn="false" 
