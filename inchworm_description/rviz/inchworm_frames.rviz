@@ -6,6 +6,7 @@ Panels:
       Expanded:
         - /Inchworm Model1
         - /TF1/Frames1
+        - /RobotModel1
       Splitter Ratio: 0.5
     Tree Height: 719
   - Class: rviz/Selection
@@ -133,7 +134,19 @@ Visualization Manager:
           Value: true
         iw_foot_bottom:
           Value: true
+        iw_foot_bottom/iw_foot:
+          Value: true
+        iw_foot_bottom/male_0:
+          Value: true
         iw_foot_top:
+          Value: true
+        iw_foot_top/iw_foot:
+          Value: true
+        iw_foot_top/male_0:
+          Value: true
+        shingle/shingle/female_0:
+          Value: true
+        shingle/shingle/shingle:
           Value: true
         world:
           Value: true
@@ -152,8 +165,38 @@ Visualization Manager:
                   iw_ankle_top:
                     iw_foot_top:
                       {}
+          iw_foot_bottom/iw_foot:
+            iw_foot_bottom/male_0:
+              {}
+          iw_foot_top/iw_foot:
+            iw_foot_top/male_0:
+              {}
+          shingle/shingle/shingle:
+            shingle/shingle/female_0:
+              {}
       Update Interval: 0
       Value: true
+    - Alpha: 1
+      Class: rviz/RobotModel
+      Collision Enabled: false
+      Enabled: true
+      Links:
+        All Links Enabled: true
+        Expand Joint Details: false
+        Expand Link Details: false
+        Expand Tree: false
+        Link Tree Style: Links in Alphabetic Order
+        shingle/shingle:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+      Name: RobotModel
+      Robot Description: inchworm/shingle_description
+      TF Prefix: ""
+      Update Interval: 0
+      Value: true
+      Visual Enabled: true
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
@@ -182,7 +225,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 1.2390987873077393
+      Distance: 5.191911697387695
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1

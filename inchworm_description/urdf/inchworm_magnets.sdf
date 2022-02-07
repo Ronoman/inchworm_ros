@@ -25,6 +25,11 @@
         <angular>0.01</angular>
       </attach_threshold>
 
+      <detach_threshold>
+        <linear>0.02</linear>
+        <angular>0.03</angular>
+      </detach_threshold>
+
       <joint type="fixed" name="iw">
         <pose>0 0 0 0 0 0</pose>
         <parent>iw_foot</parent>

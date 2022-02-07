@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <robot name="shingle">
   <!-- End effector attached to world -->
-  <link name="shingle">
+  <link name="shingle/shingle">
     <inertial>
       <mass value="0.151" />
       <inertia ixx="3.8554e-05" ixy="9.4075e-07" ixz="1.709e-06" iyy="4.445e-05" iyz="1.2246e-06" izz="2.5729e-05"/>
