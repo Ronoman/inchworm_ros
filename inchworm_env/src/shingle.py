@@ -1,6 +1,6 @@
 from enum import Enum
 
-from inchworm_env.msg import ShingleMsg
+from inchworm_algo.msg import ShingleMsg
 # all x and y are in array coords currently
 
 
