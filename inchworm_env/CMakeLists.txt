@@ -57,6 +57,7 @@ add_message_files(
   FILES
   ShingleMsg.msg
   RoofState.msg
+  InchwormMsg.msg
 )
 
 ## Generate services in the 'srv' folder
