@@ -1,6 +1,6 @@
 inchworm:
   joint_state_controller:
-    publish_rate: 10
+    publish_rate: 50
     type: joint_state_controller/JointStateController
 
   position_trajectory_controller:
@@ -14,9 +14,9 @@ inchworm:
 
     gains:
       iw_ankle_foot_bottom: {p: 1.5, i: 0, d: 0.01}
-      iw_beam_ankle_bottom: {p: 75.0, i: 0, d: 0.25}
-      iw_mid_joint: {p: 75.0, i: 0, d: 0.25}
-      iw_beam_ankle_top: {p: 75.0, i: 0, d: 0.25}
+      iw_beam_ankle_bottom: {p: 150.0, i: 0, d: 1}
+      iw_mid_joint: {p: 150.0, i: 0, d: 1}
+      iw_beam_ankle_top: {p: 150.0, i: 0, d: 1}
       iw_ankle_foot_top: {p: 1.5, i: 0, d: 0.01}
 
     constraints:

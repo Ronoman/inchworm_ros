@@ -9,12 +9,15 @@ import moveit_commander
 from tf.transformations import euler_from_quaternion, quaternion_from_euler
 
 from trajectory_msgs.msg import JointTrajectory
-from geometry_msgs.msg import PoseStamped, Pose, Quaternion
+from geometry_msgs.msg import PoseStamped, Pose
+from moveit_msgs.srv import GetPositionIK, GetPositionIKRequest
 from sensor_msgs.msg import JointState
 
 from inchworm_hw_interface.msg import MagnetState
 
 current_joint_states = None
+
+ik_service_proxy = None
 
 def jointStateCB(msg):
     global current_joint_states
@@ -82,6 +85,28 @@ def goToPose(pose, wait=True, tries=5):
     
     group.execute(plan[1], wait=wait)
 
+def computeIK(pose, group="ltr", guess=None, timeout=5.0):
+    ik_req = GetPositionIKRequest()
+
+    ik_req.ik_request.group_name = group
+
+    guess_angles = guess
+    if guess_angles is None:
+        guess_angles = current_joint_states.position
+
+    ik_req.ik_request.robot_state.joint_state.name = current_joint_states.name
+    ik_req.ik_request.robot_state.joint_state.position = guess_angles
+
+    ik_req.pose_stamped.header.frame_id = "world"
+    ik_req.pose_stamped.header.stamp = rospy.Time.now()
+    ik_req.pose_stamped.pose = pose
+
+    ik_req.timeout = rospy.Duration(timeout)
+
+    res = ik_service_proxy(ik_req)
+
+    return (res.solution, res.error_code)
+
 if __name__ == "__main__":
     moveit_commander.roscpp_initialize(sys.argv)
     rospy.init_node("move_ee")
@@ -93,8 +118,9 @@ if __name__ == "__main__":
 
     goal_pub = rospy.Publisher("/inchworm/next_goal", PoseStamped, queue_size=1)
     traj_pub = rospy.Publisher("/inchworm/position_trajectory_controller/command", JointTrajectory, queue_size=1)
-
     mag_state_pub = rospy.Publisher("/inchworm/magnet_states", MagnetState, queue_size=1)
+
+    ik_service_proxy = rospy.ServiceProxy("/compute_ik", GetPositionIK)
 
     robot = moveit_commander.RobotCommander()
 
@@ -104,37 +130,41 @@ if __name__ == "__main__":
     while current_joint_states is None:
         rospy.sleep(1)
 
-    trans = getTransform("world", "iw_foot_top", buffer, listener).transform
-    (r, p, y) = transToRPY(trans)
+    # Get the transform from the end effector to its magnet TF
+    ee_to_magnet = getTransform("iw_foot_top", "iw_foot_top/male_0", buffer, listener).transform
 
-    print(f"Reference frame: {group.get_planning_frame()}")
-    print(f"End effector: {group.get_end_effector_link()}")
+    print("Transform from foot to magnet:")
+    print(ee_to_magnet)
 
-    print(f"Current orientation (deg):\n\tRoll: {r:.2f}\n\tPitch: {p:.2f}\n\tYaw: {y:.2f}")
+    shingle_pose = getTransform("world", "shingle/female_0", buffer, listener).transform
 
-    trans = getTransform("world", "shingle/female_0", buffer, listener).transform
-    (r, p, y) = transToRPY(trans)
+    ALIGNMENT_OFFSET = 0.03
 
-    # Rotate 180 about Z, start above the shingle
-    # y = (y + 180) % 360
-    quat = rpyToQuat(r, p, y)
-    trans.translation.z += 0.05
-
-    rot = Quaternion(x=quat[0], y=quat[1], z=quat[2], w=quat[3])
-    pose = Pose(position=trans.translation, orientation=rot)
+    # Alignment position is just above the shingle
+    alignment_pose = Pose()
+    alignment_pose.position = shingle_pose.translation
+    alignment_pose.orientation = shingle_pose.rotation
+    
+    # Offset from magnet + 3 cm
+    alignment_pose.position.z -= ee_to_magnet.translation.z - ALIGNMENT_OFFSET
 
     rospy.logwarn("Going to approach pose")
-    goToPose(pose)
+    goToPose(alignment_pose)
+
+    rospy.sleep(2)
 
     rospy.logwarn("Disabling magnet")
     top_disabled = MagnetState(magnet1=True, magnet2=False)
     mag_state_pub.publish(top_disabled)
 
     # Drop the EE back down
-    pose.position.z -= 0.02
+    pickup_pose = alignment_pose
+    pickup_pose.position.z -= ALIGNMENT_OFFSET
     
     rospy.logwarn("Approaching shingle")
-    goToPose(pose)
+    goToPose(pickup_pose)
+
+    rospy.sleep(2)
 
     # Enable magnets
     rospy.logwarn("Enabling magnets")
@@ -143,6 +173,16 @@ if __name__ == "__main__":
 
     rospy.sleep(5)
 
+    away_pose = pickup_pose
+    away_pose.position.z += ALIGNMENT_OFFSET * 2
+
     rospy.logwarn("Moving away")
-    pose.position.z += 0.03
-    goToPose(pose)
+    goToPose(away_pose)
+
+    rospy.sleep(2)
+
+    rospy.logwarn("Disabling magnet")
+    mag_state_pub.publish(top_disabled)
+
+    away_pose.position.z += 0.02
+    goToPose(away_pose)

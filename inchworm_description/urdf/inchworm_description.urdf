@@ -6,7 +6,7 @@
   <link name="iw_foot_bottom">
     <inertial>
       <mass value="0.151" />
-      <inertia ixx="3.8554e-05" ixy="9.4075e-07" ixz="1.709e-06" iyy="4.445e-05" iyz="1.2246e-06" izz="2.5729e-05"/>
+      <inertia ixx="3.8554e-03" ixy="9.4075e-03" ixz="1.709e-03" iyy="4.445e-03" iyz="1.2246e-03" izz="2.5729e-03"/>
     </inertial>
     <visual>
       <origin xyz="-0.035 0.0425 0" rpy="1.57 0 0" />
@@ -29,7 +29,7 @@
   <link name="iw_ankle_bottom">
     <inertial>
       <mass value="0.151" />
-      <inertia ixx="3.8554e-05" ixy="9.4075e-07" ixz="1.709e-06" iyy="4.445e-05" iyz="1.2246e-06" izz="2.5729e-05"/>
+      <inertia ixx="3.8554e-03" ixy="9.4075e-03" ixz="1.709e-03" iyy="4.445e-03" iyz="1.2246e-03" izz="2.5729e-03"/>
     </inertial>
     <visual>
       <geometry>
@@ -52,7 +52,7 @@
     <origin xyz="0 0 0" rpy="0 0 3.14" />
     <inertial>
       <mass value="0.151" />
-      <inertia ixx="3.8554e-05" ixy="9.4075e-07" ixz="1.709e-06" iyy="4.445e-05" iyz="1.2246e-06" izz="2.5729e-05"/>
+      <inertia ixx="3.8554e-03" ixy="9.4075e-03" ixz="1.709e-03" iyy="4.445e-03" iyz="1.2246e-03" izz="2.5729e-03"/>
     </inertial>
     <visual>
       <origin xyz="0.185 -0.03 0.022" rpy="0 3.14 0" />
@@ -75,7 +75,7 @@
   <link name="iw_beam_top">
     <inertial>
       <mass value="0.151" />
-      <inertia ixx="3.8554e-05" ixy="9.4075e-07" ixz="1.709e-06" iyy="4.445e-05" iyz="1.2246e-06" izz="2.5729e-05"/>
+      <inertia ixx="3.8554e-03" ixy="9.4075e-03" ixz="1.709e-03" iyy="4.445e-03" iyz="1.2246e-03" izz="2.5729e-03"/>
     </inertial>
     <visual>
       <origin xyz="0.02 0.0575 -0.0325" rpy="0 0 3.14" />
@@ -97,7 +97,7 @@
   <link name="iw_ankle_top">
     <inertial>
       <mass value="0.151" />
-      <inertia ixx="3.8554e-05" ixy="9.4075e-07" ixz="1.709e-06" iyy="4.445e-05" iyz="1.2246e-06" izz="2.5729e-05"/>
+      <inertia ixx="3.8554e-03" ixy="9.4075e-03" ixz="1.709e-03" iyy="4.445e-03" iyz="1.2246e-03" izz="2.5729e-03"/>
     </inertial>
     <visual>
       <origin xyz="0 0 0" rpy="0 0 -1.57" />
@@ -120,7 +120,7 @@
   <link name="iw_foot_top">
     <inertial>
       <mass value="0.151" />
-      <inertia ixx="3.8554e-05" ixy="9.4075e-07" ixz="1.709e-06" iyy="4.445e-05" iyz="1.2246e-06" izz="2.5729e-05"/>
+      <inertia ixx="3.8554e-03" ixy="9.4075e-03" ixz="1.709e-03" iyy="4.445e-03" iyz="1.2246e-03" izz="2.5729e-03"/>
     </inertial>
     <visual>
       <origin xyz="-0.035 0.0425 0" rpy="1.57 0 0" />
@@ -154,6 +154,7 @@
 
     <axis xyz="0 -1 0" />
     <limit effort="10" velocity="1.0" lower="-3.14" upper="3.14" />
+    <dynamics damping="5.0"  friction="0.25" />
   </joint>
 
   <transmission name="t1">
@@ -175,6 +176,7 @@
 
     <axis xyz="0 0 -1" />
     <limit effort="10" velocity="1.0" lower="-0.785" upper="3.14" />
+    <dynamics damping="5.0"  friction="0.25" />
   </joint>
 
   <transmission name="t2">
@@ -196,6 +198,7 @@
 
     <axis xyz="0 0 1" />
     <limit effort="10" velocity="1.0" lower="-0.785" upper="3.14" />
+    <dynamics damping="5.0"  friction="0.25" />
   </joint>
 
   <transmission name="t3">
@@ -217,6 +220,7 @@
 
     <axis xyz="0 0 1" />
     <limit effort="10" velocity="1.0" lower="-0.785" upper="3.14" />
+    <dynamics damping="5.0"  friction="0.25" />
   </joint>
 
   <transmission name="t4">
@@ -239,6 +243,7 @@
 
     <axis xyz="0 0 -1" />
     <limit effort="10" velocity="1.0" lower="-3.14" upper="3.14" />
+    <dynamics damping="5.0"  friction="0.25" />
   </joint>
 
   <transmission name="t5">
@@ -256,5 +261,45 @@
     <plugin name="gazebo_ros_control" filename="libgazebo_ros_control.so">
       <robotNamespace>/inchworm</robotNamespace>
     </plugin>
+  </gazebo>
+
+  <gazebo reference="iw_ankle_foot_bottom">
+    <physics>
+      <ode>
+        <implicit_spring_damper>1</implicit_spring_damper>
+      </ode>
+    </physics>
+  </gazebo>
+
+  <gazebo reference="iw_beam_ankle_bottom">
+    <physics>
+      <ode>
+        <implicit_spring_damper>1</implicit_spring_damper>
+      </ode>
+    </physics>
+  </gazebo>
+
+  <gazebo reference="iw_mid_joint">
+    <physics>
+      <ode>
+        <implicit_spring_damper>1</implicit_spring_damper>
+      </ode>
+    </physics>
+  </gazebo>
+
+  <gazebo reference="iw_beam_ankle_top">
+    <physics>
+      <ode>
+        <implicit_spring_damper>1</implicit_spring_damper>
+      </ode>
+    </physics>
+  </gazebo>
+
+  <gazebo reference="iw_ankle_foot_top">
+    <physics>
+      <ode>
+        <implicit_spring_damper>1</implicit_spring_damper>
+      </ode>
+    </physics>
   </gazebo>
 </robot>

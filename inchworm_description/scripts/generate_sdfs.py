@@ -26,7 +26,7 @@ def insertXacroMacro(sdf, name):
 
   macro = ET.Element("xacro:macro")
   macro.set("name", name)
-  macro.set("params", "x y z rx ry rz")
+  macro.set("params", "x y z rx ry rz fixed")
   macro.insert(0, model)
 
   # Create a pose that depends on these parameters
@@ -58,7 +58,7 @@ def generateModelSpawner(macro_names):
   model = ET.Element("model")
   model.set("name", "inchworm_soup")
 
-  # Dynamically generate and insert magnet plugin
+  # Create magnet plugin
   plugin = ET.Element("plugin")
   plugin.set("name", "assembly_soup")
   plugin.set("filename", "libassembly_soup_plugin.so")
