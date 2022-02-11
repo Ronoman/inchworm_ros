@@ -1,4 +1,6 @@
-from inchworm_env.src.shingle_depot import ShingleDepot
+#!/usr/bin/env python3
+
+from shingle_depot import ShingleDepot
 from shingle import Shingle, ShingleStatus, NeighborIndex
 
 
@@ -12,6 +14,7 @@ class Roof():
     # rows are 0 indexed
     # 0 starts on the left hand side of the roof
     # half shingles are on the right side of even rows and on the left side of odd rows
+    # see even- r on https://www.redblobgames.com/grids/hexagons/
     EVEN_ROW_N_LOOKUP = [(1, 0), (1, -1), (0, -1), (-1, 0), (0, 1), (1, 1)]
     ODD_ROW_N_LOOKUP = [(1, 0), (0, -1), (-1, -1), (-1, 0), (-1, 1), (0, 1)]
     width = 0

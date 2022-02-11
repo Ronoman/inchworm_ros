@@ -1,0 +1,82 @@
+#!/usr/bin/env python
+
+import math, pygame
+
+
+'''
+    Things to change:
+
+        Color shingles
+            based on the roof state
+        update takes in a roof_state message
+
+
+'''
+
+
+
+class TileRenderer:
+    def __init__(self, screen_width, screen_height, roof_height, roof_width, tile_buffer, roof_margin):
+        self.tile_buffer = tile_buffer
+
+        self.roof_margin = roof_margin
+        self.screen_width = screen_width
+        
+        self.num_tiles_wide = roof_width
+        self.num_tiles_high = roof_height
+        print(f"desired roof width in tiles {self.num_tiles_wide}")
+        print(f"desired roof height in tiles {self.num_tiles_high}")
+
+        self.tile_width_px = int((screen_width - 2 *roof_margin) / (self.num_tiles_wide - .5))
+        self.tile_height_px = int(screen_height / self.num_tiles_high)
+
+        print(f"Number of tiles wide: {self.num_tiles_wide}")
+        print(f"Number of tiles high: {self.num_tiles_high}")
+
+        print(f"Tile width px: {self.tile_width_px}")
+        print(f"Tile height px: {self.tile_height_px}")
+
+    def getTileRect(self, x, y):
+        #       x0 y0 w  h
+        rect = [0, 0, 0, self.tile_height_px]
+
+        rect[0] = x * (self.tile_width_px + self.tile_buffer) + self.roof_margin
+        rect[1] = y * (self.tile_height_px + self.tile_buffer)
+
+        # If we are on an odd row, offset x
+        if y % 2 == 1:
+            if x == 0:
+                rect[2] = int(self.tile_width_px / 2)
+                rect[0] = max(rect[0] - int(self.tile_width_px / 2), 0) + self.roof_margin
+            elif x == self.num_tiles_wide:
+                rect[2] = int(self.tile_width_px / 2)
+                rect[0] = max(rect[0] - int(self.tile_width_px / 2), 0)
+                
+            else:
+                rect[2] = self.tile_width_px
+
+                rect[0] = max(rect[0] - int(self.tile_width_px / 2), 0) 
+        else:
+            if x == self.num_tiles_wide - 1:
+                rect[2] = int(self.tile_width_px / 2)
+            else:
+                rect[2] = self.tile_width_px
+
+        return rect
+
+    def drawRoof(self, screen, roof_state, shingle_depots_pos):
+
+        for row in range(self.num_tiles_high):
+            for col in range(self.num_tiles_wide):
+                rect = self.getTileRect(col, row)
+                color = (0, 0, 0)
+                # print(row * self.num_tiles_wide + col)
+                if roof_state[row * self.num_tiles_wide + col] == 1:
+                    color = (255, 0, 0)
+                elif roof_state[row * self.num_tiles_wide + col] == 2:
+                    color = (255, 0, 255)
+                pygame.draw.rect(screen, color, rect)
+        pygame.draw.circle(screen, (0, 255, 0), (self.roof_margin/2, shingle_depots_pos[0] * self.tile_height_px + self.tile_height_px/2), self.roof_margin/2.5)
+        if len(shingle_depots_pos) > 1:
+            pygame.draw.circle(screen, (0, 255, 255), (self.screen_width - self.roof_margin/2, shingle_depots_pos[1] * self.tile_height_px + self.tile_height_px/2), self.roof_margin/2.5)
+

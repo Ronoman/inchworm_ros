@@ -5,6 +5,7 @@ import rospy, math, shingle, sys, std_msgs
 from inchworm_algo.msg import ShingleMsg, RoofState
 from roof import Roof
 from shingle import Shingle, ShingleStatus
+from shingle_depot import ShingleDepot
 from inchworm_algo.srv import *
 
 
@@ -23,7 +24,7 @@ if __name__ == "__main__":
     roof = Roof(roof_width, roof_height, False)
     
 
-    shingle_depot = ShingleDepot(roof_width)
+
 
 
     
@@ -37,11 +38,4 @@ if __name__ == "__main__":
     while not rospy.is_shutdown():
         roof_pub.publish(roof.to_message())
         r.sleep()
-        if onceFlag:
-            position_pub.publish(shingle_depot.get_location())
-            rospy.loginfo("publishing inital position")
-            onceFlag = False
-        if last_depot_postion != shingle_depot.get_location():
-            rospy.loginfo("publishing update position")
-            position_pub.publish(shingle_depot.get_location())
-            last_depot_postion = shingle_depot.get_location()
+        

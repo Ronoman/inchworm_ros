@@ -4,8 +4,7 @@ import rospy, rospkg, math, shingle, sys, std_msgs
 
 from inchworm_algo.msg import ShingleMsg
 from inchworm_algo.srv import *
-from inchworm_algo.src.shingle import Shingle
-from inchworm_algo.src.roof import Roof
+from shingle import Shingle
 
 
 
@@ -27,9 +26,9 @@ class ShingleDepot():
         self.depot_position += 1
         return self.depot_position
     
-    def create_shingle(self, inchworm, is_half_shingle): 
+    def create_shingle(self, inchworm, is_half_shingle, shingle_count): 
         # check if inchworm is next to shingle depot
-        return Shingle(self.roof.increment_shingle_count(), is_half_shingle)
+        return Shingle(id, is_half_shingle)
 
 
 
