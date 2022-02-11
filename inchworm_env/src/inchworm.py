@@ -1,4 +1,5 @@
 from enum import Enum
+from pickletools import int4
 
 from inchworm_env.msg import InchwormMsg
 # all x and y are in array coords currently
@@ -6,9 +7,13 @@ from inchworm_env.msg import InchwormMsg
 
 class EEStatus(Enum):
     PLANTED = 0
-    IN_AIR_NO_SHINGLE = 1
-    IN_AIR_WITH_SHINGLE = 2
+    IN_AIR = 1
 
+class EEShingleStatus(Enum):
+    NO_SHINGLE = 0 #should only be with in_air
+    INSTALLED = 1 #should only be with planted
+    PLACED = 2 #should only be with planted
+    ATTACHED = 3 #should only be with in_air
 
 class Behavior(Enum):
     SKELETON = 0
@@ -19,53 +24,110 @@ class Inchworm():
     ee2_position = [-1, -1]
     ee1_status = EEStatus.PLANTED
     ee2_status = EEStatus.PLANTED
-    ee1_shingle_pos = [-1, -1]
-    ee2_shingle_pos = [-1, -1]
-    roof = [[]]
+    ee1_shingle_stat = EEShingleStatus.INSTALLED
+    ee2_shingle_stat = EEShingleStatus.INSTALLED
+    behavior = Behavior.SKELETON
+    roof = [[]] #occupancy grid
 
     
 
-    def __init__(self, id = -1, is_half_shingle = False):
+    def __init__(self, id = -1, ee1_pos = [-1, -1], ee2_pos = [-1, -1], 
+            ee1_stat = EEStatus.PLANTED, ee2_stat = EEStatus.PLANTED, ee1_shingle_stat = EEShingleStatus.NO_SHINGLE,
+            ee2_shingle_stat = EEShingleStatus.NO_SHINGLE, behavior = Behavior.SKELETON, width = 1, height = 1):
         self.id = id # this value should not change once it is assigned
-        self.on_frontier = False
-        self.is_half_shingle = is_half_shingle
+        self.ee1_position = ee1_pos
+        self.ee2_position = ee2_pos
+        self.ee1_status = ee1_stat
+        self.ee2_status = ee2_stat
+        self.ee1_shingle_stat = ee1_shingle_stat
+        self.ee2_shingle_stat = ee2_shingle_stat
+        self.behavior = behavior
+        self.roof =  [ [0]*width for i in range(height)]
+
 
 
     def create_from_message(self, msg):
-        self.id = msg.id
-        self.is_placed = msg.is_placed
-        self.x_coord = msg.x_coord
-        self.y_coord = msg.y_coord
-        self.neighbors_ids = msg.neighbors_ids
-        self.neighbors_status = msg.neighbors_status
-        self.on_frontier = msg.on_frontier
-        self.is_half_shingle = msg.is_half_shingle
-        self.shingle_status = msg.shingle_status
+        self.id = msg.id 
+        self.ee1_position = msg.ee1_pos 
+        self.ee2_position = msg.ee2_pos 
+        self.ee1_status = msg.ee1_status
+        self.ee2_status = msg.ee2_status
+        self.ee1_shingle_pos = msg.ee1_shingle_pos 
+        self.ee2_shingle_pos = msg.ee2_shingle_pos 
+        self.behavior = msg.behavior 
         return self
 
-
-
-    def place_shingle(self):
+    def place_shingle(self, ee, shingle, roof):
+        if (ee == 1):
+            shingle.place_shingle(self.ee1_position[0], self.ee1_position[1])
+            roof.place_shingle(shingle, self.ee1_position[0], self.ee1_position[1])
+            self.roof[self.ee1_position[0]][self.ee1_position[1]] = 1
+            self.ee1_shingle_stat = EEShingleStatus.PLACED
+        else:
+            shingle.place_shingle(self.ee2_position[0], self.ee2_position[1])
+            roof.place_shingle(shingle, self.ee2_position[0], self.ee2_position[1])
+            self.roof[self.ee2_position[0]][self.ee2_position[1]] = 1
+            self.ee2_shingle_stat = EEShingleStatus.PLACED
         #do something
         return self
 
-    def pickup_shingle(self):
+    def release_shingle(self, ee):
+        if (ee == 1):
+            self.ee1_shingle_stat = EEShingleStatus.NO_SHINGLE
+        else:
+            self.ee2_shingle_stat = EEShingleStatus.NO_SHINGLE
+        return self
+
+    def pickup_shingle(self, ee, shingle, roof):
+        shingle.pickup_shingle()
+        roof.pickup_shingle(shingle)
+        if (ee == 1):
+            self.roof[self.ee1_position[0]][self.ee1_position[1]] = 0
+            self.ee1_shingle_stat = EEShingleStatus.ATTACHED
+        else:
+            self.roof[self.ee2_position[0]][self.ee2_position[1]] = 0
+            self.ee2_shingle_stat = EEShingleStatus.ATTACHED
         #do something
         return self
     
-    def install_shingle(self):
-        #do something
+    def install_shingle(self, ee, shingle, roof):
+        #figure out x and y -> going off ee1?
+        if (ee == 1):
+            shingle.install_shingle(self.ee1_position[0], self.ee1_position[1])
+            roof.install_shingle(shingle, self.ee1_position[0], self.ee1_position[1])
+            self.ee1_shingle_stat = EEShingleStatus.INSTALLED
+        else:
+            shingle.install_shingle(self.ee2_position[0], self.ee2_position[1])
+            roof.install_shingle(shingle, self.ee2_position[0], self.ee2_position[1])
+            self.ee2_shingle_stat = EEShingleStatus.INSTALLED
+        
         return self
 
-    # get ids of all the neighbors and have the roof update the status 
-    # n_location is a NeighborIndex
-    # honestly not sure if we want to use this but it should only be used by the robot
-    def update_shingle(self):
-        #do something
+    
+    def update_shingle(self, ee, shingle):
+        if (ee == 1):
+            shingle.x_coord = self.ee1_position[0]
+            shingle.y_coord = self.ee1_position[1]
+            stat = self.ee1_shingle_stat
+        else:
+            shingle.x_coord = self.ee2_position[0]
+            shingle.y_coord = self.ee2_position[1]
+            stat = self.ee2_shingle_stat
+        
+        #translate to shingle status
+        if stat > 2:
+            stat = 0
+        shingle.shingle_status = stat
+
         return self
 
-    def read_shingle(self):
-        #do something
+    def read_shingle(self, shingle):
+        x = shingle.x_coord
+        y = shingle.y_coord
+        #update the "roof" to include shingle, if the shingle is in a place
+        if ((x != -1) and (y != -1)):
+            self.roof[x][y] = 1
+        #update end effector status?
         return self
 
     def to_message(self):
@@ -73,15 +135,10 @@ class Inchworm():
         msg.id = self.id
         msg.ee1_pos = self.ee1_position
         msg.ee2_pos = self.ee2_position
-        msg.
-
-
-        msg.x_coord = self.x_coord
-        msg.y_coord = self.y_coord
-        msg.neighbors_ids = self.neighbors_ids
-        msg.neighbors_status = self.neighbors_status
-        msg.on_frontier = self.on_frontier
-        msg.is_half_shingle = self.is_half_shingle
-        msg.shingle_status = self.shingle_status
+        msg.ee1_status = self.ee1_status
+        msg.ee2_status = self.ee2_status
+        msg.ee1_shingle_stat = self.ee1_shingle_stat
+        msg.ee2_shingle_stat = self.ee2_shingle_stat
+        msg.behavior = self.behavior
         return msg
         
