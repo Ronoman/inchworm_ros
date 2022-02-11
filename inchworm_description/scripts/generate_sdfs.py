@@ -16,7 +16,7 @@ def insertXacroMacro(sdf, name):
   # Convert top level tag into a model tag
   model = list(tree)[0]
   model.tag = "model"
-  model.set("name", name)
+  model.set("name", name + "_${idx}")
 
   # Convert stupid link names to normal link names
   #   (the stupid names are so that RViz grabs the right transforms to visualize)
@@ -26,13 +26,38 @@ def insertXacroMacro(sdf, name):
 
   macro = ET.Element("xacro:macro")
   macro.set("name", name)
-  macro.set("params", "x y z rx ry rz fixed")
+  macro.set("params", "x y z rx ry rz fixed idx")
   macro.insert(0, model)
 
   # Create a pose that depends on these parameters
   pose = ET.Element("pose")
   pose.text = "${x} ${y} ${z} ${rx} ${ry} ${rz}"
-  model.insert(0, pose)
+
+  xacro_if = ET.Element("xacro:if")
+  xacro_if.set("value", "${fixed}")
+
+  fixed_joint = ET.Element("joint")
+  fixed_joint.set("name", "fixed_to_world")
+  fixed_joint.set("type", "fixed")
+
+  parent = ET.Element("parent")
+  parent.text = "world"
+  child = ET.Element("child")
+  child.text = model.findall("link")[0].get("name").split("/")[0]
+
+  fixed_joint.insert(0, pose)
+  fixed_joint.insert(0, child)
+  fixed_joint.insert(0, parent)
+
+  xacro_if.insert(0, fixed_joint)
+
+  xacro_unless = ET.Element("xacro:unless")
+  xacro_unless.set("value", "${fixed}")
+
+  xacro_unless.insert(0, pose)
+
+  model.insert(0, xacro_unless)
+  model.insert(0, xacro_if)
 
   # Create a new root that the model is a child of
   new_root = ET.Element('sdf')
@@ -88,7 +113,7 @@ def generateModelSpawner(macro_names):
 
     macro = ET.Element("xacro:" + name)
 
-    for param in "x y z rx ry rz".split(" "):
+    for param in "x y z rx ry rz fixed idx".split(" "):
       macro.set(param, "0")
 
     model.append(macro)
