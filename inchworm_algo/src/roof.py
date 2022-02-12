@@ -104,8 +104,9 @@ class Roof():
             self.shingle_depots[0].move_shingle_depot_up()
 
     def spawn_inchworms(self, inchworm_count):
-        for inchworm_id in range(inchworm_count):# TODO: change this so it can spawn in more that one inchworm
-            self.inchworms.append(Inchworm(id=inchworm_id, ee1_pos=[0, 0], ee2_pos=[1, 0], width=self.width, height=self.height, ee2_stat=EEStatus.IN_AIR))
+        inchworm_count = min(int(self.width/2), inchworm_count)
+        for inchworm_id in range(inchworm_count):
+            self.inchworms.append(Inchworm(id=inchworm_id, ee1_pos=[inchworm_id * 2, 0], ee2_pos=[(inchworm_id*2) + 1, 0], width=self.width, height=self.height, ee2_stat=EEStatus.IN_AIR))
         
     def update_inchworms():
         pass

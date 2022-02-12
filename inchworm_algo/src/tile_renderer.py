@@ -68,10 +68,10 @@ class TileRenderer:
         # make this draw a line instead with some way to know id and top vs bot
         text_size = self.tile_height_px
         font = pygame.freetype.SysFont("arial", text_size/4)
-        font.rotation = 0
+        font.rotation = 180
         ee_bot_x = ee_bot_pos[0] * self.tile_width_px + self.tile_width_px/2
         ee_bot_y = ee_bot_pos[1] * self.tile_height_px + self.tile_height_px/2
-        
+
         ee_top_x = ee_top_pos[0] * self.tile_width_px + self.tile_width_px/2
         ee_top_y = ee_top_pos[1] * self.tile_height_px + self.tile_height_px/2
 
@@ -88,7 +88,7 @@ class TileRenderer:
             color = (255, 0, 0, 255)
         font.rotation = 180
 
-        font.render_to(screen, (ee_top_x, ee_top_y), "T" + str(id) , fgcolor=color)
+        font.render_to(screen, (ee_top_x, ee_top_y), str(id) + "T" , fgcolor=color)
 
 
     def drawRoof(self, screen, roof_state, shingle_depots_pos, inchworms):
