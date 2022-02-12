@@ -2,7 +2,7 @@
 
 from shingle_depot import ShingleDepot
 from shingle import Shingle, ShingleStatus, NeighborIndex
-
+from inchworm import EEStatus, Inchworm
 
 # all x and y are in array coords currently
 
@@ -24,12 +24,19 @@ class Roof():
     inchworms = []
     shingle_count = -1
 
-    def __init__(self, width, height, dual_side_depots):
-        self.shingle_array = [ [None]*width for i in range(height)]
+    def __init__(self, width, height, dual_side_depots, inchworm_count):
+        print(range(height))
+        self.shingle_array = []
+        for i in range(height):
+            print(i)
+            self.shingle_array.append([None] * width)
+        print(self.shingle_array)
         self.width = width
         self.height = height
         self.spawn_first_row()
         self.spawn_depots(dual_side_depots)
+        self.inchworms = []
+        self.spawn_inchworms(inchworm_count)
         pass
 
     def place_shingle(self, shingle, x, y):
@@ -96,8 +103,9 @@ class Roof():
         else:
             self.shingle_depots[0].move_shingle_depot_up()
 
-    def spawn_inchworms(num):
-        pass
+    def spawn_inchworms(self, inchworm_count):
+        for inchworm_id in range(inchworm_count):# TODO: change this so it can spawn in more that one inchworm
+            self.inchworms.append(Inchworm(id=inchworm_id, ee1_pos=[0, 0], ee2_pos=[1, 0], width=self.width, height=self.height, ee2_stat=EEStatus.IN_AIR))
         
     def update_inchworms():
         pass
@@ -111,7 +119,7 @@ class Roof():
         roof_state.height = self.height
         shingle_array_temp = []
         # this converts the shingle array in the roof to an occupancy grid
-        for i in range(self.width):
+        for i in range(self.height):
             shingle_array_temp.extend(self.shingle_array[i])
         shingle_array_msg = []
         # rospy.loginfo(self.shingle_array)
@@ -134,6 +142,7 @@ class Roof():
         inchworm_states = []
         for inchworm in self.inchworms:
             inchworm_states.append(inchworm.to_message())
+        roof_state.inchworms = inchworm_states
         roof_state.header.stamp = rospy.Time.now()
         return roof_state
 

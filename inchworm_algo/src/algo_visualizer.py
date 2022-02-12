@@ -6,12 +6,25 @@ from inchworm_algo.msg import ShingleMsg, RoofState
 
 from tile_renderer import TileRenderer
 
+roof_state = []
+shingle_depots = []
+inchworms = []
+tile_renderer = None
 
-
-def handle_new_roof_state(msg): # will probobly have to pass in whatever pygame uses
+def handle_new_roof_state(msg, screen, roof_state, shingle_depot_pos, inchworms):
     print("handling new RoofState")
     roof_state = list(msg.shingles)
-    shingle_depot = list(msg.shingle_depot)
+    print(len(msg.shingles))
+    shingle_depot_pos = list(msg.depot_positions)
+    inchworms = list(msg.inchworms)
+    #3 Draw/render
+    screen.fill(WHITE)
+
+    tile_renderer.drawRoof(screen, roof_state, shingle_depot_pos, inchworms)
+    screen.blit(pygame.transform.flip(screen, False, True), (0, 0))
+
+    ## Done after drawing everything to the screen
+    pygame.display.flip()
 
 
 
@@ -45,11 +58,10 @@ if __name__ == '__main__':
     ###########################
 
     ### Project constants ###
-    ROOF_WIDTH  = 5 # in
-    ROOF_HEIGHT = 10 # in
+    ROOF_WIDTH  = int(sys.argv[1]) # tiles
+    ROOF_HEIGHT = int(sys.argv[2]) # tiles
 
-    TILE_WIDTH  = 12
-    TILE_HEIGHT = 12
+
     #########################
 
     MARGINS = 50
@@ -58,9 +70,10 @@ if __name__ == '__main__':
 
     roof_state = [1] * WIDTH * HEIGHT
     shingle_depot_pos = [0, 5]
+    inchworms = []
 
 
-    rospy.Subscriber('/algo/roof_state', RoofState, handle_new_roof_state)
+    rospy.Subscriber('/algo/roof_state', RoofState, lambda x: handle_new_roof_state(x, screen, roof_state, shingle_depot_pos, inchworms))
     print(f" roof size {len(roof_state)}")
     running = True
     while not rospy.is_shutdown() and running:
@@ -71,12 +84,5 @@ if __name__ == '__main__':
             if event.type == pygame.QUIT:
                 running = False
 
-        #3 Draw/render
-        screen.fill(WHITE)
-
-        tile_renderer.drawRoof(screen, roof_state, shingle_depot_pos)
-        screen.blit(pygame.transform.flip(screen, False, True), (0, 0))
-
-        ## Done after drawing everything to the screen
-        pygame.display.flip()
+        
     pygame.quit()

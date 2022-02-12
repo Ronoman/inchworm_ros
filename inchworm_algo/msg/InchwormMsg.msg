@@ -8,3 +8,6 @@ int8 ee2_status
 int8 ee1_shingle_stat
 int8 ee2_shingle_stat
 int8 behavior
+int8[] roof
+int8 roof_width
+int8[] shingle_depot_pos

@@ -2,6 +2,7 @@ from enum import Enum
 from pickletools import int4
 
 from inchworm_algo.msg import InchwormMsg
+import rospy
 # all x and y are in array coords currently
 
 
@@ -33,7 +34,7 @@ class Inchworm():
 
     def __init__(self, id = -1, ee1_pos = [-1, -1], ee2_pos = [-1, -1], 
             ee1_stat = EEStatus.PLANTED, ee2_stat = EEStatus.PLANTED, ee1_shingle_stat = EEShingleStatus.NO_SHINGLE,
-            ee2_shingle_stat = EEShingleStatus.NO_SHINGLE, behavior = Behavior.SKELETON, width = 1, height = 1):
+            ee2_shingle_stat = EEShingleStatus.NO_SHINGLE, behavior = Behavior.SKELETON, width = 1, height = 1, shingle_depot_pos = [0]):
         self.id = id # this value should not change once it is assigned
         self.ee1_position = ee1_pos
         self.ee2_position = ee2_pos
@@ -42,7 +43,9 @@ class Inchworm():
         self.ee1_shingle_stat = ee1_shingle_stat
         self.ee2_shingle_stat = ee2_shingle_stat
         self.behavior = behavior
-        self.roof =  [ [0]*width for i in range(height)]
+        self.roof_width = width
+        self.roof =  [0] * width * height
+        self.shingle_depot_pos = shingle_depot_pos
 
 
 
@@ -61,12 +64,12 @@ class Inchworm():
         if (ee == 1):
             shingle.place_shingle(self.ee1_position[0], self.ee1_position[1])
             roof.place_shingle(shingle, self.ee1_position[0], self.ee1_position[1])
-            self.roof[self.ee1_position[0]][self.ee1_position[1]] = 1
+            self.roof[self.ee1_position[0] + self.ee1_position[1] * self.roof_width] = 1
             self.ee1_shingle_stat = EEShingleStatus.PLACED
         else:
             shingle.place_shingle(self.ee2_position[0], self.ee2_position[1])
             roof.place_shingle(shingle, self.ee2_position[0], self.ee2_position[1])
-            self.roof[self.ee2_position[0]][self.ee2_position[1]] = 1
+            self.roof[self.ee2_position[0] + self.ee2_position[1] * self.roof_width] = 1
             self.ee2_shingle_stat = EEShingleStatus.PLACED
         #do something
         return self
@@ -82,10 +85,10 @@ class Inchworm():
         shingle.pickup_shingle()
         roof.pickup_shingle(shingle)
         if (ee == 1):
-            self.roof[self.ee1_position[0]][self.ee1_position[1]] = 0
+            self.roof[self.ee1_position[0] + self.ee1_position[1] * self.roof_width] = 0
             self.ee1_shingle_stat = EEShingleStatus.ATTACHED
         else:
-            self.roof[self.ee2_position[0]][self.ee2_position[1]] = 0
+            self.roof[self.ee2_position[0] + self.ee2_position[1] * self.roof_width] = 0
             self.ee2_shingle_stat = EEShingleStatus.ATTACHED
         #do something
         return self
@@ -126,19 +129,35 @@ class Inchworm():
         y = shingle.y_coord
         #update the "roof" to include shingle, if the shingle is in a place
         if ((x != -1) and (y != -1)):
-            self.roof[x][y] = 1
+            self.roof[x + y * self.roof_width] = 1
         #update end effector status?
         return self
+
+    def move_e1():
+        pass
+
+
+    def move_e2():
+        pass
+
+    def run_one_tick():
+        pass
+
+
 
     def to_message(self):
         msg = InchwormMsg()
         msg.id = self.id
         msg.ee1_pos = self.ee1_position
         msg.ee2_pos = self.ee2_position
-        msg.ee1_status = self.ee1_status
-        msg.ee2_status = self.ee2_status
-        msg.ee1_shingle_stat = self.ee1_shingle_stat
-        msg.ee2_shingle_stat = self.ee2_shingle_stat
-        msg.behavior = self.behavior
+        msg.ee1_status = self.ee1_status.value
+        msg.ee2_status = self.ee2_status.value
+        msg.ee1_shingle_stat = self.ee1_shingle_stat.value
+        msg.ee2_shingle_stat = self.ee2_shingle_stat.value
+        msg.behavior = self.behavior.value
+        msg.roof = self.roof
+        msg.roof_width = self.roof_width
+        msg.shingle_depot_pos = self.shingle_depot_pos
+        msg.header.stamp = rospy.Time.now()
         return msg
         

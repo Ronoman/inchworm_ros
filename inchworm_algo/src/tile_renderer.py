@@ -64,19 +64,61 @@ class TileRenderer:
 
         return rect
 
-    def drawRoof(self, screen, roof_state, shingle_depots_pos):
+    def draw_inchworm(self, screen, id, ee_bot_pos, ee_bot_status, ee_top_pos, ee_top_status):
+        # make this draw a line instead with some way to know id and top vs bot
+        text_size = self.tile_height_px
+        font = pygame.freetype.SysFont("arial", text_size/4)
+        font.rotation = 0
+        ee_bot_x = ee_bot_pos[0] * self.tile_width_px + self.tile_width_px/2
+        ee_bot_y = ee_bot_pos[1] * self.tile_height_px + self.tile_height_px/2
+        
+        ee_top_x = ee_top_pos[0] * self.tile_width_px + self.tile_width_px/2
+        ee_top_y = ee_top_pos[1] * self.tile_height_px + self.tile_height_px/2
 
+        pygame.draw.line(screen, (100, 100, 100), (ee_bot_x, ee_bot_y), (ee_top_x, ee_top_y), width=int(self.tile_height_px/8))
+
+        color = (0, 255, 0, 255)
+        if ee_bot_status == 1:
+            color = (255, 0, 0, 255)
+        font.render_to(screen, (ee_bot_x, ee_bot_y), str(id) + "B", fgcolor=color)
+        
+
+        color = (0, 255, 0, 255)
+        if ee_top_status == 1:
+            color = (255, 0, 0, 255)
+        font.rotation = 180
+
+        font.render_to(screen, (ee_top_x, ee_top_y), "T" + str(id) , fgcolor=color)
+
+
+    def drawRoof(self, screen, roof_state, shingle_depots_pos, inchworms):
+        # draw shingle states
+        print(len(roof_state))
         for row in range(self.num_tiles_high):
             for col in range(self.num_tiles_wide):
                 rect = self.getTileRect(col, row)
                 color = (0, 0, 0)
                 # print(row * self.num_tiles_wide + col)
                 if roof_state[row * self.num_tiles_wide + col] == 1:
-                    color = (255, 0, 0)
+                    color = (0, 0, 150)
                 elif roof_state[row * self.num_tiles_wide + col] == 2:
-                    color = (255, 0, 255)
+                    color = (0, 0, 255)
                 pygame.draw.rect(screen, color, rect)
+
+        # draw shingle depots
         pygame.draw.circle(screen, (0, 255, 0), (self.roof_margin/2, shingle_depots_pos[0] * self.tile_height_px + self.tile_height_px/2), self.roof_margin/2.5)
         if len(shingle_depots_pos) > 1:
             pygame.draw.circle(screen, (0, 255, 255), (self.screen_width - self.roof_margin/2, shingle_depots_pos[1] * self.tile_height_px + self.tile_height_px/2), self.roof_margin/2.5)
+
+        # draw inchworms
+        print(len(inchworms))
+        for i, worm in enumerate(inchworms):
+            print(f"drawing inchwomr {i}")
+            inchworm_id = worm.id
+            ee1_pos = worm.ee1_pos
+            ee1_status = worm.ee1_status
+            ee2_pos = worm.ee2_pos
+            ee2_status = worm.ee2_status
+            self.draw_inchworm(screen, inchworm_id, ee1_pos, ee1_status, ee2_pos, ee2_status)
+
 
