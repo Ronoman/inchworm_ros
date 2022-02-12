@@ -1,11 +1,5 @@
 <sdf version="1.7" xmlns:xacro="http://www.ros.org/wiki/xacro"><xacro:macro name="inchworm_description" params="x y z rx ry rz fixed idx"><model name="inchworm_description_${idx}">
-    <xacro:if value="${fixed}"><joint name="fixed_to_world" type="fixed"><parent>world</parent><child>iw_foot_bottom</child><pose>${x} ${y} ${z} ${rx} ${ry} ${rz}</pose></joint></xacro:if><xacro:unless value="${fixed}"><pose>${x} ${y} ${z} ${rx} ${ry} ${rz}</pose></xacro:unless><joint name="foot_to_world" type="fixed">
-      <pose relative_to="__model__">0 0 0 0 -0 0</pose>
-      <parent>world</parent>
-      <child>iw_foot_bottom</child>
-    </joint>
-    <link name="iw_foot_bottom">
-      <pose relative_to="foot_to_world">0 0 0 0 -0 0</pose>
+    <xacro:if value="${fixed}"><joint name="fixed_to_world" type="fixed"><parent>world</parent><child>iw_root</child></joint></xacro:if><pose>${x} ${y} ${z} ${rx} ${ry} ${rz}</pose><link name="iw_root">
       <inertial>
         <pose>0 0 0 0 -0 0</pose>
         <mass>0.151</mass>
@@ -18,7 +12,7 @@
           <izz>0.0025729</izz>
         </inertia>
       </inertial>
-      <collision name="iw_foot_bottom_collision">
+      <collision name="iw_root_fixed_joint_lump__iw_foot_bottom_collision">
         <pose>0 0 0.03 0 -0 0</pose>
         <geometry>
           <box>
@@ -26,7 +20,7 @@
           </box>
         </geometry>
       </collision>
-      <visual name="iw_foot_bottom_visual">
+      <visual name="iw_root_fixed_joint_lump__iw_foot_bottom_visual">
         <pose>-0.035 0.0425 0 1.57 -0 0</pose>
         <geometry>
           <mesh>
@@ -37,8 +31,8 @@
       </visual>
     </link>
     <joint name="iw_ankle_foot_bottom" type="revolute">
-      <pose relative_to="iw_foot_bottom">0 0 0.105 1.57 -0 0</pose>
-      <parent>iw_foot_bottom</parent>
+      <pose relative_to="iw_root">0 0 0.105 1.57 -0 0</pose>
+      <parent>iw_root</parent>
       <child>iw_ankle_bottom</child>
       <axis>
         <xyz>0 -1 0</xyz>

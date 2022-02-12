@@ -136,7 +136,7 @@ if __name__ == "__main__":
     print("Transform from foot to magnet:")
     print(ee_to_magnet)
 
-    shingle_pose = getTransform("world", "shingle/female_0", buffer, listener).transform
+    shingle_pose = getTransform("world", "shingle_1/female_0", buffer, listener).transform
 
     ALIGNMENT_OFFSET = 0.03
 
@@ -173,16 +173,16 @@ if __name__ == "__main__":
 
     rospy.sleep(5)
 
-    away_pose = pickup_pose
-    away_pose.position.z += ALIGNMENT_OFFSET * 2
+    # away_pose = pickup_pose
+    # away_pose.position.z += ALIGNMENT_OFFSET * 2
 
-    rospy.logwarn("Moving away")
-    goToPose(away_pose)
+    # rospy.logwarn("Moving away")
+    # goToPose(away_pose)
 
-    rospy.sleep(2)
+    # rospy.sleep(2)
 
-    rospy.logwarn("Disabling magnet")
-    mag_state_pub.publish(top_disabled)
+    # rospy.logwarn("Disabling magnet")
+    # mag_state_pub.publish(top_disabled)
 
-    away_pose.position.z += 0.02
-    goToPose(away_pose)
+    # away_pose.position.z += 0.02
+    # goToPose(away_pose)

@@ -11,12 +11,15 @@ def insertXacroMacro(sdf, name):
   Takes in an SDF, and wraps everything in <sdf></sdf> in a xacro:macro
   '''
 
+  print(sdf)
   tree = ET.fromstring(sdf)
 
   # Convert top level tag into a model tag
   model = list(tree)[0]
   model.tag = "model"
   model.set("name", name + "_${idx}")
+
+  print(ET.tostring(model).decode("utf-8"))
 
   # Convert stupid link names to normal link names
   #   (the stupid names are so that RViz grabs the right transforms to visualize)
@@ -43,20 +46,22 @@ def insertXacroMacro(sdf, name):
   parent = ET.Element("parent")
   parent.text = "world"
   child = ET.Element("child")
+  print(ET.tostring(model).decode("utf-8"))
   child.text = model.findall("link")[0].get("name").split("/")[0]
 
-  fixed_joint.insert(0, pose)
+  # fixed_joint.insert(0, pose)
   fixed_joint.insert(0, child)
   fixed_joint.insert(0, parent)
 
   xacro_if.insert(0, fixed_joint)
 
-  xacro_unless = ET.Element("xacro:unless")
-  xacro_unless.set("value", "${fixed}")
+  # xacro_unless = ET.Element("xacro:unless")
+  # xacro_unless.set("value", "${fixed}")
 
-  xacro_unless.insert(0, pose)
+  # xacro_unless.insert(0, pose)
 
-  model.insert(0, xacro_unless)
+  # model.insert(0, xacro_unless)
+  model.insert(0, pose)
   model.insert(0, xacro_if)
 
   # Create a new root that the model is a child of

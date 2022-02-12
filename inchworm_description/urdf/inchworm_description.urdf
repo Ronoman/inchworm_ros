@@ -1,7 +1,5 @@
 <?xml version="1.0"?>
 <robot name="inchworm">
-  <link name="world" />
-
   <!-- End effector attached to world -->
   <link name="iw_foot_bottom">
     <inertial>
@@ -139,11 +137,15 @@
     </collision>
   </link>
 
-  <joint name="foot_to_world" type="fixed">
+  <link name="iw_root" />
+
+  <joint name="foot_to_root" type="fixed">
     <origin xyz="0 0 0" rpy="0 0 0" />
 
-    <parent link="world" />
+    <parent link="iw_root" />
     <child  link="iw_foot_bottom" />
+
+    <limit lower="0" upper="0" effort="10" velocity="10" />
   </joint>
 
   <joint name="iw_ankle_foot_bottom" type="revolute">
@@ -256,6 +258,10 @@
       <mechanicalReduction>1</mechanicalReduction>
     </actuator>
   </transmission>
+
+  <!-- <gazebo reference="foot_to_root">
+    <preserveFixedJoint>true</preserveFixedJoint>
+  </gazebo> -->
 
   <gazebo>
     <plugin name="gazebo_ros_control" filename="libgazebo_ros_control.so">

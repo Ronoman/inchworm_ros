@@ -28,9 +28,9 @@
         <joint name="iw_mid_joint" value="0"/>
     </group_state>
     <!--VIRTUAL JOINT: Purpose: this element defines a virtual joint between a robot link and an external frame of reference (considered fixed with respect to the robot)-->
-    <virtual_joint name="joint_to_world" type="fixed" parent_frame="iw_foot_bottom" child_link="world"/>
+    <virtual_joint name="joint_to_world" type="fixed" parent_frame="iw_foot_bottom" child_link="iw_root"/>
     <!--DISABLE COLLISIONS: By default it is assumed that any link of the robot could potentially come into collision with any other link in the robot. This tag disables collision checking between a specified pair of links. -->
-    <disable_collisions link1="world" link2="iw_foot_bottom" reason="Adjacent" />
+    <!-- <disable_collisions link1="world" link2="iw_foot_bottom" reason="Adjacent" /> -->
     <disable_collisions link1="iw_foot_top" link2="world" reason="Adjacent" />
     <disable_collisions link1="iw_ankle_bottom" link2="iw_beam_bottom" reason="Adjacent"/>
     <disable_collisions link1="iw_ankle_bottom" link2="iw_foot_bottom" reason="Adjacent"/>

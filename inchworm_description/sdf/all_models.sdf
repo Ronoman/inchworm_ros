@@ -10,8 +10,8 @@
       <xacro:iw_foot_atom />
       <xacro:shingle_atom />
     </plugin>
-    <!-- <xacro:inchworm_description x="0" y="0" z="0" rx="0" ry="0" rz="0" fixed="0" idx="0" /> -->
-    <xacro:shingle_description x="0"     y="0" z="0.01" rx="0" ry="0" rz="1.57" fixed="0" idx="0" />
-    <xacro:shingle_description x="0.182" y="0" z="0.01" rx="0" ry="0" rz="1.57" fixed="0" idx="1" />
+    <xacro:inchworm_description x="0"     y="0" z="0.06" rx="0" ry="0" rz="0"    fixed="0" idx="0" />
+    <xacro:shingle_description  x="0"     y="0" z="0.01" rx="0" ry="0" rz="1.57" fixed="1" idx="0" />
+    <xacro:shingle_description  x="0.182" y="0" z="0.01" rx="0" ry="0" rz="1.57" fixed="1" idx="1" />
   </model>
 </sdf>

@@ -7,8 +7,7 @@
     <mate_model type="iw" model="dipole">
       <symmetry>
         <!-- Both the inchworm EEs and the shingle mount points are 3-symmetric around the normal -->
-        <!-- TODO: Revert back to z=3 -->
-        <rot>1 1 3</rot>
+        <rot>1 1 4</rot>
       </symmetry>
 
       <dipole>
@@ -48,6 +47,11 @@
   <!-- Inchworm foot atom -->
   <xacro:macro name="iw_foot_atom" params="">
     <atom_model type="iw_foot">
+      <mate_point type="iw" gender="male">
+        <pose>0 0 -0.02 0 0 0</pose>
+      </mate_point>
+    </atom_model>
+    <atom_model type="iw_root">
       <mate_point type="iw" gender="male">
         <pose>0 0 -0.02 0 0 0</pose>
       </mate_point>

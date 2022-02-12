@@ -4,13 +4,10 @@
       <xacro:if value="${fixed}">
         <joint name="fixed_to_world" type="fixed">
           <parent>world</parent>
-          <child>shingle</child>
-          <pose>${x} ${y} ${z} ${rx} ${ry} ${rz}</pose>
+          <child>shingle_${idx}</child>
         </joint>
       </xacro:if>
-      <xacro:unless value="${fixed}">
-        <pose>${x} ${y} ${z} ${rx} ${ry} ${rz}</pose>
-      </xacro:unless>
+      <pose>${x} ${y} ${z} ${rx} ${ry} ${rz}</pose>
       <link name="shingle_${idx}">
         <inertial>
           <pose>0 0 0 0 -0 0</pose>
