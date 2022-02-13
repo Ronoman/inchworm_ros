@@ -80,6 +80,7 @@ if __name__ == "__main__":
     step_flag = False
 
     for i,pt in enumerate(traj_pts):
+        mag_state = MagnetState(magnet1=pt[5], magnet2=pt[6])
 
         if pt[5] == 1:
             if step_flag:

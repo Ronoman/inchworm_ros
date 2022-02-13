@@ -24,7 +24,7 @@
 
     <rosparam file="$(find inchworm_description)/config/joint_names_inchworm_description.yaml" command="load" />
 
-    <!-- <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" respawn="false" output="screen"/> -->
+    <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" respawn="false" output="screen"/>
 
   </group>
 

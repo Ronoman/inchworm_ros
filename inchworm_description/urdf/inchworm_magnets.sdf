@@ -16,8 +16,8 @@
         <min_distance>0.012</min_distance>
       </dipole>
 
-      <max_force>18 18 45</max_force>
-      <max_torque>10 10 10</max_torque>
+      <max_force>18000 18000 45000</max_force>
+      <max_torque>10000 10000 10000</max_torque>
       <max_distance>0.01</max_distance>
 
       <attach_threshold>

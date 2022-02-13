@@ -171,7 +171,11 @@ if __name__ == "__main__":
     both_enabled = MagnetState(magnet1=True, magnet2=True)
     mag_state_pub.publish(both_enabled)
 
-    rospy.sleep(5)
+    rospy.sleep(2)
+
+    rospy.logwarn("Disabling original foot")
+    bottom_disabled = MagnetState(magnet1=False, magnet2=True)
+    mag_state_pub.publish(bottom_disabled)
 
     # away_pose = pickup_pose
     # away_pose.position.z += ALIGNMENT_OFFSET * 2

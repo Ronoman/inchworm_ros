@@ -8,7 +8,7 @@ Panels:
         - /TF1/Frames1
         - /RobotModel1
       Splitter Ratio: 0.5
-    Tree Height: 719
+    Tree Height: 746
   - Class: rviz/Selection
     Name: Selection
   - Class: rviz/Tool Properties
@@ -56,18 +56,52 @@ Visualization Manager:
     - Alpha: 0.5
       Class: rviz/RobotModel
       Collision Enabled: false
-      Enabled: false
+      Enabled: true
       Links:
         All Links Enabled: true
         Expand Joint Details: false
         Expand Link Details: false
         Expand Tree: false
         Link Tree Style: Links in Alphabetic Order
+        iw_ankle_bottom:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        iw_ankle_top:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        iw_beam_bottom:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        iw_beam_top:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        iw_foot_bottom:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        iw_foot_top:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        iw_root:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
       Name: Inchworm Model
       Robot Description: inchworm/robot_description
       TF Prefix: ""
       Update Interval: 0
-      Value: false
+      Value: true
       Visual Enabled: true
     - Alpha: 1
       Axes Length: 0.25
@@ -90,11 +124,35 @@ Visualization Manager:
       Frame Timeout: 15
       Frames:
         All Enabled: false
+        iw_ankle_bottom:
+          Value: true
+        iw_ankle_top:
+          Value: true
+        iw_beam_bottom:
+          Value: true
+        iw_beam_top:
+          Value: true
         iw_foot_bottom:
           Value: true
-        shingle/female_0:
+        iw_foot_top:
           Value: true
-        shingle/shingle:
+        iw_foot_top/iw_foot:
+          Value: true
+        iw_foot_top/male_0:
+          Value: true
+        iw_root:
+          Value: true
+        iw_root/iw_root:
+          Value: true
+        iw_root/male_0:
+          Value: true
+        shingle_0/female_0:
+          Value: true
+        shingle_0/shingle:
+          Value: true
+        shingle_1/female_0:
+          Value: true
+        shingle_1/shingle:
           Value: true
         world:
           Value: true
@@ -106,10 +164,25 @@ Visualization Manager:
       Show Names: false
       Tree:
         world:
-          iw_foot_bottom:
-            {}
-          shingle/shingle:
-            shingle/female_0:
+          iw_foot_top/iw_foot:
+            iw_foot_top/male_0:
+              {}
+          iw_root:
+            iw_foot_bottom:
+              iw_ankle_bottom:
+                iw_beam_bottom:
+                  iw_beam_top:
+                    iw_ankle_top:
+                      iw_foot_top:
+                        {}
+          iw_root/iw_root:
+            iw_root/male_0:
+              {}
+          shingle_0/shingle:
+            shingle_0/female_0:
+              {}
+          shingle_1/shingle:
+            shingle_1/female_0:
               {}
       Update Interval: 0
       Value: true
@@ -165,40 +238,6 @@ Visualization Manager:
           Expand Link Details: false
           Expand Tree: false
           Link Tree Style: Links in Alphabetic Order
-          iw_ankle_bottom:
-            Alpha: 1
-            Show Axes: false
-            Show Trail: false
-            Value: true
-          iw_ankle_top:
-            Alpha: 1
-            Show Axes: false
-            Show Trail: false
-            Value: true
-          iw_beam_bottom:
-            Alpha: 1
-            Show Axes: false
-            Show Trail: false
-            Value: true
-          iw_beam_top:
-            Alpha: 1
-            Show Axes: false
-            Show Trail: false
-            Value: true
-          iw_foot_bottom:
-            Alpha: 1
-            Show Axes: false
-            Show Trail: false
-            Value: true
-          iw_foot_top:
-            Alpha: 1
-            Show Axes: false
-            Show Trail: false
-            Value: true
-          world:
-            Alpha: 1
-            Show Axes: false
-            Show Trail: false
         Loop Animation: false
         Robot Alpha: 0.5
         Robot Color: 150; 50; 150
@@ -244,40 +283,6 @@ Visualization Manager:
           Expand Link Details: false
           Expand Tree: false
           Link Tree Style: Links in Alphabetic Order
-          iw_ankle_bottom:
-            Alpha: 1
-            Show Axes: false
-            Show Trail: false
-            Value: true
-          iw_ankle_top:
-            Alpha: 1
-            Show Axes: false
-            Show Trail: false
-            Value: true
-          iw_beam_bottom:
-            Alpha: 1
-            Show Axes: false
-            Show Trail: false
-            Value: true
-          iw_beam_top:
-            Alpha: 1
-            Show Axes: false
-            Show Trail: false
-            Value: true
-          iw_foot_bottom:
-            Alpha: 1
-            Show Axes: false
-            Show Trail: false
-            Value: true
-          iw_foot_top:
-            Alpha: 1
-            Show Axes: false
-            Show Trail: false
-            Value: true
-          world:
-            Alpha: 1
-            Show Axes: false
-            Show Trail: false
         Robot Alpha: 1
         Show Robot Collision: false
         Show Robot Visual: true
@@ -327,21 +332,21 @@ Visualization Manager:
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.21539804339408875
+      Pitch: 0.24539802968502045
       Target Frame: <Fixed Frame>
-      Yaw: 5.245543479919434
+      Yaw: 5.050539016723633
     Saved: ~
 Window Geometry:
   Displays:
     collapsed: false
-  Height: 1016
+  Height: 1043
   Hide Left Dock: false
   Hide Right Dock: true
   MotionPlanning:
     collapsed: false
   MotionPlanning - Trajectory Slider:
     collapsed: false
-  QMainWindow State: 000000ff00000000fd0000000400000000000002230000035afc020000000bfb0000001200530065006c0065006300740069006f006e00000001e10000009b0000005c00fffffffb0000001e0054006f006f006c002000500072006f007000650072007400690065007302000001ed000001df00000185000000a3fb000000120056006900650077007300200054006f006f02000001df000002110000018500000122fb000000200054006f006f006c002000500072006f0070006500720074006900650073003203000002880000011d000002210000017afb000000100044006900730070006c006100790073010000003d0000035a000000c900fffffffb0000002000730065006c0065006300740069006f006e00200062007500660066006500720200000138000000aa0000023a00000294fb00000014005700690064006500530074006500720065006f02000000e6000000d2000003ee0000030bfb0000000c004b0069006e0065006300740200000186000001060000030c00000261fb000000280020002d0020005400720061006a006500630074006f0072007900200053006c00690064006500720000000000ffffffff0000000000000000fb0000001c004d006f00740069006f006e0050006c0061006e006e0069006e0067000000020f000001880000018800fffffffb00000044004d006f00740069006f006e0050006c0061006e006e0069006e00670020002d0020005400720061006a006500630074006f0072007900200053006c00690064006500720000000000ffffffff000000160000001600000001000001000000035afc0200000003fb0000001e0054006f006f006c002000500072006f00700065007200740069006500730100000041000000780000000000000000fb0000000a00560069006500770073000000003d0000035a000000a400fffffffb0000001200530065006c0065006300740069006f006e010000025a000000b200000000000000000000000200000490000000a9fc0100000001fb0000000a00560069006500770073030000004e00000080000002e10000019700000003000007380000003efc0100000002fb0000000800540069006d0065010000000000000738000002eb00fffffffb0000000800540069006d006501000000000000045000000000000000000000050f0000035a00000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
+  QMainWindow State: 000000ff00000000fd00000004000000000000022300000375fc020000000bfb0000001200530065006c0065006300740069006f006e00000001e10000009b0000005c00fffffffb0000001e0054006f006f006c002000500072006f007000650072007400690065007302000001ed000001df00000185000000a3fb000000120056006900650077007300200054006f006f02000001df000002110000018500000122fb000000200054006f006f006c002000500072006f0070006500720074006900650073003203000002880000011d000002210000017afb000000100044006900730070006c006100790073010000003d00000375000000c900fffffffb0000002000730065006c0065006300740069006f006e00200062007500660066006500720200000138000000aa0000023a00000294fb00000014005700690064006500530074006500720065006f02000000e6000000d2000003ee0000030bfb0000000c004b0069006e0065006300740200000186000001060000030c00000261fb000000280020002d0020005400720061006a006500630074006f0072007900200053006c00690064006500720000000000ffffffff0000000000000000fb0000001c004d006f00740069006f006e0050006c0061006e006e0069006e0067000000020f000001880000017d00fffffffb00000044004d006f00740069006f006e0050006c0061006e006e0069006e00670020002d0020005400720061006a006500630074006f0072007900200053006c00690064006500720000000000ffffffff000000160000001600000001000001000000035afc0200000003fb0000001e0054006f006f006c002000500072006f00700065007200740069006500730100000041000000780000000000000000fb0000000a00560069006500770073000000003d0000035a000000a400fffffffb0000001200530065006c0065006300740069006f006e010000025a000000b200000000000000000000000200000490000000a9fc0100000001fb0000000a00560069006500770073030000004e00000080000002e10000019700000003000007800000003efc0100000002fb0000000800540069006d0065010000000000000780000002eb00fffffffb0000000800540069006d00650100000000000004500000000000000000000005570000037500000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
   Selection:
     collapsed: false
   Time:
@@ -350,6 +355,6 @@ Window Geometry:
     collapsed: false
   Views:
     collapsed: true
-  Width: 1848
-  X: 72
-  Y: 27
+  Width: 1920
+  X: 0
+  Y: 0
