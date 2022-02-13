@@ -12,9 +12,9 @@ inchworms = []
 tile_renderer = None
 
 def handle_new_roof_state(msg, screen, roof_state, shingle_depot_pos, inchworms):
-    print("handling new RoofState")
+    rospy.loginfo("handling new RoofState")
     roof_state = list(msg.shingles)
-    print(len(msg.shingles))
+    rospy.loginfo(len(msg.shingles))
     shingle_depot_pos = list(msg.depot_positions)
     inchworms = list(msg.inchworms)
     #3 Draw/render
@@ -50,7 +50,7 @@ if __name__ == '__main__':
     pygame.init()
     pygame.mixer.init()  ## For sound
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
-    pygame.display.set_caption("Hex Rendering")
+    pygame.display.set_caption("Roof Rendering")
     clock = pygame.time.Clock()     ## For syncing the FPS
 
     ### Rendering constants ###
@@ -74,7 +74,7 @@ if __name__ == '__main__':
 
 
     rospy.Subscriber('/algo/roof_state', RoofState, lambda x: handle_new_roof_state(x, screen, roof_state, shingle_depot_pos, inchworms))
-    print(f" roof size {len(roof_state)}")
+    rospy.loginfo(f" roof size {len(roof_state)}")
     running = True
     while not rospy.is_shutdown() and running:
         #1 Process input/events
