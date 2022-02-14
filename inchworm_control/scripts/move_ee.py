@@ -52,6 +52,22 @@ def rpyToQuat(roll, pitch, yaw):
 
     return quat
 
+def printJointAngles():
+    rads = current_joint_states.position
+    angles = [(float(math.degrees(r))) for r in rads]
+    names = current_joint_states.name
+    joint0 = names.index('iw_ankle_foot_bottom')
+    joint1 = names.index('iw_beam_ankle_bottom')
+    joint2 = names.index('iw_mid_joint')
+    joint3 = names.index('iw_beam_ankle_top')
+    joint4 = names.index('iw_ankle_foot_top')
+    
+    print(f"Joint 0: {angles[joint0]}")
+    print(f"Joint 1: {angles[joint1]}")
+    print(f"Joint 2: {angles[joint2]}")
+    print(f"Joint 3: {angles[joint3]}")
+    print(f"Joint 4: {angles[joint4]}")
+
 if __name__ == "__main__":
     moveit_commander.roscpp_initialize(sys.argv)
     rospy.init_node("move_ee")
@@ -62,7 +78,7 @@ if __name__ == "__main__":
     js_sub = rospy.Subscriber("/inchworm/joint_states", JointState, jointStateCB, queue_size=1)
 
     goal_pub = rospy.Publisher("/inchworm/next_goal", PoseStamped, queue_size=1)
-    traj_pub = rospy.Publisher("/inchworm/arm_controller/command", JointTrajectory, queue_size=1)
+    traj_pub = rospy.Publisher("/inchworm/position_trajectory_controller/command", JointTrajectory, queue_size=1)
 
     robot = moveit_commander.RobotCommander()
 
@@ -72,7 +88,7 @@ if __name__ == "__main__":
     while current_joint_states is None:
         rospy.sleep(1)
 
-    trans = getTransform("foot", "other_foot", buffer, listener).transform
+    trans = getTransform("iw_foot_bottom", "iw_foot_top", buffer, listener).transform
     (r, p, y) = transToRPY(trans)
 
     print(f"Reference frame: {group.get_planning_frame()}")
@@ -110,8 +126,11 @@ if __name__ == "__main__":
     goal_pub.publish(goal_pose)
 
     group.set_goal_position_tolerance(0.01)
+    group.set_goal_orientation_tolerance(0.01)
     group.set_pose_target(goal_pose)
 
     group.go(wait=True)
+
+    printJointAngles()
 
     # traj_pub.publish(plan[1].joint_trajectory)
