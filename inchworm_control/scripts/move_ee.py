@@ -78,7 +78,7 @@ if __name__ == "__main__":
     js_sub = rospy.Subscriber("/inchworm/joint_states", JointState, jointStateCB, queue_size=1)
 
     goal_pub = rospy.Publisher("/inchworm/next_goal", PoseStamped, queue_size=1)
-    traj_pub = rospy.Publisher("/inchworm/arm_controller/command", JointTrajectory, queue_size=1)
+    traj_pub = rospy.Publisher("/inchworm/position_trajectory_controller/command", JointTrajectory, queue_size=1)
 
     robot = moveit_commander.RobotCommander()
 
@@ -126,6 +126,7 @@ if __name__ == "__main__":
     goal_pub.publish(goal_pose)
 
     group.set_goal_position_tolerance(0.01)
+    group.set_goal_orientation_tolerance(0.01)
     group.set_pose_target(goal_pose)
 
     group.go(wait=True)
