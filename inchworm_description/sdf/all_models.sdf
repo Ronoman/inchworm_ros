@@ -18,13 +18,20 @@
     <xacro:property name="shingle_width" value="0.254" />
     <xacro:property name="offset" value="0.005" />
 
-    <xacro:property name="NUM_COLS" value="3" />
-    <xacro:property name="NUM_ROWS" value="6" />
+    <xacro:property name="NUM_COLS" value="10" />
+    <xacro:property name="NUM_ROWS" value="7" />
 
     <xacro:macro name="gen_row" params="col_count row_num">
       <xacro:if value="${col_count}">
-        <xacro:shingle_description x="${(shingle_width + offset)*(col_count - 1)}" y="${(shingle_height + offset)*(row_num - 1)}" z="0.01" rx="0" ry="0" rz="0" fixed="1" idx="${(row_num-1)*NUM_COLS + col_count - 1}" />
 
+
+        <!-- If the row is divisible by 2 (1-indexed), offset the first shingle -->
+        <xacro:if value="${row_num % 2 == 0}">
+          <xacro:shingle_description x="${(shingle_width + offset)*(col_count - 1) + shingle_width/2}" y="${(shingle_height + offset)*(row_num - 1)}" z="0.01" rx="0" ry="0" rz="0" fixed="1" idx="${(row_num-1)*NUM_COLS + col_count - 1}" />
+        </xacro:if>
+        <xacro:unless value="${row_num % 2 == 0}">
+          <xacro:shingle_description x="${(shingle_width + offset)*(col_count - 1)}" y="${(shingle_height + offset)*(row_num - 1)}" z="0.01" rx="0" ry="0" rz="0" fixed="1" idx="${(row_num-1)*NUM_COLS + col_count - 1}" />
+        </xacro:unless>
         <xacro:gen_row col_count="${col_count - 1}" row_num="${row_num}" />
       </xacro:if>
     </xacro:macro>
