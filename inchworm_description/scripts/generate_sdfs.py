@@ -174,7 +174,10 @@ def main():
   all_sdfs = generateModelSpawner(macro_names)
 
   with open(f"{desc_loc}/sdf/all_models.sdf", "w+") as f:
-    f.write(all_sdfs)
+    # Don't do this right now, all_models is heavily modified.
+    # f.write(all_sdfs)
+
+    pass
 
 if __name__ == "__main__":
   main()

@@ -22,18 +22,20 @@ def jointStateCB(msg):
 def joint(action):
   last_states = last_joint_state
 
+  joint_names = ["iw_ankle_foot_bottom", "iw_beam_ankle_bottom", "iw_mid_joint", "iw_beam_ankle_top", "iw_ankle_foot_top"]
   cur_angles = []
 
-  joint_names = ["iw_ankle_foot_bottom", "iw_beam_ankle_bottom", "iw_mid_joint", "iw_beam_ankle_top", "iw_ankle_foot_top"]
-
+  # Reorder the joint names to be the order specified by joint_names
   for name in joint_names:
     cur_angles.append(last_states.position[last_states.name.index(name)])
 
+  # The desired angles from the payload
   new_angles = [float(q) for q in action["payload"]]
 
   duration = float(action["duration"])
   NUM_PTS = 50
 
+  # Calculate the quintic trajectory for each joint. Impose 0 velocity and 0 acceleration at limits.
   traj_triplets = []
   for (p0, pf) in zip(cur_angles, new_angles):
     traj = TrajectoryPlanner.quintic_interp(action["duration"], p0, pf, 0, 0, 0, 0, NUM_PTS)
@@ -41,6 +43,7 @@ def joint(action):
 
   traj_pts = []
 
+  # 
   for i in range(NUM_PTS):
     pt = JointTrajectoryPoint()
     pt.positions     = [traj_triplets[joint][0][i] for joint in range(5)]
@@ -77,6 +80,9 @@ def nfc(action):
 def comm(action):
   print("comm")
 
+def delay(action):
+  rospy.sleep(float(action["duration"]))
+
 ######################################################
 
 def main():
@@ -109,20 +115,17 @@ def main():
 
   actions = list(data.values())[0]
 
+  ACTION_FN_MAP = {"joint": joint, "magnet": magnet, "nfc": nfc, "comm": comm, "delay": delay}
+
+  # Run each action sequentially
   for action in actions:
-    name = list(action.keys())[0]
-
-    print(f"Running action {name}")
-
     data = list(action.values())[0]
-    if data["type"] == "joint":
-      joint(data)
-    elif data["type"] == "magnet":
-      magnet(data)
-    elif data["type"] == "nfc":
-      nfc(data)
-    elif data["type"] == "comm":
-      comm(data)
+
+    # If the type is in our function map, invoke the function and pass in the action data
+    if data["type"] in ACTION_FN_MAP:
+      name = list(action.keys())[0]
+      print(f"Running action {name}")
+      ACTION_FN_MAP[data["type"]](data)
     else:
       rospy.logerr(f"Invalid action type {data['type']}, quitting")
       sys.exit()

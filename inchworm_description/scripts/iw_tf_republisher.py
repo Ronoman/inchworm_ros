@@ -13,6 +13,7 @@ from gazebo_msgs.srv import GetModelState, GetModelStateRequest
 def main():
   rospy.init_node('iw_tf_republisher')
   
+  rospy.wait_for_service("/gazebo/get_model_state")
   model_state_service = rospy.ServiceProxy("/gazebo/get_model_state", GetModelState)
 
   broadcaster = TransformBroadcaster()
