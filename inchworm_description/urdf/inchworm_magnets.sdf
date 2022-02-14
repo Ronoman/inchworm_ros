@@ -63,7 +63,7 @@
     <!-- Shingle <-> Inchworm -->
     <atom_model type="shingle">
       <mate_point type="iw" gender="female">
-        <pose>0 0 0.015 0 0 3.14</pose>
+        <pose>0 0.0137 0 -${radians(90)} 0 ${radians(9.02)}</pose>
       </mate_point>
     </atom_model>
 

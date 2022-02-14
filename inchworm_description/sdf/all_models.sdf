@@ -11,8 +11,6 @@
             <xacro:shingle_atom />
         </plugin>
         <xacro:inchworm_description x="0" y="0" z="0.06" rx="0" ry="0" rz="0" fixed="0" idx="0" />
-        <!-- <xacro:shingle_description  x="0"     y="0" z="0.01" rx="0" ry="0" rz="1.57" fixed="1" idx="0" />
-      <xacro:shingle_description  x="0.182" y="0" z="0.01" rx="0" ry="0" rz="1.57" fixed="1" idx="1" /> -->
 
         <xacro:property name="shingle_height" value="0.1829" />
         <xacro:property name="shingle_width" value="0.254" />
@@ -21,12 +19,10 @@
         <xacro:property name="vert_offset" value="0.019478" />
 
         <xacro:property name="NUM_COLS" value="5" />
-        <xacro:property name="NUM_ROWS" value="5" />
+        <xacro:property name="NUM_ROWS" value="1" />
 
         <xacro:macro name="gen_row" params="col_count row_num">
             <xacro:if value="${col_count}">
-
-
                 <!-- If the row is divisible by 2 (1-indexed), offset the first shingle -->
                 <xacro:if value="${row_num % 2 == 0}">
                     <xacro:shingle x="${(shingle_width + horiz_offset)*(col_count - 1) + shingle_width/2}" y="${(shingle_height - overhang)*(row_num - 1)}" z="${0.02 + (vert_offset)*(row_num-1)}" rx="${radians(90)}" ry="${radians(9.02)}" rz="-${radians(90)}" fixed="1" idx="${(row_num-1)*NUM_COLS + col_count - 1}" />

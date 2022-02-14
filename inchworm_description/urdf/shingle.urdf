@@ -1,6 +1,5 @@
 <?xml version="1.0"?>
 <robot name="shingle">
-  <link name="world" />
   <link name="shingle">
     <inertial>
       <mass value="0.151" />
