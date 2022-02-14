@@ -12,9 +12,9 @@ inchworms = []
 tile_renderer = None
 
 def handle_new_roof_state(msg, screen, roof_state, shingle_depot_pos, inchworms):
-    rospy.loginfo("handling new RoofState")
+    # rospy.loginfo("handling new RoofState")
     roof_state = list(msg.shingles)
-    rospy.loginfo(len(msg.shingles))
+    # rospy.loginfo(len(msg.shingles))
     shingle_depot_pos = list(msg.depot_positions)
     inchworms = list(msg.inchworms)
     #3 Draw/render

@@ -9,7 +9,6 @@ from shingle_depot import ShingleDepot
 from inchworm_algo.srv import *
 
 
-# TODO: change services to functions in here
 
 
 if __name__ == "__main__":
@@ -27,17 +26,15 @@ if __name__ == "__main__":
     
 
 
-
-
-    
-
     # publish roof state
 
     roof_pub = rospy.Publisher("/algo/roof_state", RoofState, queue_size=1)
 
 
     r = rospy.Rate(hz)
+    rospy.sleep(2) # time it takes to startup the algo viz
     while not rospy.is_shutdown():
         roof_pub.publish(roof.to_message())
+        roof.update_inchworms()
         r.sleep()
         

@@ -19,6 +19,7 @@ class EEShingleStatus(Enum):
 class Behavior(Enum):
     SKELETON = 0
 
+
 class Inchworm():
     id = -1
     ee1_position = [-1, -1]
@@ -46,6 +47,7 @@ class Inchworm():
         self.roof_width = width
         self.roof =  [0] * width * height
         self.shingle_depot_pos = shingle_depot_pos
+        self.next_tick_time = rospy.Time.now()
 
 
 
@@ -129,18 +131,116 @@ class Inchworm():
         y = shingle.y_coord
         #update the "roof" to include shingle, if the shingle is in a place
         if ((x != -1) and (y != -1)):
-            self.roof[x + y * self.roof_width] = 1
+            self.roof[x + y * self.roof_width] = shingle.shingle_status
         #update end effector status?
         return self
 
-    def move_e1():
+    def move_e1(self):
         pass
 
 
-    def move_e2():
+    def move_e2(self):
         pass
 
-    def run_one_tick():
+    def rebuild_roof(self):
+        pass
+
+
+    def find_frontier(self):
+        pass
+
+    def next_to_placed_shingle(self, pos):
+        return False
+
+    def placed_shingle_is_valid(self, shingle):
+        return False
+
+    def choose_shingle_target(self, placed_shinge_1, placed_shingle_2) # TODO: change this definition
+        return None
+
+    def dist(self, ee_pos, target):
+        return 0
+
+    def run_one_tick(self, roof): # the roof is passed in because the inchworm has to interact with the real roof
+        if self.behavior == Behavior.SKELETON:
+            rospy.loginfo(f"running inchworm {self.id} for one tick")
+            if rospy.Time.now() >= self.next_tick_time:
+                # read the shingles at the current ee positions
+                # TODO: allow inchworms to read the full data from a shingle and rebuild based off of that
+                # TODO: if the data read does not match the inchworms such that the shingles are out of date, update the shingle
+                # TODO: add this to the state machine down below
+                self.read_shingle(roof.get_shingle(self.ee1_position[0], self.ee1_position[1]))
+                self.read_shingle(roof.get_shingle(self.ee2_position[0], self.ee2_position[1]))
+
+
+                # rebuild the roof based on constraints
+                self.rebuild_roof()
+                # get the coords of the current frontier shingles
+
+                frontier_coords = self.find_frontier()
+
+                # check if either ee is on the frontier, if it is not, move towards shingle depot
+                if self.ee1_position in frontier_coords or self.ee2_position in frontier_coords:
+                    # move towards shingle depot
+                    pass
+
+                elif self.next_to_placed_shingle(self.ee1_position) or self.next_to_placed_shingle(self.ee2_position):
+                    
+                    # get the placed shingles
+                    ee1_placed_shingle = None
+                    ee2_placed_shingle = None
+
+
+                    if self.placed_shingle_is_valid(ee1_placed_shingle): # TODO: logic in here will define behaviors
+                        # install ee1
+                        pass
+                    elif self.placed_shingle_is_valid(ee2_placed_shingle): # TODO: logic in here will define behaviors
+                        # install ee2
+                        pass
+                    else: # TODO: logic in here will define behaviors
+                        target = self.choose_shingle_target(ee1_placed_shingle, ee2_placed_shingle) # TODO: change this definition
+                        
+                        if self.dist(self.ee1_position, target) < self.dist(self.ee2_position, target): # TODO: logic needs to change here if we need to pick up a shingle
+                            # move ee1
+                            # check if we need to pickup a shingle
+                            pass
+                        else: 
+                            # move ee2
+                            # check if we need to pickup a shingle
+                            pass
+                        pass
+
+                        
+                    pass
+
+                else:
+                    # move toward nearest shingle depot
+                    pass
+
+
+                   
+                
+
+
+
+
+                pass
+            '''
+            TODO:
+                tick if done with action
+                read both of the shingles 
+                    rebuild your roof based on reads 
+                find all frontier shingles
+                decide on place to place a shingle
+                if there is a placed shingle next to one of the end effectors, pick it up
+                otherwise, move towards the nearest shingle depot
+
+
+                When moving to a new shingle, assume that all empty shingle locations might have something there,
+                    test to see if there is something there
+                        rebuild roof if there is something there
+            '''
+
         pass
 
 

@@ -119,7 +119,7 @@ class TileRenderer:
 
     def drawRoof(self, screen, roof_state, shingle_depots_pos, inchworms):
         # draw shingle states
-        rospy.loginfo(len(roof_state))
+        # rospy.loginfo(len(roof_state))
         for row in range(self.num_tiles_high):
             for col in range(self.num_tiles_wide):
                 rect = self.getTileRect(col, row)
@@ -139,7 +139,7 @@ class TileRenderer:
             pygame.draw.circle(screen, self.DEPOT_COLOR, (self.screen_width - self.roof_margin/2, shingle_depots_pos[1] * self.tile_height_px + self.tile_height_px/2), min(self.tile_height_px/2, self.roof_margin/2.5))
 
         # draw inchworms
-        rospy.loginfo(len(inchworms))
+        # rospy.loginfo(len(inchworms))
         for i, worm in enumerate(inchworms):
             # rospy.loginfo(f"drawing inchworm {i}")
             inchworm_id = worm.id

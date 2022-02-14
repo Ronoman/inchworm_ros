@@ -25,12 +25,9 @@ class Roof():
     shingle_count = -1
 
     def __init__(self, width, height, dual_side_depots, inchworm_count):
-        print(range(height))
         self.shingle_array = []
         for i in range(height):
-            print(i)
             self.shingle_array.append([None] * width)
-        print(self.shingle_array)
         self.width = width
         self.height = height
         self.spawn_first_row()
@@ -108,7 +105,10 @@ class Roof():
         for inchworm_id in range(inchworm_count):
             self.inchworms.append(Inchworm(id=inchworm_id, ee1_pos=[inchworm_id * 2, 0], ee2_pos=[(inchworm_id*2) + 1, 0], width=self.width, height=self.height, ee2_stat=EEStatus.IN_AIR))
         
-    def update_inchworms():
+    def update_inchworms(self):
+        for worm in self.inchworms:
+            if worm is not None:
+                worm.run_one_tick(self)
         pass
 
     
