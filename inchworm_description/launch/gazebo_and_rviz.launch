@@ -17,7 +17,7 @@
 
     <!-- Robot and shingle description for RViz -->
     <param name="/inchworm/robot_description" command="$(find xacro)/xacro $(find inchworm_description)/urdf/$(arg model)_description.urdf"/>
-    <param name="/inchworm/shingle_description" command="$(find xacro)/xacro $(find inchworm_description)/urdf/shingle_description.urdf" />
+    <param name="/inchworm/shingle_description" command="$(find xacro)/xacro $(find inchworm_description)/urdf/shingle.urdf" />
 
     <!-- Robot description for gazebo + magnet sim -->
     <param name="/inchworm/robot_description_sdf" command="$(find xacro)/xacro $(find inchworm_description)/sdf/all_models.sdf" />

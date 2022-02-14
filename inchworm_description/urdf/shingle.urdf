@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <robot name="shingle">
   <link name="world" />
-  <link name="body">
+  <link name="shingle">
     <inertial>
       <mass value="0.151" />
       <inertia ixx="3.8554e-03" ixy="9.4075e-03" ixz="1.709e-03" iyy="4.445e-03" iyz="1.2246e-03" izz="2.5729e-03"/>
@@ -24,10 +24,4 @@
       </geometry>
     </visual>
   </link>
-
-  <joint name="shingle_to_world" type="fixed">
-    <origin xyz="0 0 0" rpy="1.57908 0 -1.57908" />
-    <parent link="world" />
-    <child link="body" />
-  </joint>
 </robot>
