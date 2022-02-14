@@ -1,7 +1,7 @@
 # ros_control_boilerplate Settings -----------------------
 # Settings for ros_control control loop
 generic_hw_control_loop:
-  loop_hz: 300
+  loop_hz: 50
   cycle_time_error_threshold: 0.01
 
 # Settings for ros_control hardware interface
@@ -36,19 +36,19 @@ position_trajectory_controller:
       #stopped_position_tolerance: 0.4 # Defaults to 0.01
       iw_ankle_foot_bottom:
           # 10deg and 3deg respectively
-          trajectory: 0.17
+          trajectory: 1.0
           goal:       0.05
       iw_beam_ankle_bottom:
-          trajectory: 0.17
+          trajectory: 1.0
           goal:       0.05
       iw_mid_joint:
-          trajectory: 0.17
+          trajectory: 1.0
           goal:       0.05
       iw_beam_ankle_top:
-          trajectory: 0.17
+          trajectory: 1.0
           goal:       0.05
       iw_ankle_foot_top:
-          trajectory: 0.17
+          trajectory: 1.0
           goal:       0.05
    # gains:
    #     joint1: {p: 2.0,  i: 0.0, d: 0.01, i_clamp: 1}

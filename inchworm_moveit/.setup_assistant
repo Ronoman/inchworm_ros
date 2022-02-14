@@ -1,7 +1,7 @@
 moveit_setup_assistant_config:
   URDF:
     package: inchworm_description
-    relative_path: urdf/updated_description.urdf
+    relative_path: urdf/inchworm_description.urdf
     xacro_args: ""
   SRDF:
     relative_path: config/inchworm.srdf

@@ -8,11 +8,11 @@
       <plot style="Lines" mode="TimeSeries">
        <range bottom="-0.786557" left="227.437934" top="15.385038" right="232.428761"/>
        <limitY/>
-       <curve name="/hw_interface/joint_states/iw_ankle_foot_bottom/position" color="#1f77b4"/>
-       <curve name="/hw_interface/joint_states/iw_beam_ankle_bottom/position" color="#d62728"/>
-       <curve name="/hw_interface/joint_states/iw_mid_joint/position" color="#1ac938"/>
-       <curve name="/hw_interface/joint_states/iw_beam_ankle_top/position" color="#ff7f0e"/>
-       <curve name="/hw_interface/joint_states/iw_ankle_foot_top/position" color="#f14cc1"/>
+       <curve name="/inchworm/joint_states/iw_ankle_foot_bottom/position" color="#1f77b4"/>
+       <curve name="/inchworm/joint_states/iw_beam_ankle_bottom/position" color="#d62728"/>
+       <curve name="/inchworm/joint_states/iw_mid_joint/position" color="#1ac938"/>
+       <curve name="/inchworm/joint_states/iw_beam_ankle_top/position" color="#ff7f0e"/>
+       <curve name="/inchworm/joint_states/iw_ankle_foot_top/position" color="#f14cc1"/>
        <curve name="/current_goal/iw_ankle_foot_bottom/position" color="#1f77b4"/>
        <curve name="/current_goal/iw_ankle_foot_top/position" color="#d62728"/>
        <curve name="/current_goal/iw_beam_ankle_bottom/position" color="#1ac938"/>

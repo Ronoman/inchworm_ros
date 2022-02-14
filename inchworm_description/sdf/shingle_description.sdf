@@ -1,0 +1,36 @@
+<sdf version="1.7" xmlns:xacro="http://www.ros.org/wiki/xacro">
+  <xacro:macro name="shingle_description" params="x y z rx ry rz fixed idx">
+    <model name="shingle_description_${idx}">
+      <xacro:if value="${fixed}">
+        <joint name="fixed_to_world" type="fixed">
+          <parent>world</parent>
+          <child>shingle_${idx}</child>
+        </joint>
+      </xacro:if>
+      <pose>${x} ${y} ${z} ${rx} ${ry} ${rz}</pose>
+      <link name="shingle_${idx}">
+        <inertial>
+          <pose>0 0 0 0 -0 0</pose>
+          <mass>0.151</mass>
+          <inertia>
+            <ixx>3.8554e-05</ixx>
+            <ixy>9.4075e-07</ixy>
+            <ixz>1.709e-06</ixz>
+            <iyy>4.445e-05</iyy>
+            <iyz>1.2246e-06</iyz>
+            <izz>2.5729e-05</izz>
+          </inertia>
+        </inertial>
+        <visual name="shingle/shingle_visual">
+          <pose>0 0 0 0 -0 0</pose>
+          <geometry>
+            <box>
+              <size>0.254 0.182 0.02</size>
+            </box>
+          </geometry>
+        </visual>
+        <gravity>0</gravity>
+      </link>
+    </model>
+  </xacro:macro>
+</sdf>

@@ -1,0 +1,49 @@
+<sdf version="1.7" xmlns:xacro="http://www.ros.org/wiki/xacro">
+  <xacro:include filename="$(find inchworm_description)/sdf/shingle_description.sdf" />
+  <xacro:include filename="$(find inchworm_description)/sdf/inchworm_description.sdf" />
+  <xacro:include filename="$(find inchworm_description)/urdf/inchworm_magnets.sdf" />
+  <model name="inchworm_soup">
+    <plugin name="assembly_soup" filename="libassembly_soup_plugin.so">
+      <tf_world_frame>world</tf_world_frame>
+      <publish_active_mates>1</publish_active_mates>
+      <xacro:inchworm_mate />
+      <xacro:iw_foot_atom />
+      <xacro:shingle_atom />
+    </plugin>
+    <xacro:inchworm_description x="0"     y="0" z="0.06" rx="0" ry="0" rz="0"    fixed="0" idx="0" />
+    <!-- <xacro:shingle_description  x="0"     y="0" z="0.01" rx="0" ry="0" rz="1.57" fixed="1" idx="0" />
+    <xacro:shingle_description  x="0.182" y="0" z="0.01" rx="0" ry="0" rz="1.57" fixed="1" idx="1" /> -->
+
+    <xacro:property name="shingle_height" value="0.182" />
+    <xacro:property name="shingle_width" value="0.254" />
+    <xacro:property name="offset" value="0.005" />
+
+    <xacro:property name="NUM_COLS" value="10" />
+    <xacro:property name="NUM_ROWS" value="7" />
+
+    <xacro:macro name="gen_row" params="col_count row_num">
+      <xacro:if value="${col_count}">
+
+
+        <!-- If the row is divisible by 2 (1-indexed), offset the first shingle -->
+        <xacro:if value="${row_num % 2 == 0}">
+          <xacro:shingle_description x="${(shingle_width + offset)*(col_count - 1) + shingle_width/2}" y="${(shingle_height + offset)*(row_num - 1)}" z="0.01" rx="0" ry="0" rz="0" fixed="1" idx="${(row_num-1)*NUM_COLS + col_count - 1}" />
+        </xacro:if>
+        <xacro:unless value="${row_num % 2 == 0}">
+          <xacro:shingle_description x="${(shingle_width + offset)*(col_count - 1)}" y="${(shingle_height + offset)*(row_num - 1)}" z="0.01" rx="0" ry="0" rz="0" fixed="1" idx="${(row_num-1)*NUM_COLS + col_count - 1}" />
+        </xacro:unless>
+        <xacro:gen_row col_count="${col_count - 1}" row_num="${row_num}" />
+      </xacro:if>
+    </xacro:macro>
+
+    <xacro:macro name="gen_grid" params="row_num col_num">
+      <xacro:if value="${row_num}">
+        <xacro:gen_row col_count="${col_num}" row_num="${row_num}" />
+
+        <xacro:gen_grid row_num="${row_num - 1}" col_num="${col_num}" />
+      </xacro:if>
+    </xacro:macro>
+
+    <xacro:gen_grid row_num="${NUM_ROWS}" col_num="${NUM_COLS}" />
+  </model>
+</sdf>

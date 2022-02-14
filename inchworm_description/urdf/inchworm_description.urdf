@@ -1,124 +1,311 @@
 <?xml version="1.0"?>
 <robot name="inchworm">
-  <link name="link_1">
+  <!-- End effector attached to world -->
+  <link name="iw_foot_bottom">
     <inertial>
-      <origin xyz="-0.0016917 -0.0012554 0.063867" rpy="0.0 0.0 0.0"/>
-      <mass value="0.10777"/>
-      <inertia ixx="3.8554e-05" ixy="9.4075e-07" ixz="1.709e-06" iyy="4.445e-05" iyz="1.2246e-06" izz="2.5729e-05"/>
+      <mass value="0.151" />
+      <inertia ixx="3.8554e-03" ixy="9.4075e-03" ixz="1.709e-03" iyy="4.445e-03" iyz="1.2246e-03" izz="2.5729e-03"/>
     </inertial>
     <visual>
-      <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+      <origin xyz="-0.035 0.0425 0" rpy="1.57 0 0" />
       <geometry>
-        <mesh filename="package://inchworm_description/media/link1.stl" scale="0.001 0.001 0.001"/>
+        <mesh filename="package://inchworm_description/meshes/ee.stl" scale="0.001 0.001 0.001" />
       </geometry>
-      <material name="">
-        <color rgba="1.0 1.0 1.0 1.0"/>
+      <material name="blue">
+        <color rgba="0.113 0.321 0.678 1.0" />
       </material>
     </visual>
     <collision>
-      <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+      <origin xyz="0 0 0.03" rpy="0 0 0" />
       <geometry>
-        <mesh filename="package://inchworm_description/media/link1.stl" scale="0.001 0.001 0.001"/>
+        <box size="0.07 0.07 0.05463" />
       </geometry>
     </collision>
   </link>
-  <link name="link_2">
+
+  <!-- Link attached to EE -->
+  <link name="iw_ankle_bottom">
     <inertial>
-      <origin xyz="0.0033121 -0.0010932 -0.10202" rpy="0.0 0.0 0.0"/>
-      <mass value="0.12376"/>
-      <inertia ixx="5.6824e-05" ixy="-9.4075e-07" ixz="5.513e-07" iyy="7.822e-05" iyz="-1.2246e-06" izz="3.8675e-05"/>
+      <mass value="0.151" />
+      <inertia ixx="3.8554e-03" ixy="9.4075e-03" ixz="1.709e-03" iyy="4.445e-03" iyz="1.2246e-03" izz="2.5729e-03"/>
     </inertial>
     <visual>
-      <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
       <geometry>
-        <mesh filename="package://inchworm_description/media/link2.stl" scale="0.001 0.001 0.001"/>
+        <mesh filename="package://inchworm_description/meshes/ankle.stl" scale="0.001 0.001 0.001" />
       </geometry>
-      <material name="">
-        <color rgba="1.0 1.0 1.0 1.0"/>
+      <material name="blue">
+        <color rgba="0.113 0.321 0.678 1.0" />
       </material>
     </visual>
     <collision>
-      <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+      <origin xyz="0 -0.02 0" rpy="0 0 0" />
       <geometry>
-        <mesh filename="package://inchworm_description/media/link2.stl" scale="0.001 0.001 0.001"/>
+        <box size="0.045 0.08 0.08" />
       </geometry>
     </collision>
   </link>
-  <joint name="joint_1" type="continuous">
-    <origin xyz="0.0 -0.0002 0.10478" rpy="-3.1399 0.0 3.1416"/>
-    <axis xyz="1.0 0.0 0.0"/>
-    <parent link="link_1"/>
-    <child link="link_2"/>
-    <limit effort="30.0" lower="0.0" upper="0.0" velocity="0.0"/>
-  </joint>
-  <link name="link_3">
+
+  <!-- First big link -->
+  <link name="iw_beam_bottom">
+    <origin xyz="0 0 0" rpy="0 0 3.14" />
     <inertial>
-      <origin xyz="0.026489 0.013907 -0.11702" rpy="0.0 0.0 0.0"/>
-      <mass value="0.12376"/>
-      <inertia ixx="5.6824e-05" ixy="-9.4075e-07" ixz="5.513e-07" iyy="7.822e-05" iyz="-1.2246e-06" izz="3.8675e-05"/>
+      <mass value="0.151" />
+      <inertia ixx="3.8554e-03" ixy="9.4075e-03" ixz="1.709e-03" iyy="4.445e-03" iyz="1.2246e-03" izz="2.5729e-03"/>
     </inertial>
     <visual>
-      <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+      <origin xyz="0.185 -0.03 0.022" rpy="0 3.14 0" />
       <geometry>
-        <mesh filename="package://inchworm_description/media/link3.stl" scale="0.001 0.001 0.001"/>
+        <mesh filename="package://inchworm_description/meshes/beam_bottom.stl" scale="0.001 0.001 0.001" />
       </geometry>
-      <material name="">
-        <color rgba="1.0 1.0 1.0 1.0"/>
+      <material name="blue">
+        <color rgba="0.113 0.321 0.678 1.0" />
       </material>
     </visual>
     <collision>
-      <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+      <origin xyz="0.0825 0 0" rpy="0 0 0" />
       <geometry>
-        <mesh filename="package://inchworm_description/media/link3.stl" scale="0.001 0.001 0.001"/>
+        <box size="0.22 0.05 0.08" />
       </geometry>
     </collision>
   </link>
-  <joint name="joint_2" type="continuous">
-    <origin xyz="-0.02165 -0.015204 -0.14832" rpy="0.00024788 0.0 0.0"/>
-    <axis xyz="-1.0 0.0 0.0"/>
-    <parent link="link_2"/>
-    <child link="link_3"/>
-    <limit effort="30.0" lower="0.0" upper="0.0" velocity="0.0"/>
-  </joint>
-  <link name="link_4">
+
+  <!-- Second big link -->
+  <link name="iw_beam_top">
     <inertial>
-      <origin xyz="0.025131 0.015 -0.071936" rpy="0.0 0.0 0.0"/>
-      <mass value="0.075697"/>
-      <inertia ixx="2.7758e-05" ixy="9.4654e-18" ixz="-1.1577e-06" iyy="4.3258e-05" iyz="7.0031e-19" izz="3.2746e-05"/>
+      <mass value="0.151" />
+      <inertia ixx="3.8554e-03" ixy="9.4075e-03" ixz="1.709e-03" iyy="4.445e-03" iyz="1.2246e-03" izz="2.5729e-03"/>
     </inertial>
     <visual>
-      <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+      <origin xyz="0.02 0.0575 -0.0325" rpy="0 0 3.14" />
       <geometry>
-        <mesh filename="package://inchworm_description/meshes/link4.stl" scale="0.001 0.001 0.001"/>
+        <mesh filename="package://inchworm_description/meshes/beam_top.stl" scale="0.001 0.001 0.001" />
       </geometry>
-      <material name="">
-        <color rgba="1.0 1.0 1.0 1.0"/>
+      <material name="blue">
+        <color rgba="0.113 0.321 0.678 1.0" />
       </material>
     </visual>
     <collision>
-      <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+      <origin xyz="-0.0825 0 0" rpy="0 0 0" />
       <geometry>
-        <mesh filename="package://inchworm_description/meshes/link4.stl" scale="0.001 0.001 0.001"/>
+        <box size="0.22 0.05 0.08" />
       </geometry>
     </collision>
   </link>
-  <joint name="joint_3" type="continuous">
-    <origin xyz="0.0017 -0.00017056 -0.16329" rpy="-0.0019608 0.0 0.0"/>
-    <axis xyz="-1.0 0.0 0.0"/>
-    <parent link="link_3"/>
-    <child link="link_4"/>
-    <limit effort="30.0" lower="0.0" upper="0.0" velocity="0.0"/>
-  </joint>
-  <link name="link_5">
+
+  <link name="iw_ankle_top">
     <inertial>
-      <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
-      <mass value="1.0"/>
-      <inertia ixx="1.0" ixy="0.0" ixz="0.0" iyy="1.0" iyz="0.0" izz="1.0"/>
+      <mass value="0.151" />
+      <inertia ixx="3.8554e-03" ixy="9.4075e-03" ixz="1.709e-03" iyy="4.445e-03" iyz="1.2246e-03" izz="2.5729e-03"/>
     </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 -1.57" />
+      <geometry>
+        <mesh filename="package://inchworm_description/meshes/ankle.stl" scale="0.001 0.001 0.001" />
+      </geometry>
+      <material name="blue">
+        <color rgba="0.113 0.321 0.678 1.0" />
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="-0.02 0 0" rpy="0 0 0" />
+      <geometry>
+        <box size="0.08 0.045 0.08" />
+      </geometry>
+    </collision>
   </link>
-  <joint name="temp_joint" type="fixed">
-    <origin xyz="0.051962 0.02982944 -0.307162" rpy="0.0 0.0 0.0"/>
-    <parent link="link_4"/>
-    <child link="link_5"/>
+
+  
+  <link name="iw_foot_top">
+    <inertial>
+      <mass value="0.151" />
+      <inertia ixx="3.8554e-03" ixy="9.4075e-03" ixz="1.709e-03" iyy="4.445e-03" iyz="1.2246e-03" izz="2.5729e-03"/>
+    </inertial>
+    <visual>
+      <origin xyz="-0.035 0.0425 0" rpy="1.57 0 0" />
+      <geometry>
+        <mesh filename="package://inchworm_description/meshes/ee.stl" scale="0.001 0.001 0.001" />
+      </geometry>
+      <material name="blue">
+        <color rgba="0.113 0.321 0.678 1.0" />
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0.03" rpy="0 0 0" />
+      <geometry>
+        <box size="0.07 0.07 0.05463" />
+      </geometry>
+    </collision>
+  </link>
+
+  <link name="iw_root" />
+
+  <joint name="foot_to_root" type="fixed">
+    <origin xyz="0 0 0" rpy="0 0 0" />
+
+    <parent link="iw_root" />
+    <child  link="iw_foot_bottom" />
+
+    <limit lower="0" upper="0" effort="10" velocity="10" />
   </joint>
+
+  <joint name="iw_ankle_foot_bottom" type="revolute">
+    <origin xyz="0 0 0.105" rpy="1.57 0 0" />
+
+    <parent link="iw_foot_bottom" />
+    <child  link="iw_ankle_bottom" />
+
+    <axis xyz="0 -1 0" />
+    <limit effort="10" velocity="1.0" lower="-3.14" upper="3.14" />
+    <dynamics damping="5.0"  friction="0.25" />
+  </joint>
+
+  <transmission name="t1">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="iw_ankle_foot_bottom">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="motor1">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+  </transmission>
+
+  <joint name="iw_beam_ankle_bottom" type="revolute">
+    <origin xyz="0 0 0.001" rpy="0 0 1.57" />
+
+    <parent link="iw_ankle_bottom" />
+    <child  link="iw_beam_bottom" />
+
+    <axis xyz="0 0 -1" />
+    <limit effort="10" velocity="1.0" lower="-0.785" upper="3.14" />
+    <dynamics damping="5.0"  friction="0.25" />
+  </joint>
+
+  <transmission name="t2">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="iw_beam_ankle_bottom">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="motor2">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+  </transmission>
+
+  <joint name="iw_mid_joint" type="revolute">
+    <origin xyz="0.165 0 -0.001" rpy="3.14 0 3.14" />
+
+    <parent link="iw_beam_bottom" />
+    <child  link="iw_beam_top" />
+
+    <axis xyz="0 0 1" />
+    <limit effort="10" velocity="1.0" lower="-0.785" upper="3.14" />
+    <dynamics damping="5.0"  friction="0.25" />
+  </joint>
+
+  <transmission name="t3">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="iw_mid_joint">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="motor3">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+  </transmission>
+
+  <joint name="iw_beam_ankle_top" type="revolute">
+    <origin xyz="-0.165 0 0" rpy="0 0 0" />
+
+    <parent link="iw_beam_top" />
+    <child  link="iw_ankle_top" />
+
+    <axis xyz="0 0 1" />
+    <limit effort="10" velocity="1.0" lower="-0.785" upper="3.14" />
+    <dynamics damping="5.0"  friction="0.25" />
+  </joint>
+
+  <transmission name="t4">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="iw_beam_ankle_top">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="motor4">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+  </transmission>
+
+  
+  <joint name="iw_ankle_foot_top" type="revolute">
+    <origin xyz="-0.105 0 0" rpy="0 1.57 0" />
+
+    <parent link="iw_ankle_top" />
+    <child  link="iw_foot_top" />
+
+    <axis xyz="0 0 -1" />
+    <limit effort="10" velocity="1.0" lower="-3.14" upper="3.14" />
+    <dynamics damping="5.0"  friction="0.25" />
+  </joint>
+
+  <transmission name="t5">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="iw_ankle_foot_top">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="motor5">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+  </transmission>
+
+  <!-- <gazebo reference="foot_to_root">
+    <preserveFixedJoint>true</preserveFixedJoint>
+  </gazebo> -->
+
+  <gazebo>
+    <plugin name="gazebo_ros_control" filename="libgazebo_ros_control.so">
+      <robotNamespace>/inchworm</robotNamespace>
+    </plugin>
+  </gazebo>
+
+  <gazebo reference="iw_ankle_foot_bottom">
+    <physics>
+      <ode>
+        <implicit_spring_damper>1</implicit_spring_damper>
+      </ode>
+    </physics>
+  </gazebo>
+
+  <gazebo reference="iw_beam_ankle_bottom">
+    <physics>
+      <ode>
+        <implicit_spring_damper>1</implicit_spring_damper>
+      </ode>
+    </physics>
+  </gazebo>
+
+  <gazebo reference="iw_mid_joint">
+    <physics>
+      <ode>
+        <implicit_spring_damper>1</implicit_spring_damper>
+      </ode>
+    </physics>
+  </gazebo>
+
+  <gazebo reference="iw_beam_ankle_top">
+    <physics>
+      <ode>
+        <implicit_spring_damper>1</implicit_spring_damper>
+      </ode>
+    </physics>
+  </gazebo>
+
+  <gazebo reference="iw_ankle_foot_top">
+    <physics>
+      <ode>
+        <implicit_spring_damper>1</implicit_spring_damper>
+      </ode>
+    </physics>
+  </gazebo>
 </robot>

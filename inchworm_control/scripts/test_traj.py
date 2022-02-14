@@ -4,6 +4,7 @@ import rospy
 import numpy as np
 
 from sensor_msgs.msg import JointState
+from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
 
 start_pose = None
 
@@ -15,8 +16,8 @@ def poseCB(msg):
 if __name__ == "__main__":
     rospy.init_node("test_traj")
 
-    goal_pub = rospy.Publisher("/hw_interface/set_joint_goal", JointState, queue_size=1)
-    state_sub = rospy.Subscriber("/hw_interface/joint_goal", JointState, poseCB)
+    goal_pub = rospy.Publisher("/inchworm/position_trajectory_controller/command", JointTrajectory, queue_size=1)
+    state_sub = rospy.Subscriber("/inchworm/joint_goal", JointState, poseCB)
 
     while not rospy.is_shutdown() and start_pose is None:
         print(start_pose)
@@ -46,17 +47,24 @@ if __name__ == "__main__":
 
     # Converts an array of the form [[joint 1 positions], [joint 2 positions], ..., [joint 5 positions]] to
     #                               [[j1, j2, j3, j4, j5 timestep 1], [j1, j2, j3, j4, j5 timestep 2], ...]
-    # so that it can be put easily into a JointState message
+    # so that it can be put easily into JointTrajectoryPoints
     joint_states = list(zip(*interp_pts))
 
-    for i in range(len(joint_states)):
-        state = JointState()
+    traj = JointTrajectory()
+    traj.header.frame_id = "world"
+    traj.joint_names = ["iw_ankle_foot_bottom", "iw_beam_ankle_bottom", "iw_mid_joint", "iw_beam_ankle_top", "iw_ankle_foot_top"]
 
-        state.name = ["iw_ankle_foot_bottom", "iw_beam_ankle_bottom", "iw_mid_joint", "iw_beam_ankle_top", "iw_ankle_foot_top"]
-        state.position = [0]*5
+    for i,state in enumerate(joint_states):
+        pt = JointTrajectoryPoint()
+        pt.positions = state
+        pt.velocities = [0]*5
+        pt.accelerations = [0]*5
+        pt.effort = [0]*5
 
-        state.position = joint_states[i]
+        pt.time_from_start = rospy.Duration(i * timestep)
 
-        goal_pub.publish(state)
+        traj.points.append(pt)
 
-        rospy.sleep(timestep)
+    traj.header.stamp = rospy.Time.now()
+
+    goal_pub.publish(traj)

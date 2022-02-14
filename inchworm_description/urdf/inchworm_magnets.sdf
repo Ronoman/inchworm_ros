@@ -1,0 +1,73 @@
+<?xml version='1.0'?>
+<sdf version="1.4" xmlns:xacro="http://www.ros.org/wiki/xacro" >
+  <!-- TODO: Include any other magnet SDFs -->
+
+  <!-- Mate model -->
+  <xacro:macro name="inchworm_mate">
+    <mate_model type="iw" model="dipole">
+      <symmetry>
+        <!-- Both the inchworm EEs and the shingle mount points are 3-symmetric around the normal -->
+        <rot>1 1 4</rot>
+      </symmetry>
+
+      <dipole>
+        <position>0 0 0.1</position>
+        <moment>0 0 0</moment>
+        <min_distance>0.012</min_distance>
+      </dipole>
+
+      <max_force>18000 18000 45000</max_force>
+      <max_torque>10000 10000 10000</max_torque>
+      <max_distance>0.01</max_distance>
+
+      <attach_threshold>
+        <linear>0.015</linear>
+        <angular>0.3</angular>
+      </attach_threshold>
+
+      <detach_threshold>
+        <linear>0.03</linear>
+        <angular>0.6</angular>
+      </detach_threshold>
+
+      <joint type="fixed" name="iw">
+        <pose>0 0 0 0 0 0</pose>
+        <parent>iw_foot</parent>
+        <child>shingle</child>
+        <physics>
+          <provide_feedback>true</provide_feedback>
+          <ode>
+            <!-- Commented out in gbeam sim -->
+          </ode>
+        </physics>
+      </joint>
+    </mate_model>
+  </xacro:macro>
+
+  <!-- Inchworm foot atom -->
+  <xacro:macro name="iw_foot_atom" params="">
+    <atom_model type="iw_foot">
+      <mate_point type="iw" gender="male">
+        <pose>0 0 -0.02 0 0 0</pose>
+      </mate_point>
+    </atom_model>
+    <atom_model type="iw_root">
+      <mate_point type="iw" gender="male">
+        <pose>0 0 -0.02 0 0 0</pose>
+      </mate_point>
+    </atom_model>
+  </xacro:macro>
+
+  <!-- Shingle atoms -->
+  <xacro:macro name="shingle_atom" params="">
+    <!-- Shingle <-> Inchworm -->
+    <atom_model type="shingle">
+      <mate_point type="iw" gender="female">
+        <pose>0 0 0.015 0 0 3.14</pose>
+      </mate_point>
+    </atom_model>
+
+    <!-- Shingle <-> Roof -->
+    <!-- TODO -->
+  </xacro:macro>
+</sdf>
