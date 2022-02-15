@@ -6,6 +6,10 @@ from inchworm import EEStatus, Inchworm
 
 # all x and y are in array coords currently
 
+
+
+### NOTICE: COLLISION AVOIDENCE IS CURRENTLY CENTILIZED
+
 from inchworm_algo.msg import ShingleMsg, RoofState
 import rospy
 
@@ -22,19 +26,21 @@ class Roof():
     shingle_array = [[]]
     shingle_depots = []
     inchworms = []
+    inchworm_occ = []
     shingle_count = -1
 
     def __init__(self, width, height, dual_side_depots, inchworm_count):
         self.shingle_array = []
         for i in range(height):
             self.shingle_array.append([None] * width)
+            self.inchworm_occ.append([0] * width)
         self.width = width
         self.height = height
         self.spawn_first_row()
         self.spawn_depots(dual_side_depots)
         self.inchworms = []
         self.spawn_inchworms(inchworm_count)
-        pass
+
 
     def place_shingle(self, shingle, x, y):
         self.shingle_array[y][x] = shingle
@@ -103,15 +109,22 @@ class Roof():
     def spawn_inchworms(self, inchworm_count):
         inchworm_count = min(int(self.width/2), inchworm_count)
         for inchworm_id in range(inchworm_count):
-            self.inchworms.append(Inchworm(id=inchworm_id, ee1_pos=[inchworm_id * 2, 0], ee2_pos=[(inchworm_id*2) + 1, 0], width=self.width, height=self.height, ee2_stat=EEStatus.IN_AIR))
+            self.inchworms.append(Inchworm(id=inchworm_id, ee1_pos=[inchworm_id * 2, 0], ee2_pos=[(inchworm_id*2) + 1, 0], width=self.width, height=self.height, ee2_stat=EEStatus.PLANTED))
+            self.inchworm_occ[0][inchworm_id * 2] = 1
+            self.inchworm_occ[0][(inchworm_id*2) + 1] = 1
+
         
     def update_inchworms(self):
         for worm in self.inchworms:
             if worm is not None:
-                worm.run_one_tick(self)
+                worm.run_one_tick(self.shingle_array, self.inchworm_occ)
+        for worm in self.inchworms:
+            if worm is not None:
+                self.run_worm_action(worm.run_actions(self.shingle_array, self.inchworm_occ))
         pass
 
-    
+    def run_worm_action(self, action):
+        pass
 
     def to_message(self):
         # TODO: include inchworms & shingle depot in message
@@ -148,5 +161,8 @@ class Roof():
         return roof_state
 
 
-
+    '''
+    TODO:
+        - inchworm action executer
+    '''
                 
