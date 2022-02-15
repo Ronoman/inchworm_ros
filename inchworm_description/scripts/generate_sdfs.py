@@ -6,30 +6,28 @@ import xml.etree.ElementTree as ET
 
 rospack = None
 
-def insertXacroMacro(sdf, name):
+def augmentSDF(sdf, model_name, params="x y z rx ry rz fixed idx"):
   '''
-  Takes in an SDF, and wraps everything in <sdf></sdf> in a xacro:macro
+  Takes in an SDF, and wraps everything in <sdf></sdf> in a xacro:macro. Also sets the parameter list for the macro,
+      and paramaterizes model and link names to be based on the idx parameter.
   '''
 
-  print(sdf)
   tree = ET.fromstring(sdf)
 
   # Convert top level tag into a model tag
   model = list(tree)[0]
   model.tag = "model"
-  model.set("name", name + "_${idx}")
-
-  print(ET.tostring(model).decode("utf-8"))
+  model.set("name", model_name + "_${idx}")
 
   # Convert stupid link names to normal link names
   #   (the stupid names are so that RViz grabs the right transforms to visualize)
   for link in model.findall("link"):
     link_name = link.get("name")
-    link.set("name", link_name.split("/")[0])
+    link.set("name", link_name + "_${idx}")
 
   macro = ET.Element("xacro:macro")
-  macro.set("name", name)
-  macro.set("params", "x y z rx ry rz fixed idx")
+  macro.set("name", model_name)
+  macro.set("params", params)
   macro.insert(0, model)
 
   # Create a pose that depends on these parameters
@@ -46,7 +44,6 @@ def insertXacroMacro(sdf, name):
   parent = ET.Element("parent")
   parent.text = "world"
   child = ET.Element("child")
-  print(ET.tostring(model).decode("utf-8"))
   child.text = model.findall("link")[0].get("name").split("/")[0]
 
   # fixed_joint.insert(0, pose)
@@ -54,13 +51,7 @@ def insertXacroMacro(sdf, name):
   fixed_joint.insert(0, parent)
 
   xacro_if.insert(0, fixed_joint)
-
-  # xacro_unless = ET.Element("xacro:unless")
-  # xacro_unless.set("value", "${fixed}")
-
-  # xacro_unless.insert(0, pose)
-
-  # model.insert(0, xacro_unless)
+  
   model.insert(0, pose)
   model.insert(0, xacro_if)
 
@@ -71,7 +62,8 @@ def insertXacroMacro(sdf, name):
 
   new_root.insert(0, macro)
 
-  return ET.tostring(new_root).decode("utf-8")
+  # return ET.tostring(new_root).decode("utf-8")
+  return new_root
 
 def generateModelSpawner(macro_names):
   # Parent SDF tag
@@ -128,6 +120,76 @@ def generateModelSpawner(macro_names):
 
   return ET.tostring(sdf).decode("utf-8")
 
+def generateShingle(sdf):
+  shingle = augmentSDF(sdf, "shingle_description")
+
+  return ET.tostring(shingle).decode("utf-8")
+
+def generateInchworm(sdf):
+  inchworm = augmentSDF(sdf, "inchworm_description")
+
+  # Add `_${idx}`` to pose relative_to
+  macro = inchworm.find("xacro:macro")
+  model = macro.find("model")
+  links = model.findall("link")
+  joints = model.findall("joint")
+
+  print("Inchworm links:")
+  for link in links:
+    print(link.get("name"))
+
+  # Link poses point to joints, which aren't currently idx parameterized
+  # for link in links:
+  #   pose = link.find("pose")
+
+  #   # Hooray short circuiting!
+  #   if pose is not None and pose.get("relative_to") is not None:
+  #     pose.set("relative_to", pose.get("relative_to") + "_${idx}")
+
+  for joint in joints:
+    pose = joint.find("pose")
+
+    # Hooray short circuiting!
+    if pose is not None and pose.get("relative_to") is not None:
+      pose.set("relative_to", pose.get("relative_to") + "_${idx}")
+
+    parent = joint.find("parent")
+    parent.text += "_${idx}"
+
+    child = joint.find("child")
+    child.text += "_${idx}"
+
+  return ET.tostring(inchworm).decode("utf-8")
+
+def generateRoof(sdf):
+  roof = augmentSDF(sdf, "roof_description", params="x y z rx ry rz fixed idx width height")
+
+  macro = roof.find("xacro:macro")
+  model = macro.find("model")
+  link = model.find("link")
+
+  visual = link.find("visual")
+  collision = link.find("collision")
+
+  cur_pose = visual.find("pose").text.split(" ")
+  cur_pose[0] = "${width/2}"
+  cur_pose[1] = "${height/2}"
+
+  visual.find("pose").text = ' '.join(cur_pose)
+  collision.find("pose").text = ' '.join(cur_pose)
+
+  vis_size = visual.find("geometry").find("box").find("size")
+  col_size = collision.find("geometry").find("box").find("size")
+  
+  cur_size = vis_size.text.split(" ")
+  cur_size[0] = "${width}"
+  cur_size[1] = "${height}"
+
+  vis_size.text = ' '.join(cur_size)
+  col_size.text = ' '.join(cur_size)
+
+  return ET.tostring(roof).decode("utf-8")
+
 def main():
   '''
   The purpose of this script is to generate an SDF for every URDF in the /urdf directory of inchworm_description. RViz needs URDFs to visualize properly,
@@ -154,9 +216,19 @@ def main():
     proc = subprocess.Popen(["gz", "sdf", "-p", urdf], stdout=subprocess.PIPE)
     sdf_data = proc.stdout.read().decode("utf-8")
 
+    NAME_FN_MAP = {
+      "inchworm_description": generateInchworm,
+      "shingle": generateShingle,
+      "roof": generateRoof
+    }
+
     # Convert into an XML object
     # Wrap the <model> tag with a <xacro:macro> tag
-    new_sdf = insertXacroMacro(sdf_data, sdf_filename[:-4])
+    name = sdf_filename[:-4]
+    if name in NAME_FN_MAP:
+      new_sdf = NAME_FN_MAP[name](sdf_data)
+    else:
+      print(f"Skipping unmapped urdf: {name}.urdf")
 
     # Write the contents to `sdf/<same_name>.sdf`
     with open(sdf_path, 'w+') as f:

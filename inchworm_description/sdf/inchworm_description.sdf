@@ -1,5 +1,5 @@
 <sdf version="1.7" xmlns:xacro="http://www.ros.org/wiki/xacro"><xacro:macro name="inchworm_description" params="x y z rx ry rz fixed idx"><model name="inchworm_description_${idx}">
-    <xacro:if value="${fixed}"><joint name="fixed_to_world" type="fixed"><parent>world</parent><child>iw_root</child></joint></xacro:if><pose>${x} ${y} ${z} ${rx} ${ry} ${rz}</pose><link name="iw_root">
+    <xacro:if value="${fixed}"><joint name="fixed_to_world" type="fixed"><parent>world</parent><child>iw_root_${idx}</child></joint></xacro:if><pose>${x} ${y} ${z} ${rx} ${ry} ${rz}</pose><link name="iw_root_${idx}">
       <inertial>
         <pose>0 0 0 0 -0 0</pose>
         <mass>0.151</mass>
@@ -31,9 +31,9 @@
       </visual>
     </link>
     <joint name="iw_ankle_foot_bottom" type="revolute">
-      <pose relative_to="iw_root">0 0 0.105 1.57 -0 0</pose>
-      <parent>iw_root</parent>
-      <child>iw_ankle_bottom</child>
+      <pose relative_to="iw_root_${idx}">0 0 0.105 1.57 -0 0</pose>
+      <parent>iw_root_${idx}</parent>
+      <child>iw_ankle_bottom_${idx}</child>
       <axis>
         <xyz>0 -1 0</xyz>
         <limit>
@@ -63,7 +63,7 @@
         </ode>
       </physics>
     </joint>
-    <link name="iw_ankle_bottom">
+    <link name="iw_ankle_bottom_${idx}">
       <pose relative_to="iw_ankle_foot_bottom">0 0 0 0 -0 0</pose>
       <inertial>
         <pose>0 0 0 0 -0 0</pose>
@@ -96,9 +96,9 @@
       </visual>
     </link>
     <joint name="iw_beam_ankle_bottom" type="revolute">
-      <pose relative_to="iw_ankle_bottom">0 0 0.001 0 -0 1.57</pose>
-      <parent>iw_ankle_bottom</parent>
-      <child>iw_beam_bottom</child>
+      <pose relative_to="iw_ankle_bottom_${idx}">0 0 0.001 0 -0 1.57</pose>
+      <parent>iw_ankle_bottom_${idx}</parent>
+      <child>iw_beam_bottom_${idx}</child>
       <axis>
         <xyz>0 0 -1</xyz>
         <limit>
@@ -128,7 +128,7 @@
         </ode>
       </physics>
     </joint>
-    <link name="iw_beam_bottom">
+    <link name="iw_beam_bottom_${idx}">
       <pose relative_to="iw_beam_ankle_bottom">0 0 0 0 -0 0</pose>
       <inertial>
         <pose>0 0 0 0 -0 0</pose>
@@ -161,9 +161,9 @@
       </visual>
     </link>
     <joint name="iw_mid_joint" type="revolute">
-      <pose relative_to="iw_beam_bottom">0.165 0 -0.001 3.14 -0 3.14</pose>
-      <parent>iw_beam_bottom</parent>
-      <child>iw_beam_top</child>
+      <pose relative_to="iw_beam_bottom_${idx}">0.165 0 -0.001 3.14 -0 3.14</pose>
+      <parent>iw_beam_bottom_${idx}</parent>
+      <child>iw_beam_top_${idx}</child>
       <axis>
         <xyz>0 0 1</xyz>
         <limit>
@@ -193,7 +193,7 @@
         </ode>
       </physics>
     </joint>
-    <link name="iw_beam_top">
+    <link name="iw_beam_top_${idx}">
       <pose relative_to="iw_mid_joint">0 0 0 0 -0 0</pose>
       <inertial>
         <pose>0 0 0 0 -0 0</pose>
@@ -226,9 +226,9 @@
       </visual>
     </link>
     <joint name="iw_beam_ankle_top" type="revolute">
-      <pose relative_to="iw_beam_top">-0.165 0 0 0 -0 0</pose>
-      <parent>iw_beam_top</parent>
-      <child>iw_ankle_top</child>
+      <pose relative_to="iw_beam_top_${idx}">-0.165 0 0 0 -0 0</pose>
+      <parent>iw_beam_top_${idx}</parent>
+      <child>iw_ankle_top_${idx}</child>
       <axis>
         <xyz>0 0 1</xyz>
         <limit>
@@ -258,7 +258,7 @@
         </ode>
       </physics>
     </joint>
-    <link name="iw_ankle_top">
+    <link name="iw_ankle_top_${idx}">
       <pose relative_to="iw_beam_ankle_top">0 0 0 0 -0 0</pose>
       <inertial>
         <pose>0 0 0 0 -0 0</pose>
@@ -291,9 +291,9 @@
       </visual>
     </link>
     <joint name="iw_ankle_foot_top" type="revolute">
-      <pose relative_to="iw_ankle_top">-0.105 0 0 0 1.57 0</pose>
-      <parent>iw_ankle_top</parent>
-      <child>iw_foot_top</child>
+      <pose relative_to="iw_ankle_top_${idx}">-0.105 0 0 0 1.57 0</pose>
+      <parent>iw_ankle_top_${idx}</parent>
+      <child>iw_foot_top_${idx}</child>
       <axis>
         <xyz>0 0 -1</xyz>
         <limit>
@@ -323,7 +323,7 @@
         </ode>
       </physics>
     </joint>
-    <link name="iw_foot_top">
+    <link name="iw_foot_top_${idx}">
       <pose relative_to="iw_ankle_foot_top">0 0 0 0 -0 0</pose>
       <inertial>
         <pose>0 0 0 0 -0 0</pose>
