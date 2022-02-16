@@ -256,6 +256,11 @@ class Inchworm():
                 new_neighbor_pos = [ee_pos[0] + n[0], ee_pos[1] + n[1]]
                 if new_neighbor_pos != self.ee1_position and new_neighbor_pos != self.ee2_position:
                     neighbor_pos.append(new_neighbor_pos)
+        else:
+            for n in Inchworm.ODD_ROW_N_LOOKUP:
+                new_neighbor_pos = [ee_pos[0] + n[0], ee_pos[1] + n[1]]
+                if new_neighbor_pos != self.ee1_position and new_neighbor_pos != self.ee2_position:
+                    neighbor_pos.append(new_neighbor_pos)
         return neighbor_pos    
 
 
@@ -293,7 +298,7 @@ class Inchworm():
                         
                         self.target = self.choose_shingle_target(placed_shingle) # TODO: change this definition - this is where real behaviors will happen
                     else:
-                        self.target = {"pos" : [0, self.shingle_depot_pos[0]]}
+                        self.target = [0, self.shingle_depot_pos[0]]
                     if Inchworm.dist(self.avg_pos, self.target) > Inchworm.dist([placed_shingle.x_coord, placed_shingle.y_coord], self.target):
                         if Inchworm.dist([placed_shingle.x_coord, placed_shingle.y_coord]) == 0: # check if placed shingle is in the target position
                             if inchworm_occ[placed_shingle.y_coord][placed_shingle.x_coord] == 0:
@@ -436,7 +441,7 @@ class Inchworm():
         
 
         - move shingle logic -- all of it
-        
+        - verify lookups
         - write avg inchworm pos
         - return stuff - because we are dealing with lists, I think it is alright
     
