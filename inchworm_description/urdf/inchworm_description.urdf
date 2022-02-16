@@ -308,4 +308,40 @@
       </ode>
     </physics>
   </gazebo>
+
+  <gazebo reference="iw_foot_bottom">
+    <material>
+      Gazebo/Indigo
+    </material>
+  </gazebo>
+
+  <gazebo reference="iw_ankle_bottom">
+    <material>
+      Gazebo/Indigo
+    </material>
+  </gazebo>
+
+  <gazebo reference="iw_beam_bottom">
+    <material>
+      Gazebo/Indigo
+    </material>
+  </gazebo>
+
+  <gazebo reference="iw_beam_top">
+    <material>
+      Gazebo/Indigo
+    </material>
+  </gazebo>
+
+  <gazebo reference="iw_ankle_top">
+    <material>
+      Gazebo/Indigo
+    </material>
+  </gazebo>
+
+  <gazebo reference="iw_foot_top">
+    <material>
+      Gazebo/Indigo
+    </material>
+  </gazebo>
 </robot>
