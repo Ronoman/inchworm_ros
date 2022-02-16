@@ -113,18 +113,17 @@ class Roof():
             self.inchworm_occ[0][inchworm_id * 2] = 1
             self.inchworm_occ[0][(inchworm_id*2) + 1] = 1
 
-        
+    # TODO:THIS REALLY SHOULD NOT BE IN THE ROOF, IT SHOULD BE IN A SIM OBJECT OR SOMETHING, LIKE LOOK AT THIS FUCKERY
     def update_inchworms(self):
         for worm in self.inchworms:
             if worm is not None:
-                worm.run_one_tick(self.shingle_array, self.inchworm_occ)
+                worm.run_one_tick(self.shingle_array, self.inchworm_occ, self.shingle_depots)
         for worm in self.inchworms:
             if worm is not None:
-                self.run_worm_action(worm.run_actions(self.shingle_array, self.inchworm_occ))
+                self.shingle_count = worm.run_action(self.shingle_array, self.inchworm_occ, self.shingle_depots, self.shingle_count)
         pass
 
-    def run_worm_action(self, action):
-        pass
+
 
     def to_message(self):
         # TODO: include inchworms & shingle depot in message
@@ -161,8 +160,5 @@ class Roof():
         return roof_state
 
 
-    '''
-    TODO:
-        - inchworm action executer
-    '''
+   
                 

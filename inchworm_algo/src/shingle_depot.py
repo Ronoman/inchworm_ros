@@ -26,9 +26,10 @@ class ShingleDepot():
         self.depot_position += 1
         return self.depot_position
     
-    def create_shingle(self, inchworm, is_half_shingle, shingle_count): 
+    def create_shingle(self, is_half_shingle, shingle_count): 
         # check if inchworm is next to shingle depot
-        return Shingle(id, is_half_shingle)
+        shingle_count += 1
+        return Shingle(shingle_count, is_half_shingle), shingle_count
 
 
 
