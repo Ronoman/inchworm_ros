@@ -38,11 +38,15 @@ def computeIK(pose, group="ltr", guess=None, timeout=5.0):
 def idx_to_coord(index, width):
   return (index % width, math.floor(index / width))
 
+def coord_to_idx(coord, width):
+  return coord[0] + width*coord[1]
+
 def main():
   rospy.init_node("pose_generator")
 
 if __name__ == "__main__":
   for i in range(49):
+    print(coord_to_idx(idx_to_coord(i, 7), 7))
     print(idx_to_coord(i, 7))
 
   # Define set of transforms we want relative to shingle magnet frames
