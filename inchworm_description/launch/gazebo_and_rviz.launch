@@ -42,7 +42,7 @@
   <node name="iw_tf_republisher" pkg="inchworm_description" type="iw_tf_republisher.py" />
 
   <!-- Informs the assembly sim about magnet states. -->
-  <node name="magnet_state_observer" pkg="inchworm_description" type="magnet_state_observer.py" />
+  <node name="magnet_state_observer" pkg="inchworm_description" type="magnet_state_observer.py" output="screen" />
 
   <!-- Startup RViz-->
   <node name="rviz" pkg="rviz" type="rviz" args="-d $(find inchworm_description)/rviz/inchworm_frames.rviz" />

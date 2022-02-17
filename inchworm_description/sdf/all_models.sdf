@@ -10,7 +10,7 @@
             <xacro:iw_foot_atom />
             <xacro:shingle_atom />
         </plugin>
-        <xacro:inchworm_description x="0" y="0" z="0.16" rx="0" ry="0" rz="0" fixed="0" idx="0" />
+        <xacro:inchworm_description x="0.386" y="0.096" z="0.17" rx="0" ry="0" rz="0" fixed="0" idx="0" />
 
         <xacro:property name="shingle_height" value="0.1829" />
         <xacro:property name="shingle_width" value="0.254" />
@@ -19,8 +19,8 @@
         <xacro:property name="vert_offset" value="0.019478" />
         <xacro:property name="z_offset" value="0.12" />
 
-        <xacro:property name="NUM_COLS" value="5" />
-        <xacro:property name="NUM_ROWS" value="1" />
+        <xacro:property name="NUM_COLS" value="3" />
+        <xacro:property name="NUM_ROWS" value="3" />
 
         <xacro:macro name="gen_row" params="col_count row_num">
             <xacro:if value="${col_count}">

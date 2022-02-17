@@ -4,7 +4,7 @@ from contextlib import suppress
 import rospy
 
 from inchworm_hw_interface.msg import MagnetState
-from assembly_msgs.srv import SetMateSuppression, SetMateSuppressionRequest, SetMateSuppressionResponse
+from assembly_msgs.srv import SetMateSuppression, SetMateSuppressionRequest
 
 last_mag_state = MagnetState(magnet1=True, magnet2=True)
 suppress_proxy = None
@@ -15,13 +15,14 @@ def inchwormMagCB(msg):
   suppressions = []
 
   # If either state has changed, we need to update suppression. A mate is suppressed if the magnet is off.
+  # TOOD: Generalize to multiple robots
   if msg.magnet1 != last_mag_state.magnet1:
     # Compose the scoped name of the link to disable mates for
-    link = ["inchworm", "inchworm_description_0", "iw_root"]
+    link = ["inchworm", "inchworm_description_0", "iw_root_0"]
     suppress = (link, not msg.magnet1)
     suppressions.append(suppress)
   if msg.magnet2 != last_mag_state.magnet2:
-    link = ["inchworm", "inchworm_description_0", "iw_foot_top"]
+    link = ["inchworm", "inchworm_description_0", "iw_foot_top_0"]
     suppress = (link, not msg.magnet2)
     suppressions.append(suppress)
 
