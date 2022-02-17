@@ -13,7 +13,7 @@
         </inertia>
       </inertial>
       <collision name="shingle_fixed_joint_lump__collision1_collision">
-        <pose>0.043607 0.007224 0.127 0 -0 0</pose>
+        <pose>-0.092913 -0.014478 0 0 -0 0</pose>
         <geometry>
           <box>
             <size>0.087122 0.014478 0.254</size>
@@ -21,7 +21,7 @@
         </geometry>
       </collision>
       <collision name="shingle_fixed_joint_lump__collision2_collision_1">
-        <pose>0.09144 0.022117 0.127 0 -0 1.72822</pose>
+        <pose>-0.04508 0 0 0 -0 1.72822</pose>
         <geometry>
           <box>
             <size>0.013652 0.183003 0.254</size>
