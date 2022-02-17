@@ -29,7 +29,7 @@
         </geometry>
       </collision>
       <visual name="shingle_fixed_joint_lump__visual_visual">
-        <pose>0 0 0 0 -0 0</pose>
+        <pose>-0.13716 -0.022117 -0.127 0 -0 0</pose>
         <geometry>
           <mesh>
             <scale>0.001 0.001 0.001</scale>
