@@ -25,6 +25,7 @@ if __name__ == "__main__":
         msg.points[0].accelerations = [0] * 5
 
         msg.points[0].time_from_start = rospy.Duration(1.0)
+        msg.header.frame_id = "world"
 
         for i in range(5):
 
