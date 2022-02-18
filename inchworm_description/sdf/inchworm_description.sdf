@@ -45,7 +45,7 @@
       </visual>
     </link>
     <joint name="iw_ankle_foot_bottom" type="revolute">
-      <pose relative_to="iw_root_${idx}">0 0 0.105 1.57 -0 0</pose>
+      <pose relative_to="iw_root_${idx}">0 0.0075 0.109 1.57 -0 0</pose>
       <parent>iw_root_${idx}</parent>
       <child>iw_ankle_bottom_${idx}</child>
       <axis>
@@ -108,7 +108,7 @@
         </surface>
       </collision>
       <visual name="iw_ankle_bottom_visual">
-        <pose>0 0 0 0 -0 0</pose>
+        <pose>-0.02 -0.065 -0.0395 0 -0 0</pose>
         <geometry>
           <mesh>
             <scale>0.001 0.001 0.001</scale>
@@ -142,19 +142,6 @@
           <spring_stiffness>0</spring_stiffness>
         </dynamics>
       </axis>
-      <physics>
-        <ode>
-          <limit>
-            <cfm>0</cfm>
-            <erp>0.2</erp>
-          </limit>
-        </ode>
-      </physics>
-      <physics>
-        <ode>
-          <implicit_spring_damper>1</implicit_spring_damper>
-        </ode>
-      </physics>
     </joint>
     <link name="iw_beam_bottom_${idx}">
       <pose relative_to="iw_beam_ankle_bottom">0 0 0 0 -0 0</pose>
@@ -177,14 +164,6 @@
             <size>0.22 0.05 0.08</size>
           </box>
         </geometry>
-        <surface>
-          <contact>
-            <ode />
-          </contact>
-          <friction>
-            <ode />
-          </friction>
-        </surface>
       </collision>
       <visual name="iw_beam_bottom_visual">
         <pose>0.185 -0.03 0.022 3.14159 0.001593 3.14159</pose>
@@ -194,12 +173,6 @@
             <uri>model://inchworm_description/meshes/beam_bottom.stl</uri>
           </mesh>
         </geometry>
-        <material>
-          <script>
-            <name>Gazebo/Indigo</name>
-            <uri>file://media/materials/scripts/gazebo.material</uri>
-          </script>
-        </material>
       </visual>
     </link>
     <joint name="iw_mid_joint" type="revolute">
@@ -221,19 +194,6 @@
           <spring_stiffness>0</spring_stiffness>
         </dynamics>
       </axis>
-      <physics>
-        <ode>
-          <limit>
-            <cfm>0</cfm>
-            <erp>0.2</erp>
-          </limit>
-        </ode>
-      </physics>
-      <physics>
-        <ode>
-          <implicit_spring_damper>1</implicit_spring_damper>
-        </ode>
-      </physics>
     </joint>
     <link name="iw_beam_top_${idx}">
       <pose relative_to="iw_mid_joint">0 0 0 0 -0 0</pose>
@@ -256,14 +216,6 @@
             <size>0.22 0.05 0.08</size>
           </box>
         </geometry>
-        <surface>
-          <contact>
-            <ode />
-          </contact>
-          <friction>
-            <ode />
-          </friction>
-        </surface>
       </collision>
       <visual name="iw_beam_top_visual">
         <pose>0.02 0.0575 -0.0325 0 -0 3.14</pose>
@@ -273,12 +225,6 @@
             <uri>model://inchworm_description/meshes/beam_top.stl</uri>
           </mesh>
         </geometry>
-        <material>
-          <script>
-            <name>Gazebo/Indigo</name>
-            <uri>file://media/materials/scripts/gazebo.material</uri>
-          </script>
-        </material>
       </visual>
     </link>
     <joint name="iw_beam_ankle_top" type="revolute">
@@ -300,19 +246,6 @@
           <spring_stiffness>0</spring_stiffness>
         </dynamics>
       </axis>
-      <physics>
-        <ode>
-          <limit>
-            <cfm>0</cfm>
-            <erp>0.2</erp>
-          </limit>
-        </ode>
-      </physics>
-      <physics>
-        <ode>
-          <implicit_spring_damper>1</implicit_spring_damper>
-        </ode>
-      </physics>
     </joint>
     <link name="iw_ankle_top_${idx}">
       <pose relative_to="iw_beam_ankle_top">0 0 0 0 -0 0</pose>
@@ -335,33 +268,19 @@
             <size>0.08 0.045 0.08</size>
           </box>
         </geometry>
-        <surface>
-          <contact>
-            <ode />
-          </contact>
-          <friction>
-            <ode />
-          </friction>
-        </surface>
       </collision>
       <visual name="iw_ankle_top_visual">
-        <pose>0 0 0 0 0 -1.57</pose>
+        <pose>-0.065 -0.02 0.05 3.14 0 1.57</pose>
         <geometry>
           <mesh>
             <scale>0.001 0.001 0.001</scale>
-            <uri>model://inchworm_description/meshes/ankle.stl</uri>
+            <uri>model://inchworm_description/meshes/ankle_top.stl</uri>
           </mesh>
         </geometry>
-        <material>
-          <script>
-            <name>Gazebo/Indigo</name>
-            <uri>file://media/materials/scripts/gazebo.material</uri>
-          </script>
-        </material>
       </visual>
     </link>
     <joint name="iw_ankle_foot_top" type="revolute">
-      <pose relative_to="iw_ankle_top_${idx}">-0.105 0 0 0 1.57 0</pose>
+      <pose relative_to="iw_ankle_top_${idx}">-0.109 0 0 0 1.57 0</pose>
       <parent>iw_ankle_top_${idx}</parent>
       <child>iw_foot_top_${idx}</child>
       <axis>
@@ -379,19 +298,6 @@
           <spring_stiffness>0</spring_stiffness>
         </dynamics>
       </axis>
-      <physics>
-        <ode>
-          <limit>
-            <cfm>0</cfm>
-            <erp>0.2</erp>
-          </limit>
-        </ode>
-      </physics>
-      <physics>
-        <ode>
-          <implicit_spring_damper>1</implicit_spring_damper>
-        </ode>
-      </physics>
     </joint>
     <link name="iw_foot_top_${idx}">
       <pose relative_to="iw_ankle_foot_top">0 0 0 0 -0 0</pose>
@@ -414,14 +320,6 @@
             <size>0.07 0.07 0.05463</size>
           </box>
         </geometry>
-        <surface>
-          <contact>
-            <ode />
-          </contact>
-          <friction>
-            <ode />
-          </friction>
-        </surface>
       </collision>
       <visual name="iw_foot_top_visual">
         <pose>-0.035 0.0425 0 1.57 -0 0</pose>
@@ -431,12 +329,6 @@
             <uri>model://inchworm_description/meshes/ee.stl</uri>
           </mesh>
         </geometry>
-        <material>
-          <script>
-            <name>Gazebo/Indigo</name>
-            <uri>file://media/materials/scripts/gazebo.material</uri>
-          </script>
-        </material>
       </visual>
     </link>
     <static>0</static>
