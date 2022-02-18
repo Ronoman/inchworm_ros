@@ -48,12 +48,12 @@
   <xacro:macro name="iw_foot_atom" params="">
     <atom_model type="iw_foot">
       <mate_point type="iw" gender="male">
-        <pose>0 0 -0.02 0 0 0</pose>
+        <pose>0 0 -0.001 0 0 0</pose>
       </mate_point>
     </atom_model>
     <atom_model type="iw_root">
       <mate_point type="iw" gender="male">
-        <pose>0 0 -0.02 0 0 0</pose>
+        <pose>0 0 -0.001 0 0 0</pose>
       </mate_point>
     </atom_model>
   </xacro:macro>

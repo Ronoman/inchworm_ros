@@ -20,9 +20,6 @@ def jointStateCB(msg):
 
     last_joint_state = msg
 
-
-### TODO: This block should probably move to a library
-
 def joint(joint_angles, duration):
   last_states = last_joint_state
 

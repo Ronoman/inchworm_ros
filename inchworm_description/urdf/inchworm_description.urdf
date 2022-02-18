@@ -16,7 +16,7 @@
       </material>
     </visual>
     <collision>
-      <origin xyz="0 0 0.03" rpy="0 0 0" />
+      <origin xyz="0 0 0.025" rpy="0 0 0" />
       <geometry>
         <box size="0.07 0.07 0.05463" />
       </geometry>
@@ -30,8 +30,9 @@
       <inertia ixx="3.8554e-03" ixy="9.4075e-03" ixz="1.709e-03" iyy="4.445e-03" iyz="1.2246e-03" izz="2.5729e-03"/>
     </inertial>
     <visual>
+      <origin xyz="0.02 -0.065 0.055" rpy="0 3.14159 0" />
       <geometry>
-        <mesh filename="package://inchworm_description/meshes/ankle.stl" scale="0.001 0.001 0.001" />
+        <mesh filename="package://inchworm_description/meshes/ankle_bottom.stl" scale="0.001 0.001 0.001" />
       </geometry>
       <material name="blue">
         <color rgba="0.113 0.321 0.678 1.0" />
@@ -53,7 +54,7 @@
       <inertia ixx="3.8554e-03" ixy="9.4075e-03" ixz="1.709e-03" iyy="4.445e-03" iyz="1.2246e-03" izz="2.5729e-03"/>
     </inertial>
     <visual>
-      <origin xyz="0.185 -0.03 0.022" rpy="0 3.14 0" />
+      <origin xyz="0.185 -0.03 0.03325" rpy="0 3.14 0" />
       <geometry>
         <mesh filename="package://inchworm_description/meshes/beam_bottom.stl" scale="0.001 0.001 0.001" />
       </geometry>
@@ -76,7 +77,7 @@
       <inertia ixx="3.8554e-03" ixy="9.4075e-03" ixz="1.709e-03" iyy="4.445e-03" iyz="1.2246e-03" izz="2.5729e-03"/>
     </inertial>
     <visual>
-      <origin xyz="0.02 0.0575 -0.0325" rpy="0 0 3.14" />
+      <origin xyz="0.02 0.0575 -0.04325" rpy="0 0 3.14" />
       <geometry>
         <mesh filename="package://inchworm_description/meshes/beam_top.stl" scale="0.001 0.001 0.001" />
       </geometry>
@@ -98,9 +99,9 @@
       <inertia ixx="3.8554e-03" ixy="9.4075e-03" ixz="1.709e-03" iyy="4.445e-03" iyz="1.2246e-03" izz="2.5729e-03"/>
     </inertial>
     <visual>
-      <origin xyz="0 0 0" rpy="0 0 -1.57" />
+      <origin xyz="-0.065 -0.02 0.05" rpy="3.14 0 1.57" />
       <geometry>
-        <mesh filename="package://inchworm_description/meshes/ankle.stl" scale="0.001 0.001 0.001" />
+        <mesh filename="package://inchworm_description/meshes/ankle_top.stl" scale="0.001 0.001 0.001" />
       </geometry>
       <material name="blue">
         <color rgba="0.113 0.321 0.678 1.0" />
@@ -130,7 +131,7 @@
       </material>
     </visual>
     <collision>
-      <origin xyz="0 0 0.03" rpy="0 0 0" />
+      <origin xyz="0 0 0.025" rpy="0 0 0" />
       <geometry>
         <box size="0.07 0.07 0.05463" />
       </geometry>
@@ -149,7 +150,7 @@
   </joint>
 
   <joint name="iw_ankle_foot_bottom" type="revolute">
-    <origin xyz="0 0 0.105" rpy="1.57 0 0" />
+    <origin xyz="0 0.0075 0.109" rpy="1.57 0 0" />
 
     <parent link="iw_foot_bottom" />
     <child  link="iw_ankle_bottom" />
@@ -171,7 +172,7 @@
   </transmission>
 
   <joint name="iw_beam_ankle_bottom" type="revolute">
-    <origin xyz="0 0 0.001" rpy="0 0 1.57" />
+    <origin xyz="0 0 0.0165" rpy="0 0 1.57" />
 
     <parent link="iw_ankle_bottom" />
     <child  link="iw_beam_bottom" />
@@ -215,12 +216,12 @@
   </transmission>
 
   <joint name="iw_beam_ankle_top" type="revolute">
-    <origin xyz="-0.165 0 0" rpy="0 0 0" />
+    <origin xyz="-0.165 0 0" rpy="3.14159 0 0" />
 
     <parent link="iw_beam_top" />
     <child  link="iw_ankle_top" />
 
-    <axis xyz="0 0 1" />
+    <axis xyz="0 0 -1" />
     <limit effort="10" velocity="1.0" lower="-0.785" upper="3.14" />
     <dynamics damping="5.0"  friction="0.25" />
   </joint>
@@ -238,7 +239,7 @@
 
   
   <joint name="iw_ankle_foot_top" type="revolute">
-    <origin xyz="-0.105 0 0" rpy="0 1.57 0" />
+    <origin xyz="-0.109 0 -0.008" rpy="0 1.57 0" />
 
     <parent link="iw_ankle_top" />
     <child  link="iw_foot_top" />
