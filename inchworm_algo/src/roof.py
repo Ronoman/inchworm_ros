@@ -81,6 +81,12 @@ class Roof():
             new_shingle.install_shingle(i, 0)
             self.shingle_array[0][i] = new_shingle
         self.shingle_count = self.width
+        # TODO: FOLLOWING IS JUST FOR A VIS
+        # new_shingle = Shingle(i, is_half_shingle)
+        # new_shingle.place_shingle(1, 1)
+        # self.shingle_array[1][1] = new_shingle
+        # self.shingle_count += 1
+
         
     def increment_shingle_count(self):
         self.shingle_count += 1
@@ -109,7 +115,7 @@ class Roof():
     def spawn_inchworms(self, inchworm_count):
         inchworm_count = min(int(self.width/2), inchworm_count)
         for inchworm_id in range(inchworm_count):
-            self.inchworms.append(Inchworm(id=inchworm_id, ee1_pos=[inchworm_id * 2, 0], ee2_pos=[(inchworm_id*2) + 1, 0], width=self.width, height=self.height, ee2_stat=EEStatus.PLANTED))
+            self.inchworms.append(Inchworm(id=inchworm_id, ee1_pos=[inchworm_id * 2, 0], ee2_pos=[(inchworm_id*2) + 1, 0], width=self.width, height=self.height, ee2_stat=EEStatus.IN_AIR))
             self.inchworm_occ[0][inchworm_id * 2] = 1
             self.inchworm_occ[0][(inchworm_id*2) + 1] = 1
 
@@ -158,6 +164,14 @@ class Roof():
         roof_state.inchworms = inchworm_states
         roof_state.header.stamp = rospy.Time.now()
         return roof_state
+
+
+
+
+    '''
+    TODO:
+        - show possible places to place a tile
+    '''
 
 
    

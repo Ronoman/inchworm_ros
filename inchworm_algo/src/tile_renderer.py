@@ -19,7 +19,7 @@ class TileRenderer:
 
     # colors
     NO_TILE = (0, 0, 0)
-    PLACED_TILE = (50, 50, 50)
+    PLACED_TILE = (200, 50, 50)
     FRONTIER_TILE = (100, 0, 100)
     INSTALLED_TILE = (0, 0, 255)
 
