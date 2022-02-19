@@ -98,6 +98,9 @@ class TrajectoryPlanner:
 
     return (positions, velocities, accelerations)
 
+  def get_joint_state(self):
+    return self.current_joint_state
+
   def run_quintic_traj(self, angles, duration, num_pts=50, wait=True):
     '''
     Computes and executes a quintic trajectory from the current robot position to the requested position.
