@@ -11,6 +11,18 @@ shingle_depots = []
 inchworms = []
 tile_renderer = None
 
+
+WIDTH = 1500
+HEIGHT = 1000
+FPS = 60
+## initialize pygame and create window
+pygame.init()
+pygame.mixer.init()  ## For sound
+screen = pygame.display.set_mode((WIDTH, HEIGHT))
+pygame.display.set_caption("Roof Rendering")
+clock = pygame.time.Clock()   
+
+
 def handle_new_roof_state(msg, screen, roof_state, shingle_depot_pos, inchworms):
     # rospy.loginfo("handling new RoofState")
     roof_state = list(msg.shingles)
@@ -25,6 +37,7 @@ def handle_new_roof_state(msg, screen, roof_state, shingle_depot_pos, inchworms)
 
     ## Done after drawing everything to the screen
     pygame.display.flip()
+    # rospy.loginfo(pygame.display.Info())
 
 
 
@@ -35,9 +48,7 @@ if __name__ == '__main__':
 
 
 
-    WIDTH = 1500
-    HEIGHT = 1000
-    FPS = 60
+
 
     # Define Colors
     WHITE = (255, 255, 255)
@@ -46,12 +57,7 @@ if __name__ == '__main__':
     GREEN = (0, 255, 0)
     BLUE = (0, 0, 255)
 
-    ## initialize pygame and create window
-    pygame.init()
-    pygame.mixer.init()  ## For sound
-    screen = pygame.display.set_mode((WIDTH, HEIGHT))
-    pygame.display.set_caption("Roof Rendering")
-    clock = pygame.time.Clock()     ## For syncing the FPS
+  ## For syncing the FPS
 
     ### Rendering constants ###
     TILE_BUFFER = 1 # px between drawn tiles

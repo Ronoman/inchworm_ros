@@ -95,12 +95,12 @@ class TileRenderer:
         ee_top_x = ee_top_pos[0] * (self.tile_width_px + 1) + self.tile_width_px/2 + self.roof_margin
         ee_top_y = ee_top_pos[1] * (self.tile_height_px + 1) + self.tile_height_px/2
 
-        pygame.draw.line(screen, self.INCHWORM_LINKS, (ee_bot_x, ee_bot_y), (ee_top_x, ee_top_y), width=int(self.tile_height_px/8))
+        pygame.draw.line(screen, self.INCHWORM_LINKS, (ee_bot_x, ee_bot_y), (ee_top_x, ee_top_y), int(text_size/8))
 
         color = self.INCHWORM_EE_PLACED
         if ee_bot_status == 1:
             color = self.INCHWORM_EE_IN_AIR
-        pygame.draw.circle(screen, color, (ee_bot_x, ee_bot_y), text_size/4)
+        pygame.draw.circle(screen, color, (int(ee_bot_x), int(ee_bot_y)), int(text_size/4))
 
         text = font.render((str(id)), True, (0, 0, 0))
         text = pygame.transform.flip(text, False, True)
@@ -112,7 +112,7 @@ class TileRenderer:
         color = self.INCHWORM_EE_PLACED
         if ee_top_status == 1:
             color = self.INCHWORM_EE_IN_AIR
-        pygame.draw.circle(screen, color, (ee_top_x, ee_top_y), text_size/4)
+        pygame.draw.circle(screen, color, (int(ee_top_x), int(ee_top_y)), int(text_size/4))
 
 
 
@@ -134,9 +134,9 @@ class TileRenderer:
                 pygame.draw.rect(screen, color, rect)
 
         # draw shingle depots
-        pygame.draw.circle(screen, self.DEPOT_COLOR, (self.roof_margin/2, shingle_depots_pos[0] * self.tile_height_px + self.tile_height_px/2), min(self.tile_height_px/2, self.roof_margin/2.5))
+        pygame.draw.circle(screen, self.DEPOT_COLOR, (int(self.roof_margin/2), int(shingle_depots_pos[0] * self.tile_height_px + self.tile_height_px/2)), int(min(self.tile_height_px/2, self.roof_margin/2.5)))
         if len(shingle_depots_pos) > 1:
-            pygame.draw.circle(screen, self.DEPOT_COLOR, (self.screen_width - self.roof_margin/2, shingle_depots_pos[1] * self.tile_height_px + self.tile_height_px/2), min(self.tile_height_px/2, self.roof_margin/2.5))
+            pygame.draw.circle(screen, self.DEPOT_COLOR, (int(self.screen_width - self.roof_margin/2), int(shingle_depots_pos[1] * self.tile_height_px + self.tile_height_px/2)), int(min(self.tile_height_px/2, self.roof_margin/2.5)))
 
         # draw inchworms
         # rospy.loginfo(len(inchworms))

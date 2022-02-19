@@ -51,6 +51,8 @@ class Shingle():
         self.id = id # this value should not change once it is assigned
         self.on_frontier = False
         self.is_half_shingle = is_half_shingle
+        self.shingle_status = ShingleStatus.PLACED ## TODO: THIS IS MAGIC TO MAKE THE ALGO SIM WORK FOR NOW
+
 
 
     def create_from_message(self, msg):
@@ -71,11 +73,13 @@ class Shingle():
         self.x_coord = x
         self.y_coord = y
         self.shingle_status = ShingleStatus.PLACED
+        return self
 
     def pickup_shingle(self):
         self.x = -1
         self.y = -1
         self.shingle_status = ShingleStatus.UNINSTALLED
+        return self
         
 
     
@@ -84,6 +88,8 @@ class Shingle():
         self.y_coord = y
         self.on_frontier = True
         self.shingle_status = ShingleStatus.INSTALLED
+        print(self.shingle_status)
+        return self
 
 
     # get ids of all the neighbors and have the roof update the status 

@@ -44,7 +44,8 @@ class Roof():
 
     def place_shingle(self, shingle, x, y):
         self.shingle_array[y][x] = shingle
-        shingle.place_shingle(x, y, self)
+        shingle = shingle.place_shingle(x, y, self)
+        return shingle
 
 
     def pickup_shingle(self, x, y):
@@ -54,7 +55,9 @@ class Roof():
 
     def install_shingle(self, shingle, x, y):
         self.shingle_array[y][x] = shingle
-        shingle.install_shingle(x, y, self)
+        shingle = shingle.install_shingle(x, y, self)
+        return shingle
+
 
     def get_shingle(self, x, y):
         return self.shingle_array[y][x]
@@ -78,9 +81,13 @@ class Roof():
             if i + 1 == self.width:
                 is_half_shingle == True
             new_shingle = Shingle(i, is_half_shingle)
-            new_shingle.install_shingle(i, 0)
+            new_shingle = new_shingle.install_shingle(i, 0)
             self.shingle_array[0][i] = new_shingle
         self.shingle_count = self.width
+        for shingleList in self.shingle_array:
+            for shingle in shingleList:
+                if shingle is not None:
+                    print(shingle.shingle_status)
         # TODO: FOLLOWING IS JUST FOR A VIS
         # new_shingle = Shingle(i, is_half_shingle)
         # new_shingle.place_shingle(1, 1)
@@ -115,7 +122,7 @@ class Roof():
     def spawn_inchworms(self, inchworm_count):
         inchworm_count = min(int(self.width/2), inchworm_count)
         for inchworm_id in range(inchworm_count):
-            self.inchworms.append(Inchworm(id=inchworm_id, ee1_pos=[inchworm_id * 2, 0], ee2_pos=[(inchworm_id*2) + 1, 0], width=self.width, height=self.height, ee2_stat=EEStatus.IN_AIR))
+            self.inchworms.append(Inchworm(id=inchworm_id, ee1_pos=[inchworm_id * 2, 0], ee2_pos=[(inchworm_id*2) + 1, 0], width=self.width, height=self.height, ee2_stat=EEStatus.PLANTED))
             self.inchworm_occ[0][inchworm_id * 2] = 1
             self.inchworm_occ[0][(inchworm_id*2) + 1] = 1
 
@@ -123,10 +130,10 @@ class Roof():
     def update_inchworms(self):
         for worm in self.inchworms:
             if worm is not None:
-                worm.run_one_tick(self.shingle_array, self.inchworm_occ, self.shingle_depots)
+                self.shingle_array, self.inchworm_occ, self.shingle_depots = worm.run_one_tick(self.shingle_array, self.inchworm_occ, self.shingle_depots)
         for worm in self.inchworms:
             if worm is not None:
-                self.shingle_count = worm.run_action(self.shingle_array, self.inchworm_occ, self.shingle_depots, self.shingle_count)
+                self.shingle_array, self.inchworm_occ, self.shingle_depots, self.shingle_count = worm.run_action(self.shingle_array, self.inchworm_occ, self.shingle_depots, self.shingle_count)
         pass
 
 
