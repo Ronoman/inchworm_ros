@@ -91,10 +91,12 @@ class TileRenderer:
         font = pygame.font.SysFont("arial", int(text_size/4))
         ee_bot_x = ee_bot_pos[0] * (self.tile_width_px + 1) + self.tile_width_px/2 + self.roof_margin
         ee_bot_y = ee_bot_pos[1] * (self.tile_height_px + 1) + self.tile_height_px/2
-
+        if ee_bot_pos[1] % 2 == 1:
+             ee_bot_x -= self.tile_width_px/2
         ee_top_x = ee_top_pos[0] * (self.tile_width_px + 1) + self.tile_width_px/2 + self.roof_margin
         ee_top_y = ee_top_pos[1] * (self.tile_height_px + 1) + self.tile_height_px/2
-
+        if ee_top_pos[1] % 2 == 1:
+             ee_top_x -= self.tile_width_px/2
         pygame.draw.line(screen, self.INCHWORM_LINKS, (ee_bot_x, ee_bot_y), (ee_top_x, ee_top_y), int(text_size/8))
 
         color = self.INCHWORM_EE_PLACED
