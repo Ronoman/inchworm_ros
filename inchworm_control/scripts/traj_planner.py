@@ -1,10 +1,23 @@
 #!/usr/bin/env python3
 
 import numpy as np
+import rospy
+
+from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
+from sensor_msgs.msg import JointState
 
 # This is a library of trajectory generation functions.
 
 class TrajectoryPlanner:
+  def __init__(self, traj_topic="/inchworm/position_trajectory_controller/command", joint_topic="/inchworm/joint_states"):
+    self.traj_pub = rospy.Publisher(traj_topic, JointTrajectory, queue_size=1)
+    self.joint_sub = rospy.Subscriber(joint_topic, JointState, self.jointCB)
+
+    self.current_joint_state = None
+
+  def jointCB(self, msg):
+    self.current_joint_state = msg
+
   @staticmethod
   def cubic_traj(t0, tf, p0, pf, v0, vf):
     M = np.array([[1, t0, t0**2, t0**3],
@@ -84,6 +97,62 @@ class TrajectoryPlanner:
     accelerations = [TrajectoryPlanner.eval_quintic_accel(coeffs, pt) for pt in pts]
 
     return (positions, velocities, accelerations)
+
+  def get_joint_state(self):
+    return self.current_joint_state
+
+  def run_quintic_traj(self, angles, duration, num_pts=50, wait=True):
+    '''
+    Computes and executes a quintic trajectory from the current robot position to the requested position.
+    float[5] angles: The desired angles to go to, in radians.
+    float duration : The amount of time the trajectory should take
+    int num_pts    : The number of points to interpolate for the joint trajectory.
+    bool wait      : Whether this function should block through the trajectory execution or not.
+    '''
+
+    last_states = self.current_joint_state
+
+    joint_names = ["iw_ankle_foot_bottom", "iw_beam_ankle_bottom", "iw_mid_joint", "iw_beam_ankle_top", "iw_ankle_foot_top"]
+    cur_angles = []
+
+    # Reorder the joint names to be the order specified by joint_names
+    for name in joint_names:
+      cur_angles.append(last_states.position[last_states.name.index(name)])
+
+    # The desired angles from the payload
+    new_angles = [float(q) for q in angles]
+
+    # Calculate the quintic trajectory for each joint. Impose 0 velocity and 0 acceleration at limits.
+    traj_triplets = []
+    for (p0, pf) in zip(cur_angles, new_angles):
+      traj = TrajectoryPlanner.quintic_interp(duration, p0, pf, 0, 0, 0, 0, num_pts)
+      traj_triplets.append(traj)
+
+    traj_pts = []
+
+    # For each interpolated point, grab the position, velocity, and acceleration for each joint
+    for i in range(num_pts):
+      pt = JointTrajectoryPoint()
+      pt.positions     = [traj_triplets[joint][0][i] for joint in range(5)]
+      pt.velocities    = [traj_triplets[joint][1][i] for joint in range(5)]
+      pt.accelerations = [traj_triplets[joint][2][i] for joint in range(5)]
+
+      pt.time_from_start = rospy.Duration(i * (duration / num_pts))
+
+      traj_pts.append(pt)
+
+    # Compose the full joint trajectory
+    trajectory = JointTrajectory()
+    trajectory.joint_names = joint_names
+    trajectory.points = traj_pts
+
+    trajectory.header.stamp = rospy.Time.now()
+    trajectory.header.frame_id = "world"
+
+    self.traj_pub.publish(trajectory)
+
+    if wait:
+      rospy.sleep(duration)
 
 if __name__ == "__main__":
   # No need to import if this is run as a library
