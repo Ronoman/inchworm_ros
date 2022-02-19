@@ -7,14 +7,18 @@ last_consts = None
 def pid_cb(msg):
     global last_consts
 
-    print("New PID values received:")
-    print(msg)
+    #print("New PID values received:")
+    #print(msg)
 
     last_consts = msg
 
 def main():
-    pid_pub = rospy.Publisher("update_pid", PIDConsts, queue_size=1)
+    global last_consts
+    rospy.init_node("update_pid")
+    pid_pub = rospy.Publisher("/inchworm/set_pid_consts", PIDConsts, queue_size=1)
 
+    pid_sub = rospy.Subscriber("/inchworm/pid_consts", PIDConsts, pid_cb)
+    
     while last_consts is None:
         rospy.logwarn("Waiting for first PID consts...")
         rospy.sleep(1)
@@ -26,6 +30,9 @@ def main():
         motor = int(input("Motor (0-4): "))
         forward = bool(input("Forward? (y/n): ").lower() == "y")
 
+        old_pid = last_consts.forward if forward else last_consts.backward
+        print(f"current:\n P: {old_pid[motor].p} I: {old_pid[motor].i} D: {old_pid[motor].d}")
+        print("Enter new:")
         p = float(input("P: "))
         i = float(input("I: "))
         d = float(input("D: "))
