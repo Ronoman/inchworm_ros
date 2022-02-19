@@ -389,6 +389,24 @@ class Inchworm():
                             rospy.loginfo(f"inchworm {self.id} installing shingle")
                         else:
                             self.shingle_to_move = placed_shingle
+                            placed_shingle_location = [placed_shingle.x_coord, placed_shingle.y_coord]
+                            # TODO: claim both positions
+
+                            if Inchworm.dist(self.ee1_position, placed_shingle_location) > Inchworm.dist(self.ee2_position, placed_shingle_location): # figure out which ee needs to move to get closer to target
+                                self.ee_shingle_neighbors = self.ee_to_move_to(self.get_ee_neighbors(self.ee2_position), 'ee1')
+                                self.ee_shingle_neighbors.sort(key = lambda x: Inchworm.dist(x["pos"], self.target))
+                                self.old_ee1 = self.ee1_position
+                                rospy.loginfo(f"inchworm {self.id} moving ee1")
+
+                            else: 
+                                self.ee_shingle_neighbors = self.ee_to_move_to(self.get_ee_neighbors(self.ee1_position), 'ee2')
+                                self.ee_shingle_neighbors.sort(key = lambda x: Inchworm.dist(x["pos"], self.target))
+                                self.old_ee2 = self.ee2_position
+                                rospy.loginfo(f"inchworm {self.id} moving ee2")
+
+
+
+                            self.move_shingle_step = 0
                             self.robot_state.MOVE_SHINGLE
                             rospy.loginfo(f"inchworm {self.id} moving shingle")
 
@@ -406,7 +424,6 @@ class Inchworm():
                     
         return shingles, inchworm_occ, shingle_depots
                 
-                    
 
                     
     def ee_to_move_to(self, neighbors, ee_to_move):
@@ -511,6 +528,62 @@ class Inchworm():
             # move ee to the new location
             # place the shingle down - write new location to the shingle and the roof
             # move ee to the original location
+            if self.move_shingle_step == 1:
+                if self.ee_shingle_neighbors[self.ee_shingle_neighbor_index]["ee"] == "ee1":
+                    if [self.shingle_to_move.x_coord, self.shingle_to_move.y_coord] != self.ee1_position:
+                        self.move_ee1([self.shingle_to_move.x_coord, self.shingle_to_move.y_coord])
+                        shingles[self.shingle_to_move.y_coord][self.shingle_to_move.y_coord] = None
+                        self.shingle_to_move.pickup_shingle()
+                    else:
+                        self.move_shingle_step = 2
+                        
+                else:
+                    if [self.shingle_to_move.x_coord, self.shingle_to_move.y_coord] != self.ee2_position:
+                        self.move_ee2([self.shingle_to_move.x_coord, self.shingle_to_move.y_coord])
+                        shingles[self.shingle_to_move.y_coord][self.shingle_to_move.y_coord] = None
+                        self.shingle_to_move.pickup_shingle()
+
+
+                    else:
+                        self.move_shingle_step = 2
+
+            elif self.move_shingle_step == 2:
+                if self.ee_shingle_neighbors[self.ee_shingle_neighbor_index]["ee"] == "ee1":
+                    if self.ee_shingle_neighbors[self.ee_shingle_neighbor_index]["pos"] != self.ee1_position:
+                        self.move_ee1(self.ee_shingle_neighbors[self.ee_shingle_neighbor_index]["pos"])
+                    else:
+                        self.shingle_to_move.place_shingle(self.ee1_position[0], self.ee1_position[1])
+                        shingles[self.ee1_position[1]][self.ee1_position[0]] = self.shingle_to_move
+
+                        self.move_shingle_step = 3
+                        
+                else:
+                    if self.ee_shingle_neighbors[self.ee_shingle_neighbor_index]["pos"] != self.ee2_position:
+                        self.move_ee2(self.ee_shingle_neighbors[self.ee_shingle_neighbor_index]["pos"])
+                    else:
+                        self.shingle_to_move.place_shingle(self.ee1_position[0], self.ee1_position[1])
+                        shingles[self.ee1_position[1]][self.ee1_position[0]] = self.shingle_to_move
+                        self.move_shingle_step = 3
+
+            else:
+
+                if self.ee_shingle_neighbors[self.ee_shingle_neighbor_index]["ee"] == "ee1":
+                    self.move_ee1(self.old_ee1)
+                    inchworm_occ[self.old_ee1[1]][self.old_ee1[0]] = 1 # TODO: clear the inchworm ooc here
+                    self.ee1_status = EEStatus.PLANTED
+                        
+                else:
+                    self.move_ee2(self.old_ee2)
+                    inchworm_occ[self.old_ee2[1]][self.old_ee2[0]] = 1 # TODO: clear the inchworm ooc here
+                    self.ee2_status = EEStatus.PLANTED
+                self.robot_state = RobotState.MAKE_DECISION
+                self.move_shingle_step = 0
+                
+
+
+
+
+
 
             self.robot_state = RobotState.MAKE_DECISION
         elif self.robot_state == RobotState.PROBE_SHINGLE:
