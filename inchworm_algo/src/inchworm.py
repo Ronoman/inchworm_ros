@@ -206,11 +206,11 @@ class Inchworm():
         neighbors = self.get_ee_neighbors(pos)
         
         for n in neighbors:
-            
-            read_shingle = shingles[n[1]][n[0]]
-            if read_shingle is not None:
-                if read_shingle.shingle_status == ShingleStatus.PLACED:
-                    return True
+            if n[0] < self.roof_width:
+                read_shingle = shingles[n[1]][n[0]]
+                if read_shingle is not None:
+                    if read_shingle.shingle_status == ShingleStatus.PLACED:
+                        return True
         return False
 
 
@@ -263,9 +263,17 @@ class Inchworm():
         x_coord = -1
         y_coord = -1
         for i, val in enumerate(self.roof):
+            
             if val != 2:
                 x_coord = i%self.roof_width
                 y_coord = int(i/self.roof_width)
+                # if y_coord % 2 == 0:
+                #     break
+                # else:
+                #     if x_coord + 1 < self.roof_width and self.roof[i + 1] == 2:
+                #         break
+                #     elif x_coord == self.roof_width -1:
+                #         break
                 break
         return [x_coord, y_coord]
 
@@ -721,9 +729,12 @@ class Inchworm():
     TODO:
         
 
-        - move shingle logic -- all of it
-        
-        - return stuff - because we are dealing with lists, I think it is alright
+        - add inchworm occ to roof message so that it can be monitored
+            - get 2 inchworms running
+        - fix the issue with the third row being weird
+        - make a new function for choosing the target tile
+
+
         sudo apt-get install python-dev libsdl-image1.2-dev libsdl-mixer1.2-dev libsdl-ttf2.0-dev libsdl1.2-dev libsmpeg-dev python-numpy subversion libportmidi-dev ffmpeg libswscale-dev libavformat-dev libavcodec-dev libfreetype6-dev
         pip install pygame==1.9.6
     
