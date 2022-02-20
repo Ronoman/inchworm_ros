@@ -18,16 +18,18 @@ import math, pygame, rospy
 class TileRenderer:
 
     # colors
-    NO_TILE = (0, 0, 0)
-    PLACED_TILE = (200, 50, 50)
+    NO_TILE = (50, 50, 50)
+    PLACED_TILE = (25, 25, 100)
     FRONTIER_TILE = (100, 0, 100)
-    INSTALLED_TILE = (0, 0, 255)
+    INSTALLED_TILE = (0, 0, 200)
 
     INCHWORM_LINKS = (100, 100, 100)
     INCHWORM_EE_PLACED = (0, 255, 0)
     INCHWORM_EE_IN_AIR = (200, 0, 0)
 
     DEPOT_COLOR = (0, 200, 200)
+    OCCUPIED_TILE = (255, 0, 0)
+    VALID_MOVE = (0, 255, 0)
 
 
 
@@ -119,7 +121,7 @@ class TileRenderer:
 
 
 
-    def drawRoof(self, screen, roof_state, shingle_depots_pos, inchworms):
+    def drawRoof(self, screen, roof_state, shingle_depots_pos, inchworms, inchworm_occ):
         # draw shingle states
         # rospy.loginfo(len(roof_state))
         for row in range(self.num_tiles_high):
@@ -134,6 +136,28 @@ class TileRenderer:
                 elif roof_state[row * self.num_tiles_wide + col] == 3:
                     color = self.FRONTIER_TILE # not  implemented yet, not sure if we want the occupany grid to track this
                 pygame.draw.rect(screen, color, rect)
+
+        for inchworm in inchworms:
+            for index in range(0, len(inchworm.ee1_valid_neighbors), 2):
+                rect = self.getTileRect(inchworm.ee1_valid_neighbors[index], inchworm.ee1_valid_neighbors[index + 1])
+                color = self.VALID_MOVE
+                if (inchworm.ee1_valid_neighbors[index] > -1 and inchworm.ee1_valid_neighbors[index + 1] > -1 and
+                        inchworm.ee1_valid_neighbors[index] < self.num_tiles_wide and inchworm.ee1_valid_neighbors[index + 1] < self.num_tiles_high):
+                    pygame.draw.rect(screen, color, rect, width=2)
+            for index in range(0, len(inchworm.ee2_valid_neighbors), 2):
+                rect = self.getTileRect(inchworm.ee2_valid_neighbors[index], inchworm.ee2_valid_neighbors[index + 1])
+                color = self.VALID_MOVE
+                if inchworm.ee2_valid_neighbors[index] > -1 and inchworm.ee2_valid_neighbors[index + 1] > -1:
+                    pygame.draw.rect(screen, color, rect, width=2)
+
+
+        for row in range(self.num_tiles_high):
+            for col in range(self.num_tiles_wide):
+                rect = self.getTileRect(col, row)
+                color = self.OCCUPIED_TILE
+                # rospy.loginfo(row * self.num_tiles_wide + col)
+                if inchworm_occ[row * self.num_tiles_wide + col] == 1:
+                    pygame.draw.rect(screen, color, rect, width=2)
 
         # draw shingle depots
         pygame.draw.circle(screen, self.DEPOT_COLOR, (int(self.roof_margin/2), int(shingle_depots_pos[0] * self.tile_height_px + self.tile_height_px/2)), int(min(self.tile_height_px/2, self.roof_margin/2.5)))

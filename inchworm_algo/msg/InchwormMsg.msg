@@ -11,3 +11,5 @@ int8 behavior
 int8[] roof
 int8 roof_width
 int8[] shingle_depot_pos
+int8[] ee1_valid_neighbors
+int8[] ee2_valid_neighbors

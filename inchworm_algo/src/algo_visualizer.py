@@ -29,10 +29,11 @@ def handle_new_roof_state(msg, screen, roof_state, shingle_depot_pos, inchworms)
     # rospy.loginfo(len(msg.shingles))
     shingle_depot_pos = list(msg.depot_positions)
     inchworms = list(msg.inchworms)
+    inchworm_occ = list(msg.inchworm_occ)
     #3 Draw/render
     screen.fill(WHITE)
 
-    tile_renderer.drawRoof(screen, roof_state, shingle_depot_pos, inchworms)
+    tile_renderer.drawRoof(screen, roof_state, shingle_depot_pos, inchworms, inchworm_occ)
     screen.blit(pygame.transform.flip(screen, False, True), (0, 0))
 
     ## Done after drawing everything to the screen

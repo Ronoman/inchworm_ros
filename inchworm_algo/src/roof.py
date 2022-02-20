@@ -170,6 +170,7 @@ class Roof():
             inchworm_states.append(inchworm.to_message())
         roof_state.inchworms = inchworm_states
         roof_state.header.stamp = rospy.Time.now()
+        roof_state.inchworm_occ = sum(self.inchworm_occ, [])
         return roof_state
 
 

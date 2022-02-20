@@ -4,3 +4,4 @@ int8 width
 int8[] shingles
 int8[] depot_positions
 InchwormMsg[] inchworms
+int8[] inchworm_occ

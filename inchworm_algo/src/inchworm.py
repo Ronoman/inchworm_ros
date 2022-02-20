@@ -48,6 +48,7 @@ class Inchworm():
 
     EVEN_ROW_N_LOOKUP = [(1, 0), (1, -1), (0, -1), (-1, 0), (0, 1), (1, 1)]
     ODD_ROW_N_LOOKUP = [(1, 0), (0, -1), (-1, -1), (-1, 0), (-1, 1), (0, 1)]
+    DELAY = 0.1
 
     
 
@@ -265,8 +266,9 @@ class Inchworm():
         for i, val in enumerate(self.roof):
             
             if val != 2:
-                x_coord = i%self.roof_width
+                x_coord = (i)%self.roof_width
                 y_coord = int(i/self.roof_width)
+                rospy.logwarn(f"inchworm {self.id} setting tile {i} as target")
                 # if y_coord % 2 == 0:
                 #     break
                 # else:
@@ -304,12 +306,14 @@ class Inchworm():
             for n in Inchworm.EVEN_ROW_N_LOOKUP:
                 new_neighbor_pos = [ee_pos[0] + n[0], ee_pos[1] + n[1]]
                 if new_neighbor_pos != self.ee1_position and new_neighbor_pos != self.ee2_position:
-                    neighbor_pos.append(new_neighbor_pos)
+                    if new_neighbor_pos[0] > -1 and new_neighbor_pos[1] > -1:
+                        neighbor_pos.append(new_neighbor_pos)
         else:
             for n in Inchworm.ODD_ROW_N_LOOKUP:
                 new_neighbor_pos = [ee_pos[0] + n[0], ee_pos[1] + n[1]]
                 if new_neighbor_pos != self.ee1_position and new_neighbor_pos != self.ee2_position:
-                    neighbor_pos.append(new_neighbor_pos)
+                    if new_neighbor_pos[0] > -1 and new_neighbor_pos[1] > -1:
+                        neighbor_pos.append(new_neighbor_pos)
         return neighbor_pos    
 
 
@@ -326,18 +330,37 @@ class Inchworm():
                 # TODO: allow inchworms to read the full data from a shingle and rebuild based off of that
                 # TODO: if the data read does not match the inchworms such that the shingles are out of date, update the shingle
                 # TODO: add this to the state machine down below
-                if shingles[self.ee1_position[0]][self.ee1_position[1]] is not None:
-                    self.read_shingle(shingles[self.ee1_position[0]][self.ee1_position[1]])
-                if shingles[self.ee2_position[0]][self.ee2_position[1]] is not None:
-                    self.read_shingle(shingles[self.ee2_position[0]][self.ee2_position[1]])
+
+                # TODO: change this, will require a working probing state
+                self.roof = []
+                for row in shingles:
+                    for element in row:
+                        if element is not None:
+                            self.roof.append(element.shingle_status.value)
+                        else:
+                            self.roof.append(0)
+
+
+                inchworm_occ[self.ee1_position[1]][self.ee1_position[0]] = 1
+                inchworm_occ[self.ee2_position[1]][self.ee2_position[0]] = 1
+
+                # if shingles[self.ee1_position[0]][self.ee1_position[1]] is not None:
+                #     self.read_shingle(shingles[self.ee1_position[0]][self.ee1_position[1]])
+                # if shingles[self.ee2_position[0]][self.ee2_position[1]] is not None:
+                #     self.read_shingle(shingles[self.ee2_position[0]][self.ee2_position[1]])
 
 
                 # rebuild the roof based on constraints
                 self.rebuild_roof()
                 # get the coords of the current frontier shingles
                 # frontier_coords = self.find_frontier()
+                installing = False
 
-                self.avg_pos = [(self.ee1_position[0] + self.ee2_position[0])/2, (self.ee1_position[1] + self.ee2_position[1])/2]
+                if (self.ee1_position[1] % 2 == 0 or self.ee2_position[1] % 2 == 0):
+                    self.avg_pos = [((self.ee1_position[0] + self.ee2_position[0])/2), (self.ee1_position[1] + self.ee2_position[1])/2]
+                else:
+                    self.avg_pos = [(self.ee1_position[0] + self.ee2_position[0])/2 - 0.5, (self.ee1_position[1] + self.ee2_position[1])/2]
+
                 rospy.loginfo(f"inchworm {self.id} ee1 is next to placed shingles : {self.next_to_placed_shingle(self.ee1_position, shingles)}")
                 rospy.loginfo(f"inchworm {self.id} ee2 is next to placed shingles : {self.next_to_placed_shingle(self.ee2_position, shingles)}")
 
@@ -352,7 +375,9 @@ class Inchworm():
                     self.target = self.choose_shingle_target(placed_shingle) # TODO: change this definition - this is where real behaviors will happen
                     rospy.loginfo(f"inchworm {self.id} set target at {self.target}")
                     rospy.loginfo(f"moving towards {self.target}")
-                    installing = False
+                    rospy.logwarn(f"pos d to target{Inchworm.dist(self.avg_pos, self.target)}")
+                    rospy.logwarn(f"s d to target {Inchworm.dist([placed_shingle.x_coord, placed_shingle.y_coord], self.target)}")
+
                     if Inchworm.dist(self.avg_pos, self.target) > Inchworm.dist([placed_shingle.x_coord, placed_shingle.y_coord], self.target):
                         if Inchworm.dist([placed_shingle.x_coord, placed_shingle.y_coord], self.target) == 0.0: # check if placed shingle is in the target position
                             if inchworm_occ[placed_shingle.y_coord][placed_shingle.x_coord] == 0:
@@ -367,25 +392,40 @@ class Inchworm():
                                 rospy.loginfo(f"inchworm {self.id} moving to depot")
 
                         elif Inchworm.dist(self.ee1_position, self.target) > Inchworm.dist(self.ee2_position, self.target): # TODO: CHANGE THIS - IT IS CAUSING IT TO NOT MOVE TOWARD THE TARGET
+
+
+                            
+
                             self.ee_shingle_neighbors = self.ee_to_move_to(self.get_ee_neighbors(self.ee2_position), 'ee1')
                             self.ee_shingle_neighbors.sort(key = lambda x: Inchworm.dist(x["pos"], self.target))
+                            rospy.logwarn(f"inchworm {self.id} -ee2- {self.ee_shingle_neighbors}")
+                            rospy.logwarn(f"inchworm {self.id} -ee2- {self.get_ee_neighbors(self.ee1_position)}")
+                            
+                            self.ee_shingle_neighbor_index = 0
                             self.old_ee1 = self.ee1_position
-                            rospy.loginfo(f"inchworm {self.id} moving ee1")
+                            rospy.logwarn(f"inchworm {self.id} moving ee1 using position")
+                            
 
                         else: 
                             self.ee_shingle_neighbors = self.ee_to_move_to(self.get_ee_neighbors(self.ee1_position), 'ee2')
                             self.ee_shingle_neighbors.sort(key = lambda x: Inchworm.dist(x["pos"], self.target))
+                            self.ee_shingle_neighbor_index = 0
                             self.old_ee2 = self.ee2_position
-                            rospy.loginfo(f"inchworm {self.id} moving ee2")
+                            rospy.logwarn(f"inchworm {self.id} moving ee2 using position")
                         # check to see if we know the best path exists & if that shingle is free, if so, initaite move there
 
                         if not installing:
                             self.ee_shingle_neighbor_index = 0
+                            rospy.logwarn(f"inchworm {self.id} {self.roof[self.ee_shingle_neighbors[0]['pos'][1] * self.roof_width  + self.ee_shingle_neighbors[0]['pos'][0]] != 2} -- {self.ee_shingle_neighbors[0]['pos']}")
+                            
+                
+                                
+                            
+
                             if (self.roof[self.ee_shingle_neighbors[0]["pos"][1] * self.roof_width  + self.ee_shingle_neighbors[0]["pos"][0]] == 2 and
                                     inchworm_occ[self.ee_shingle_neighbors[0]["pos"][1]][self.ee_shingle_neighbors[0]["pos"][0]] == 0):
                                 inchworm_occ[self.ee_shingle_neighbors[0]["pos"][1]][self.ee_shingle_neighbors[0]["pos"][0]] = 1
-                
-                                
+                                rospy.logwarn("moving to target")
                                 self.robot_state = RobotState.MOVE_TO_TARGET
 
                             # otherwise start probing the points
@@ -405,20 +445,50 @@ class Inchworm():
                             ee1_shingle_neighbors = self.ee_to_move_to_free_space(self.get_ee_neighbors(self.ee1_position), 'ee2')
                             ee2_shingle_neighbors.sort(key = lambda x: Inchworm.dist(x["pos"], self.target))
                             ee1_shingle_neighbors.sort(key = lambda x: Inchworm.dist(x["pos"], self.target))
+                            if len(ee1_shingle_neighbors) > 0:
+                                rospy.loginfo(f"ee1 shingle neighbors {ee1_shingle_neighbors}")
+                                rospy.loginfo(f"closest ee1 neighbors {ee1_shingle_neighbors[0]}")
+                            if len(ee2_shingle_neighbors) > 0:
+                                rospy.loginfo(f"ee2 shingle neighbors {ee2_shingle_neighbors}")
+                                rospy.loginfo(f"closest ee2 neighbors {ee2_shingle_neighbors[0]}")
 
-                            rospy.loginfo(f"ee1 shingle neighbors {ee1_shingle_neighbors}")
-                            rospy.loginfo(f"ee2 shingle neighbors {ee2_shingle_neighbors}")
-                            rospy.loginfo(f"closest ee1 neighbors {ee1_shingle_neighbors[0]}")
-                            rospy.loginfo(f"closest ee2 neighbors {ee2_shingle_neighbors[0]}")
+                            rospy.loginfo(f"placed shingle location {placed_shingle_location}")
+                            rospy.loginfo(f"inchworm {self.id} ee1 dist to placed shingle :{Inchworm.dist(placed_shingle_location, self.ee1_position)}")
+                            rospy.loginfo(f"ee1 shingle neighbors: {ee1_shingle_neighbors}")
+                            rospy.loginfo(f"inchworm {self.id} ee2 dist to placed shingle :{Inchworm.dist(placed_shingle_location, self.ee2_position)}")
+                            rospy.loginfo(f"ee2 shingle neighbors: {ee2_shingle_neighbors}")
 
-                            if Inchworm.dist(ee1_shingle_neighbors[0]["pos"], self.target) > Inchworm.dist(ee2_shingle_neighbors[0]["pos"], self.target): # figure out which ee needs to move to get closer to target
+
+                            ee2_neighbors = [value for elem in ee2_shingle_neighbors for value in elem.values()]
+                            ee1_neighbors = [value for elem in ee1_shingle_neighbors for value in elem.values()]
+                            
+                            if placed_shingle_location in ee2_neighbors and placed_shingle_location not in ee1_neighbors: # figure out which ee needs to move to get closer to target
+                                self.ee_shingle_neighbors = self.ee_to_move_to_free_space(self.get_ee_neighbors(self.ee2_position), 'ee1')
+                                self.ee_shingle_neighbors.sort(key = lambda x: Inchworm.dist(x["pos"], self.target))
+                                self.old_ee1 = self.ee1_position
+                                rospy.loginfo(f"inchworm {self.id} moving ee1")
+                                if len(ee2_shingle_neighbors) > 0:
+                                    inchworm_occ[ee2_shingle_neighbors[0]["pos"][1]][ee2_shingle_neighbors[0]["pos"][0]] = 1
+
+                            elif placed_shingle_location in ee1_neighbors and placed_shingle_location not in ee2_neighbors: 
+                                self.ee_shingle_neighbors = self.ee_to_move_to_free_space(self.get_ee_neighbors(self.ee1_position), 'ee2')
+                                self.ee_shingle_neighbors.sort(key = lambda x: Inchworm.dist(x["pos"], self.target))
+                                self.old_ee2 = self.ee2_position
+                                rospy.loginfo(f"inchworm {self.id} moving ee2")
+                                if len(ee1_shingle_neighbors) > 0:
+                                    inchworm_occ[ee1_shingle_neighbors[0]["pos"][1]][ee1_shingle_neighbors[0]["pos"][0]] = 1
+
+
+
+
+                            elif len(ee1_shingle_neighbors) > 0 and len(ee2_shingle_neighbors) > 0 and Inchworm.dist(ee1_shingle_neighbors[0]["pos"], self.target) > Inchworm.dist(ee2_shingle_neighbors[0]["pos"], self.target): # figure out which ee needs to move to get closer to target
                                 self.ee_shingle_neighbors = self.ee_to_move_to_free_space(self.get_ee_neighbors(self.ee2_position), 'ee1')
                                 self.ee_shingle_neighbors.sort(key = lambda x: Inchworm.dist(x["pos"], self.target))
                                 self.old_ee1 = self.ee1_position
                                 rospy.loginfo(f"inchworm {self.id} moving ee1 based on shingle n")
                                 inchworm_occ[ee2_shingle_neighbors[0]["pos"][1]][ee2_shingle_neighbors[0]["pos"][0]] = 1
 
-                            elif Inchworm.dist(ee1_shingle_neighbors[0]["pos"], self.target) < Inchworm.dist(ee2_shingle_neighbors[0]["pos"], self.target): 
+                            elif len(ee1_shingle_neighbors) > 0 and len(ee2_shingle_neighbors) > 0 and Inchworm.dist(ee1_shingle_neighbors[0]["pos"], self.target) < Inchworm.dist(ee2_shingle_neighbors[0]["pos"], self.target): 
                                 self.ee_shingle_neighbors = self.ee_to_move_to_free_space(self.get_ee_neighbors(self.ee1_position), 'ee2')
                                 self.ee_shingle_neighbors.sort(key = lambda x: Inchworm.dist(x["pos"], self.target))
                                 self.old_ee2 = self.ee2_position
@@ -426,19 +496,24 @@ class Inchworm():
                                 inchworm_occ[ee1_shingle_neighbors[0]["pos"][1]][ee1_shingle_neighbors[0]["pos"][0]] = 1
 
                             else:
-                                if Inchworm.dist(placed_shingle_location, self.ee1_position) > Inchworm.dist(placed_shingle_location, self.ee2_position): # figure out which ee needs to move to get closer to target
-                                    self.ee_shingle_neighbors = self.ee_to_move_to_free_space(self.get_ee_neighbors(self.ee2_position), 'ee1')
-                                    self.ee_shingle_neighbors.sort(key = lambda x: Inchworm.dist(x["pos"], self.target))
-                                    self.old_ee1 = self.ee1_position
-                                    rospy.loginfo(f"inchworm {self.id} moving ee1")
-                                    inchworm_occ[ee2_shingle_neighbors[0]["pos"][1]][ee2_shingle_neighbors[0]["pos"][0]] = 1
+                                
+                                rospy.logwarn(f"inchworm {self.id} could not figure out which end effector to use to move the shingle at {placed_shingle_location}")
 
-                                else: 
-                                    self.ee_shingle_neighbors = self.ee_to_move_to_free_space(self.get_ee_neighbors(self.ee1_position), 'ee2')
-                                    self.ee_shingle_neighbors.sort(key = lambda x: Inchworm.dist(x["pos"], self.target))
-                                    self.old_ee2 = self.ee2_position
-                                    rospy.loginfo(f"inchworm {self.id} moving ee2")
-                                    inchworm_occ[ee1_shingle_neighbors[0]["pos"][1]][ee1_shingle_neighbors[0]["pos"][0]] = 1
+                                    # if Inchworm.dist(placed_shingle_location, self.ee1_position) > Inchworm.dist(placed_shingle_location, self.ee2_position): # figure out which ee needs to move to get closer to target
+                                    #     self.ee_shingle_neighbors = self.ee_to_move_to_free_space(self.get_ee_neighbors(self.ee2_position), 'ee1')
+                                    #     self.ee_shingle_neighbors.sort(key = lambda x: Inchworm.dist(x["pos"], self.target))
+                                    #     self.old_ee1 = self.ee1_position
+                                    #     rospy.loginfo(f"inchworm {self.id} moving ee1")
+                                    #     if len(ee2_shingle_neighbors) > 0:
+                                    #         inchworm_occ[ee2_shingle_neighbors[0]["pos"][1]][ee2_shingle_neighbors[0]["pos"][0]] = 1
+
+                                    # else: 
+                                    #     self.ee_shingle_neighbors = self.ee_to_move_to_free_space(self.get_ee_neighbors(self.ee1_position), 'ee2')
+                                    #     self.ee_shingle_neighbors.sort(key = lambda x: Inchworm.dist(x["pos"], self.target))
+                                    #     self.old_ee2 = self.ee2_position
+                                    #     rospy.loginfo(f"inchworm {self.id} moving ee2")
+                                    #     if len(ee1_shingle_neighbors) > 0:
+                                    #         inchworm_occ[ee1_shingle_neighbors[0]["pos"][1]][ee1_shingle_neighbors[0]["pos"][0]] = 1
                             inchworm_occ[placed_shingle_location[1]][placed_shingle_location[0]] = 1
 
 
@@ -482,7 +557,7 @@ class Inchworm():
         
         if self.robot_state == RobotState.PICKUP_SHINGLE_FROM_DEPOT:
             # place holder for now, shingle depot just spawns a new shingle in the persumed location
-            rospy.sleep(0.5) # TODO: remove this later, just for testing
+            rospy.sleep(Inchworm.DELAY) # TODO: remove this later, just for testing
             rospy.loginfo(f"shingle depot at {shingle_depots[0].get_location()}")
             if shingles[shingle_depots[0].get_location() + 1][0] is not None:
                 if shingle_depots[0].get_location() != len(self.roof)/self.roof_width:
@@ -546,7 +621,7 @@ class Inchworm():
                             inchworm_occ[self.old_ee1[1]][self.old_ee1[0]] = 0
                             rospy.loginfo(f"cleaning {[self.old_ee1[1],self.old_ee1[0]]}")
 
-                            rospy.sleep(0.5)
+                            rospy.sleep(Inchworm.DELAY)
                             rospy.loginfo(f"inchworm {self.id} has installed a shingle at {[[self.install_shingle_target.y_coord],[self.install_shingle_target.x_coord]]}")
                             self.ee1_status = EEStatus.PLANTED
                             self.robot_state = RobotState.MAKE_DECISION
@@ -560,7 +635,7 @@ class Inchworm():
                             self.roof[self.install_shingle_target.y_coord * self.roof_width + self.install_shingle_target.x_coord] = ShingleStatus.INSTALLED.value
                             rospy.loginfo(f"cleaning {[self.old_ee2[1],self.old_ee2[0]]}")
                             inchworm_occ[self.old_ee2[1]][self.old_ee2[0]] = 0
-                            rospy.sleep(0.5)
+                            rospy.sleep(Inchworm.DELAY)
                             rospy.loginfo(f"inchworm {self.id} has installed a shingle at {[[self.install_shingle_target.y_coord],[self.install_shingle_target.x_coord]]}")
                             self.ee2_status = EEStatus.PLANTED
                             self.robot_state = RobotState.MAKE_DECISION
@@ -580,7 +655,7 @@ class Inchworm():
             # move ee to the new location
             # place the shingle down - write new location to the shingle and the roof
             # move ee to the original location
-            rospy.sleep(.5)
+            rospy.sleep(Inchworm.DELAY)
             rospy.loginfo(f"inchworm {self.id} move shingle step of {self.move_shingle_step}")
             if self.move_shingle_step == 1:
                 self.old_shingle_pos = [self.shingle_to_move.x_coord, self.shingle_to_move.y_coord]
@@ -652,13 +727,13 @@ class Inchworm():
                 if self.ee_shingle_neighbor_index >= len(self.ee_shingle_neighbors):
                     rospy.logwarn(f"inchworm {self.id} is trying to move and found no shingles that it could move it towards it's goal")
                     if self.ee_shingle_neighbors[0]["ee"] == "ee1":
-                        self.ee1_position = self.old_ee1
+                        self.move_ee1(self.old_ee1)
                         inchworm_occ[self.ee1_position[1]][self.ee1_position[0]] = 1
                     else:
-                        self.ee2_position = self.old_ee2
+                        self.move_ee2(self.old_ee2)
                         inchworm_occ[self.ee2_position[1]][self.ee2_position[0]] = 1
                     self.robot_state = RobotState.MAKE_DECISION
-            rospy.sleep(0.5)
+            rospy.sleep(Inchworm.DELAY)
         elif self.robot_state == RobotState.MOVE_TO_DEPOT:
             self.target = [0, shingle_depots[0].get_location()]
             if Inchworm.dist(self.ee1_position, self.target) > Inchworm.dist(self.ee2_position, self.target): # figure out which ee needs to move to get closer to target
@@ -715,6 +790,16 @@ class Inchworm():
         msg.ee1_shingle_stat = self.ee1_shingle_stat.value
         msg.ee2_shingle_stat = self.ee2_shingle_stat.value
         msg.behavior = self.behavior.value
+        if self.ee1_status == EEStatus.PLANTED:
+            msg.ee1_valid_neighbors = sum(self.get_ee_neighbors(self.ee1_position), [])
+        else:
+            msg.ee1_valid_neighbors = []
+
+        if self.ee2_status == EEStatus.PLANTED:
+            msg.ee2_valid_neighbors = sum(self.get_ee_neighbors(self.ee2_position), [])
+        else:
+            msg.ee2_valid_neighbors = []
+        
         
         msg.roof = self.roof
         msg.roof_width = self.roof_width
