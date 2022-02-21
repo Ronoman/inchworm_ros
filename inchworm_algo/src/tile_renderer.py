@@ -143,12 +143,12 @@ class TileRenderer:
                 color = self.VALID_MOVE
                 if (inchworm.ee1_valid_neighbors[index] > -1 and inchworm.ee1_valid_neighbors[index + 1] > -1 and
                         inchworm.ee1_valid_neighbors[index] < self.num_tiles_wide and inchworm.ee1_valid_neighbors[index + 1] < self.num_tiles_high):
-                    pygame.draw.rect(screen, color, rect, width=2)
+                    pygame.draw.rect(screen, color, rect, 2)
             for index in range(0, len(inchworm.ee2_valid_neighbors), 2):
                 rect = self.getTileRect(inchworm.ee2_valid_neighbors[index], inchworm.ee2_valid_neighbors[index + 1])
                 color = self.VALID_MOVE
                 if inchworm.ee2_valid_neighbors[index] > -1 and inchworm.ee2_valid_neighbors[index + 1] > -1:
-                    pygame.draw.rect(screen, color, rect, width=2)
+                    pygame.draw.rect(screen, color, rect, 2)
 
 
         for row in range(self.num_tiles_high):
@@ -157,7 +157,7 @@ class TileRenderer:
                 color = self.OCCUPIED_TILE
                 # rospy.loginfo(row * self.num_tiles_wide + col)
                 if inchworm_occ[row * self.num_tiles_wide + col] == 1:
-                    pygame.draw.rect(screen, color, rect, width=2)
+                    pygame.draw.rect(screen, color, rect, 2)
 
         # draw shingle depots
         pygame.draw.circle(screen, self.DEPOT_COLOR, (int(self.roof_margin/2), int(shingle_depots_pos[0] * self.tile_height_px + self.tile_height_px/2)), int(min(self.tile_height_px/2, self.roof_margin/2.5)))

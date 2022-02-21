@@ -48,7 +48,7 @@ class Inchworm():
 
     EVEN_ROW_N_LOOKUP = [(1, 0), (1, -1), (0, -1), (-1, 0), (0, 1), (1, 1)]
     ODD_ROW_N_LOOKUP = [(1, 0), (0, -1), (-1, -1), (-1, 0), (-1, 1), (0, 1)]
-    DELAY = 0.1
+    DELAY = 0
 
     
 
@@ -75,6 +75,22 @@ class Inchworm():
         self.ee_shingle_neighbor_index = 0
         self.ee_shingle_neighbors = []
         self.installing_status = 0
+
+
+        self.shingle_order = self.create_shingle_order(width, height)
+
+
+    def create_shingle_order(self, width, height):
+        shingle_index_order = []
+        if height % 2 == 0:
+            for i in range(height):
+                if i % 2 == 0:
+                    for j in range(width):
+                        shingle_index_order.append([j, i + 1])
+                else:
+                    for j in range(width, 0):
+                        shingle_index_order.append([j, i + 1])
+        return shingle_index_order
 
 
 
@@ -300,14 +316,14 @@ class Inchworm():
 
         return False
 
-    def get_ee_neighbors(self, ee_pos):
+    def get_ee_neighbors(self, ee_pos, use_offset=True):
         neighbor_pos = []
         if ee_pos[1] % 2 == 0: # even row lookup
             for n in Inchworm.EVEN_ROW_N_LOOKUP:
                 new_neighbor_pos = [ee_pos[0] + n[0], ee_pos[1] + n[1]]
                 if new_neighbor_pos != self.ee1_position and new_neighbor_pos != self.ee2_position:
                     if new_neighbor_pos[0] > -1 and new_neighbor_pos[1] > -1:
-                        neighbor_pos.append(new_neighbor_pos)
+                        neighbor_pos.append([new_neighbor_pos[0], new_neighbor_pos[1]])
         else:
             for n in Inchworm.ODD_ROW_N_LOOKUP:
                 new_neighbor_pos = [ee_pos[0] + n[0], ee_pos[1] + n[1]]
@@ -357,9 +373,9 @@ class Inchworm():
                 installing = False
 
                 if (self.ee1_position[1] % 2 == 0 or self.ee2_position[1] % 2 == 0):
-                    self.avg_pos = [((self.ee1_position[0] + self.ee2_position[0])/2), (self.ee1_position[1] + self.ee2_position[1])/2]
+                    self.avg_pos = [((self.ee1_position[0] + self.ee2_position[0])/2) + 0.5, (self.ee1_position[1] + self.ee2_position[1])/2]
                 else:
-                    self.avg_pos = [(self.ee1_position[0] + self.ee2_position[0])/2 - 0.5, (self.ee1_position[1] + self.ee2_position[1])/2]
+                    self.avg_pos = [(self.ee1_position[0] + self.ee2_position[0])/2, (self.ee1_position[1] + self.ee2_position[1])/2]
 
                 rospy.loginfo(f"inchworm {self.id} ee1 is next to placed shingles : {self.next_to_placed_shingle(self.ee1_position, shingles)}")
                 rospy.loginfo(f"inchworm {self.id} ee2 is next to placed shingles : {self.next_to_placed_shingle(self.ee2_position, shingles)}")
@@ -389,6 +405,7 @@ class Inchworm():
                                 self.installing_status = 1
                             else:
                                 self.robot_state = RobotState.MOVE_TO_DEPOT # TODO: figure out something better to do here
+                                self.moved_to_bottom = False
                                 rospy.loginfo(f"inchworm {self.id} moving to depot")
 
                         elif Inchworm.dist(self.ee1_position, self.target) > Inchworm.dist(self.ee2_position, self.target): # TODO: CHANGE THIS - IT IS CAUSING IT TO NOT MOVE TOWARD THE TARGET
@@ -532,6 +549,7 @@ class Inchworm():
                         self.target = [0, self.shingle_depot_pos[0]]
                         rospy.loginfo(f"inchworm {self.id} going to depot")
                         self.robot_state = RobotState.MOVE_TO_DEPOT
+                        self.moved_to_bottom = False
                     else:
                         rospy.loginfo(f"inchworm {self.id} picking up from depot")
                         self.robot_state = RobotState.PICKUP_SHINGLE_FROM_DEPOT
@@ -564,6 +582,7 @@ class Inchworm():
                     shingle_depots[0].move_shingle_depot_up()
                 if not self.next_to_shingle_depot(shingle_depots[0]):
                     self.robot_state = RobotState.MOVE_TO_DEPOT
+                    self.moved_to_bottom = False
             else:
                 shingles[shingle_depots[0].get_location() + 1][0], shingle_count = shingle_depots[0].create_shingle(False, shingle_count)
                 shingles[shingle_depots[0].get_location() + 1][0].place_shingle(0, shingle_depots[0].get_location() + 1)
@@ -735,12 +754,17 @@ class Inchworm():
                     self.robot_state = RobotState.MAKE_DECISION
             rospy.sleep(Inchworm.DELAY)
         elif self.robot_state == RobotState.MOVE_TO_DEPOT:
+            # if (self.ee1_position[1] == 0 and self.ee2_position[1] == 0) or self.moved_to_bottom:
+            #     self.moved_to_bottom = True
             self.target = [0, shingle_depots[0].get_location()]
+            # else:
+            #     self.target = [self.ee1_position[0], 0]
             if Inchworm.dist(self.ee1_position, self.target) > Inchworm.dist(self.ee2_position, self.target): # figure out which ee needs to move to get closer to target
                 self.ee_shingle_neighbors = self.ee_to_move_to(self.get_ee_neighbors(self.ee2_position), 'ee1')
                 self.ee_shingle_neighbors.sort(key = lambda x: Inchworm.dist(x["pos"], self.target))
                 self.old_ee1 = self.ee1_position
                 rospy.loginfo(f"inchworm {self.id} moving ee1")
+                rospy.loginfo(self.ee_shingle_neighbors)
 
             else: 
                 self.ee_shingle_neighbors = self.ee_to_move_to(self.get_ee_neighbors(self.ee1_position), 'ee2')
@@ -791,12 +815,12 @@ class Inchworm():
         msg.ee2_shingle_stat = self.ee2_shingle_stat.value
         msg.behavior = self.behavior.value
         if self.ee1_status == EEStatus.PLANTED:
-            msg.ee1_valid_neighbors = sum(self.get_ee_neighbors(self.ee1_position), [])
+            msg.ee1_valid_neighbors = sum(self.get_ee_neighbors(self.ee1_position, False), [])
         else:
             msg.ee1_valid_neighbors = []
 
         if self.ee2_status == EEStatus.PLANTED:
-            msg.ee2_valid_neighbors = sum(self.get_ee_neighbors(self.ee2_position), [])
+            msg.ee2_valid_neighbors = sum(self.get_ee_neighbors(self.ee2_position, False), [])
         else:
             msg.ee2_valid_neighbors = []
         
@@ -814,9 +838,7 @@ class Inchworm():
     TODO:
         
 
-        - add inchworm occ to roof message so that it can be monitored
-            - get 2 inchworms running
-        - fix the issue with the third row being weird
+        - two inchworms fail to get to the shingle depot and one just stands still when it could move towards the shingle depot
         - make a new function for choosing the target tile
 
 
