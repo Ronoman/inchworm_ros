@@ -16,13 +16,13 @@ if __name__ == "__main__":
 
     roof_width = int(sys.argv[1])
     roof_height = int(sys.argv[2])
-    hz = 10
+    hz = 5
     inchworm_count = int(sys.argv[3])
-    if len(sys.argv) == 5:
+    if len(sys.argv) == 4:
         hz = int(sys.argv[4])
     
 
-    roof = Roof(roof_width, roof_height, True, inchworm_count)
+    roof = Roof(roof_width, roof_height, False, inchworm_count)
     
 
 

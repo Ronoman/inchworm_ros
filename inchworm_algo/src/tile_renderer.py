@@ -19,7 +19,7 @@ class TileRenderer:
 
     # colors
     NO_TILE = (50, 50, 50)
-    PLACED_TILE = (25, 25, 100)
+    PLACED_TILE = (100, 100, 200)
     FRONTIER_TILE = (100, 0, 100)
     INSTALLED_TILE = (0, 0, 200)
 
@@ -138,16 +138,16 @@ class TileRenderer:
                 pygame.draw.rect(screen, color, rect)
 
         for inchworm in inchworms:
-            for index in range(0, len(inchworm.ee1_valid_neighbors), 2):
-                rect = self.getTileRect(inchworm.ee1_valid_neighbors[index], inchworm.ee1_valid_neighbors[index + 1])
+            for index in range(0, len(inchworm.bottom_foot_valid_neighbors), 2):
+                rect = self.getTileRect(inchworm.bottom_foot_valid_neighbors[index], inchworm.bottom_foot_valid_neighbors[index + 1])
                 color = self.VALID_MOVE
-                if (inchworm.ee1_valid_neighbors[index] > -1 and inchworm.ee1_valid_neighbors[index + 1] > -1 and
-                        inchworm.ee1_valid_neighbors[index] < self.num_tiles_wide and inchworm.ee1_valid_neighbors[index + 1] < self.num_tiles_high):
+                if (inchworm.bottom_foot_valid_neighbors[index] > -1 and inchworm.bottom_foot_valid_neighbors[index + 1] > -1 and
+                        inchworm.bottom_foot_valid_neighbors[index] < self.num_tiles_wide and inchworm.bottom_foot_valid_neighbors[index + 1] < self.num_tiles_high):
                     pygame.draw.rect(screen, color, rect, 2)
-            for index in range(0, len(inchworm.ee2_valid_neighbors), 2):
-                rect = self.getTileRect(inchworm.ee2_valid_neighbors[index], inchworm.ee2_valid_neighbors[index + 1])
+            for index in range(0, len(inchworm.top_foot_valid_neighbors), 2):
+                rect = self.getTileRect(inchworm.top_foot_valid_neighbors[index], inchworm.top_foot_valid_neighbors[index + 1])
                 color = self.VALID_MOVE
-                if inchworm.ee2_valid_neighbors[index] > -1 and inchworm.ee2_valid_neighbors[index + 1] > -1:
+                if inchworm.top_foot_valid_neighbors[index] > -1 and inchworm.top_foot_valid_neighbors[index + 1] > -1:
                     pygame.draw.rect(screen, color, rect, 2)
 
 
@@ -169,10 +169,10 @@ class TileRenderer:
         for i, worm in enumerate(inchworms):
             # rospy.loginfo(f"drawing inchworm {i}")
             inchworm_id = worm.id
-            ee1_pos = worm.ee1_pos
-            ee1_status = worm.ee1_status
-            ee2_pos = worm.ee2_pos
-            ee2_status = worm.ee2_status
-            self.draw_inchworm(screen, inchworm_id, ee1_pos, ee1_status, ee2_pos, ee2_status)
+            bottom_foot_pos = worm.bottom_foot_pos
+            bottom_foot_status = worm.bottom_foot_status
+            top_foot_pos = worm.top_foot_pos
+            top_foot_status = worm.top_foot_status
+            self.draw_inchworm(screen, inchworm_id, bottom_foot_pos, bottom_foot_status, top_foot_pos, top_foot_status)
 
 
