@@ -399,7 +399,7 @@ namespace assembly_sim
         ++it_fa)
     {
       AtomPtr female_atom = *it_fa;
-      gzwarn<<"Inspecting female atom: "<<female_atom->link->GetName()<<std::endl;
+      // gzwarn<<"Inspecting female atom: "<<female_atom->link->GetName()<<std::endl;
 
       // Get the link associated with this atom
       // If any male mates match this link, ignore them
@@ -421,7 +421,7 @@ namespace assembly_sim
         {
           AtomPtr male_atom = *it_ma;
 
-          gzwarn << "Inspecting male atom: " << male_atom->link->GetName() << std::endl;
+          // gzwarn << "Inspecting male atom: " << male_atom->link->GetName() << std::endl;
 
           // You can't mate with yourself
           if(male_atom == female_atom) { continue; }
