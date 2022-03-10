@@ -10,6 +10,8 @@ def main():
 
   planner = TrajectoryPlanner()
 
+  rospy.sleep(1.0)
+
   while True:
     goals = [0] * 5
 
@@ -17,8 +19,8 @@ def main():
       pos = float(input(f"Joint {i} position: "))
 
       # Eli can have his radians, I can have degrees
-      if (abs(pos) > 2.2):
-        pos = pos * pi / 180
+      #if (abs(pos) > 2.2):
+      #  pos = pos * pi / 180
 
       goals[i] = (pos)
 

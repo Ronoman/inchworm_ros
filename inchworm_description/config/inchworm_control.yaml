@@ -13,11 +13,11 @@ inchworm:
       - iw_ankle_foot_top
 
     gains:
-      iw_ankle_foot_bottom: {p: 1.5, i: 0, d: 0.01}
+      iw_ankle_foot_bottom: {p: 1000, i: 0, d: 1}
       iw_beam_ankle_bottom: {p: 150.0, i: 0, d: 1}
       iw_mid_joint: {p: 150.0, i: 0, d: 1}
       iw_beam_ankle_top: {p: 150.0, i: 0, d: 1}
-      iw_ankle_foot_top: {p: 1.5, i: 0, d: 0.01}
+      iw_ankle_foot_top: {p: 1000, i: 0, d: 1}
 
     constraints:
       iw_ankle_foot_bottom:

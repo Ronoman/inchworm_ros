@@ -137,7 +137,7 @@ class TrajectoryPlanner:
       pt.velocities    = [traj_triplets[joint][1][i] for joint in range(5)]
       pt.accelerations = [traj_triplets[joint][2][i] for joint in range(5)]
 
-      pt.time_from_start = rospy.Duration(i * (duration / num_pts))
+      pt.time_from_start = rospy.Duration((i+1) * (duration / num_pts))
 
       traj_pts.append(pt)
 

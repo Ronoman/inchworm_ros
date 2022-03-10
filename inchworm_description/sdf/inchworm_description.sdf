@@ -45,7 +45,7 @@
       </visual>
     </link>
     <joint name="iw_ankle_foot_bottom" type="revolute">
-      <pose relative_to="iw_root_${idx}">0 0.0075 0.109 1.57 -0 0</pose>
+      <pose relative_to="iw_root_${idx}">0 0 0.109 1.57 -0 0</pose>
       <parent>iw_root_${idx}</parent>
       <child>iw_ankle_bottom_${idx}</child>
       <axis>
