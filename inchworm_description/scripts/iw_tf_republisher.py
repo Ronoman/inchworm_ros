@@ -20,23 +20,27 @@ def main():
 
   rate = rospy.Rate(10)
 
+  robot_count = rospy.get_param("/robot_count")
+
+  rospy.sleep(2)
+
   while not rospy.is_shutdown():
-    # TODO: Generalize to multi-inchworm
-    req = GetModelStateRequest(model_name="inchworm::inchworm_description_0", relative_entity_name="world")
+    for i in range(robot_count):
+      req = GetModelStateRequest(model_name=f"inchworm::inchworm_description_{i}", relative_entity_name="world")
 
-    res = model_state_service(req)
+      res = model_state_service(req)
 
-    tf = TransformStamped()
-    tf.header.stamp = rospy.Time.now()
-    tf.header.frame_id = "world"
-    tf.child_frame_id = "iw_root"
+      tf = TransformStamped()
+      tf.header.stamp = rospy.Time.now()
+      tf.header.frame_id = "world"
+      tf.child_frame_id = f"iw_root_{i}"
 
-    tf.transform.translation = res.pose.position
-    tf.transform.rotation    = res.pose.orientation
+      tf.transform.translation = res.pose.position
+      tf.transform.rotation    = res.pose.orientation
 
-    broadcaster.sendTransform(tf)
+      broadcaster.sendTransform(tf)
 
-    rate.sleep()
+      rate.sleep()
 
 if __name__ == '__main__':
   main()

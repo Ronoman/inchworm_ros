@@ -9,7 +9,12 @@ from sensor_msgs.msg import JointState
 # This is a library of trajectory generation functions.
 
 class TrajectoryPlanner:
-  def __init__(self, traj_topic="/inchworm/position_trajectory_controller/command", joint_topic="/inchworm/joint_states"):
+  def __init__(self, idx=0):
+    self.idx = idx
+
+    traj_topic = f"/inchworm_{idx}/position_trajectory_controller/command"
+    joint_topic = f"/inchworm_{idx}/joint_states"
+
     self.traj_pub = rospy.Publisher(traj_topic, JointTrajectory, queue_size=1)
     self.joint_sub = rospy.Subscriber(joint_topic, JointState, self.jointCB)
 
@@ -112,7 +117,7 @@ class TrajectoryPlanner:
 
     last_states = self.current_joint_state
 
-    joint_names = ["iw_ankle_foot_bottom", "iw_beam_ankle_bottom", "iw_mid_joint", "iw_beam_ankle_top", "iw_ankle_foot_top"]
+    joint_names = [f"iw_ankle_foot_bottom_{self.idx}", f"iw_beam_ankle_bottom_{self.idx}", f"iw_mid_joint_{self.idx}", f"iw_beam_ankle_top_{self.idx}", f"iw_ankle_foot_top_{self.idx}"]
     cur_angles = []
 
     # Reorder the joint names to be the order specified by joint_names

@@ -8,7 +8,9 @@ from traj_planner import TrajectoryPlanner
 def main():
   rospy.init_node("basic_control")
 
-  planner = TrajectoryPlanner()
+  idx = int(input("Robot index: "))
+
+  planner = TrajectoryPlanner(idx=idx)
 
   rospy.sleep(1.0)
 
