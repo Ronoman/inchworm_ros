@@ -30,8 +30,8 @@
 
         <xacro:spawn_robots count="$(arg robot_count)" />
 
-        <xacro:property name="NUM_COLS" value="5" />
-        <xacro:property name="NUM_ROWS" value="5" />
+        <xacro:property name="NUM_COLS" value="64" />
+        <xacro:property name="NUM_ROWS" value="1" />
 
         <xacro:macro name="gen_row" params="col_count row_num">
             <xacro:if value="${col_count}">

@@ -7,7 +7,7 @@
 
   <arg name="use_moveit" default="false" />
 
-  <arg name="robot_count" default="2" />
+  <arg name="robot_count" default="64" />
   <param name="robot_count" value="$(arg robot_count)" />
 
   <!-- Launch Gazebo, only if we're not running on the real robot-->
