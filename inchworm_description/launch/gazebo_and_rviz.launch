@@ -7,7 +7,7 @@
 
   <arg name="use_moveit" default="false" />
 
-  <arg name="robot_count" default="64" />
+  <arg name="robot_count" default="3" />
   <param name="robot_count" value="$(arg robot_count)" />
 
   <!-- Launch Gazebo, only if we're not running on the real robot-->
@@ -17,12 +17,19 @@
     <arg name="paused" default="$(arg paused)"/>
   </include>
 
+<!-- load all the nodes -->
+<node name="node_loader" pkg="inchworm_description" type="load_nodes.py" output="screen">
+  <param name="robot_count" value="$(arg robot_count)" />
+</node>
+
+
   <!-- Load parameters for ros_control, per-robot -->
-  <node name="controller_param_loader" pkg="inchworm_description" type="load_control_params.py" output="screen">
+<!--  <node name="controller_param_loader" pkg="inchworm_description" type="load_control_params.py" output="screen">
     <param name="robot_count" value="$(arg robot_count)" />
-  </node>
+  </node> -->
 
   <!-- Load URDFs per-robot into /inchworm_n -->
+  <!--
   <node name="urdf_loader" pkg="inchworm_description" type="load_robot_urdf.py" output="screen">
     <param name="robot_count" value="$(arg robot_count)" />
   </node>
@@ -34,7 +41,7 @@
   <node name="state_pub_loader" pkg="inchworm_description" type="load_state_publishers.py" output="screen">
     <param name="robot_count" value="$(arg robot_count)" />
   </node>
-
+-->
   <!-- Everything to be launched in the robot namespace. Robot description, robot state publisher -->
   <group ns="$(arg model)_0">
 

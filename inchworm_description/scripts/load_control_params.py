@@ -22,10 +22,8 @@ def replaceN(params, n):
 
   return replaced_params
 
-def main():
-  rospy.init_node("control_param_loader")
-
-  count = rospy.get_param("~robot_count", 1)
+def main(count):
+  rospy.logwarn("I got here")
 
   rospack = rospkg.RosPack()
   base_path = rospack.get_path("inchworm_description")
@@ -48,4 +46,4 @@ def main():
   rospy.logwarn("Done loading control parameters.")
 
 if __name__ == "__main__":
-  main()
+  main(1)

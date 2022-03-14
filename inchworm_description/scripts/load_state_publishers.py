@@ -3,10 +3,10 @@
 import rospy, roslaunch
 
 
-def main():
-  rospy.init_node("load_state_publishers")
+def main(count):
+  #rospy.init_node("load_state_publishers")
 
-  count = rospy.get_param("~robot_count", 1)
+  #count = rospy.get_param("~robot_count", 1)
 
   launch = roslaunch.scriptapi.ROSLaunch()
   
@@ -23,4 +23,4 @@ def main():
     launch.shutdown()
 
 if __name__ == "__main__":
-  main()
+  main(1)

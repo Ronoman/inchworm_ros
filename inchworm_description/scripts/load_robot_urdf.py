@@ -3,10 +3,10 @@
 import rospy, sys, rospkg, subprocess
 
 
-def main():
-  rospy.init_node("control_param_loader")
+def main(count):
+  #rospy.init_node("control_param_loader")
 
-  count = count = rospy.get_param("~robot_count", 1)
+  #count = count = rospy.get_param("~robot_count", 1)
   
   rospack = rospkg.RosPack()
   urdf_path = rospack.get_path("inchworm_description") + "/urdf/inchworm_description.urdf"
@@ -20,4 +20,4 @@ def main():
   rospy.logwarn("Done loading robot URDFs.")
 
 if __name__ == "__main__":
-  main()
+  main(1)
