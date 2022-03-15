@@ -1,14 +1,19 @@
 <sdf version="1.7" xmlns:xacro="http://www.ros.org/wiki/xacro">
     <xacro:arg name="robot_count" default="1" />
+    <xacro:arg name="roof_width"  default="5" />
+    <xacro:arg name="roof_height" default="5" />
     
     <xacro:include filename="$(find inchworm_description)/sdf/shingle.sdf" />
     <xacro:include filename="$(find inchworm_description)/sdf/inchworm_description.sdf" />
     <xacro:include filename="$(find inchworm_description)/urdf/inchworm_magnets.sdf" />
+
     <model name="inchworm_soup">
         <plugin name="assembly_soup" filename="libassembly_soup_plugin.so">
             <tf_world_frame>world</tf_world_frame>
             <publish_active_mates>1</publish_active_mates>
+
             <xacro:inchworm_mate />
+
             <xacro:iw_foot_atom />
             <xacro:shingle_atom />
         </plugin>
@@ -30,8 +35,8 @@
 
         <xacro:spawn_robots count="$(arg robot_count)" />
 
-        <xacro:property name="NUM_COLS" value="64" />
-        <xacro:property name="NUM_ROWS" value="1" />
+        <xacro:property name="NUM_COLS" value="$(arg roof_width)" />
+        <xacro:property name="NUM_ROWS" value="$(arg roof_height)" />
 
         <xacro:macro name="gen_row" params="col_count row_num">
             <xacro:if value="${col_count}">

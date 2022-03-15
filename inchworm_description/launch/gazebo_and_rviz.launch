@@ -7,8 +7,14 @@
 
   <arg name="use_moveit" default="false" />
 
-  <arg name="robot_count" default="3" />
+  <arg name="robot_count" default="64" />
   <param name="robot_count" value="$(arg robot_count)" />
+
+  <arg name="roof_width" default="64" />
+  <param name="roof_width" value="$(arg roof_width)" />
+
+  <arg name="roof_height" default="1" />
+  <param name="roof_height" value="$(arg roof_height)" />
 
   <!-- Launch Gazebo, only if we're not running on the real robot-->
   <include file="$(find gazebo_ros)/launch/empty_world.launch" unless="$(arg real_robot)">
@@ -17,10 +23,10 @@
     <arg name="paused" default="$(arg paused)"/>
   </include>
 
-<!-- load all the nodes -->
-<node name="node_loader" pkg="inchworm_description" type="load_nodes.py" output="screen">
-  <param name="robot_count" value="$(arg robot_count)" />
-</node>
+  <!-- load all the nodes -->
+  <node name="node_loader" pkg="inchworm_description" type="load_nodes.py" output="screen">
+    <param name="robot_count" value="$(arg robot_count)" />
+  </node>
 
 
   <!-- Load parameters for ros_control, per-robot -->
@@ -50,7 +56,7 @@
     <param name="shingle_description" command="$(find xacro)/xacro $(find inchworm_description)/urdf/shingle.urdf" />
 
     <!-- Robot description for gazebo + magnet sim -->
-    <param name="/inchworm/robot_description_sdf" command="$(find xacro)/xacro $(find inchworm_description)/sdf/all_models.sdf robot_count:=$(arg robot_count)" />
+    <param name="/inchworm/robot_description_sdf" command="$(find xacro)/xacro $(find inchworm_description)/sdf/all_models.sdf robot_count:=$(arg robot_count) roof_width:=$(arg roof_width) roof_height:=$(arg roof_height)" />
 
     <rosparam file="$(find inchworm_description)/config/joint_names_inchworm_description.yaml" command="load" />
 
