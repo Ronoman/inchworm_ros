@@ -4,21 +4,29 @@
     <xacro:include filename="$(find inchworm_description)/sdf/shingle.sdf" />
     <xacro:include filename="$(find inchworm_description)/sdf/inchworm_description.sdf" />
     <xacro:include filename="$(find inchworm_description)/urdf/inchworm_magnets.sdf" />
-    <model name="inchworm_soup">
-        <plugin name="assembly_soup" filename="libassembly_soup_plugin.so">
-            <tf_world_frame>world</tf_world_frame>
-            <publish_active_mates>1</publish_active_mates>
-            <xacro:inchworm_mate />
-            <xacro:iw_foot_atom />
-            <xacro:shingle_atom />
-        </plugin>
+    <xacro:include filename="$(find inchworm_description)/sdf/roof.sdf" />
 
+    <model name="inchworm_soup">
+        
         <xacro:property name="shingle_height" value="0.1829" />
         <xacro:property name="shingle_width" value="0.254" />
         <xacro:property name="overhang" value="0.0871" />
         <xacro:property name="horiz_offset" value ="0.005"/>
         <xacro:property name="vert_offset" value="0.019478" />
         <xacro:property name="z_offset" value="0.12" />
+
+        <plugin name="assembly_soup" filename="libassembly_soup_plugin.so">
+            <tf_world_frame>world</tf_world_frame>
+            <publish_active_mates>1</publish_active_mates>
+            <xacro:inchworm_mate />
+            <xacro:shingle_mate />
+            <xacro:iw_foot_atom />
+            <xacro:shingle_atom />
+            <xacro:roof_atom num_cols="${num_cols}" num_rows="${num_rows}" shingle_height="${shingle_height}" shingle_width="${shingle_width}" overhang="${overhang}" horiz_offset="${horiz_offset}" vert_offset="${vert_offset}" z_offset="${z_offset}"/>
+            
+        </plugin>
+        
+       
 
         <xacro:macro name="spawn_robots" params="count">
             <xacro:if value="${count}">
@@ -30,8 +38,11 @@
 
         <xacro:spawn_robots count="$(arg robot_count)" />
 
-        <xacro:property name="NUM_COLS" value="64" />
-        <xacro:property name="NUM_ROWS" value="1" />
+        <xacro:property name="NUM_COLS" value="5" />
+        <xacro:property name="NUM_ROWS" value="5" />
+
+        <!-- roof grid -->
+        <xacro:roof_description x="0" y="0" z="0" rx="0" ry="0" rz="0" fixed="1" idx="0" width="10" height="10"></xacro:roof_description>
 
         <xacro:macro name="gen_row" params="col_count row_num">
             <xacro:if value="${col_count}">
