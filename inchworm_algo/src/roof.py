@@ -122,7 +122,7 @@ class Roof():
     def spawn_inchworms(self, inchworm_count):
         inchworm_count = min(int(self.width/2), inchworm_count)
         for inchworm_id in range(inchworm_count):
-            self.inchworms.append(Inchworm(id=inchworm_id, ee1_pos=[inchworm_id * 2, 0], ee2_pos=[(inchworm_id*2) + 1, 0], width=self.width, height=self.height, ee2_stat=EEStatus.PLANTED))
+            self.inchworms.append(Inchworm(id=inchworm_id, bottom_foot_pos=[inchworm_id * 2, 0], top_foot_pos=[(inchworm_id*2) + 1, 0], width=self.width, height=self.height, top_foot_stat=EEStatus.PLANTED))
             self.inchworm_occ[0][inchworm_id * 2] = 1
             self.inchworm_occ[0][(inchworm_id*2) + 1] = 1
 
