@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import rospy
 
 from inchworm_hw_interface.msg import PID, PIDConsts
@@ -17,7 +19,7 @@ def main():
     rospy.init_node("update_pid")
     pid_pub = rospy.Publisher("/inchworm/set_pid_consts", PIDConsts, queue_size=1)
 
-    pid_sub = rospy.Subscriber("/inchworm/pid_consts", PIDConsts, pid_cb)
+    rospy.Subscriber("/inchworm/pid_consts", PIDConsts, pid_cb)
     
     while last_consts is None:
         rospy.logwarn("Waiting for first PID consts...")

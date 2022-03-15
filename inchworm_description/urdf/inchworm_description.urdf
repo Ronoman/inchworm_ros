@@ -138,12 +138,12 @@
     </collision>
   </link>
 
-  <link name="iw_root" />
+  <link name="world" />
 
   <joint name="foot_to_root" type="fixed">
     <origin xyz="0 0 0" rpy="0 0 0" />
 
-    <parent link="iw_root" />
+    <parent link="world" />
     <child  link="iw_foot_bottom" />
 
     <limit lower="0" upper="0" effort="10" velocity="10" />
