@@ -16,13 +16,15 @@ if __name__ == "__main__":
 
     roof_width = int(sys.argv[1])
     roof_height = int(sys.argv[2])
-    hz = 10
+    hz = 500
     inchworm_count = int(sys.argv[3])
-    if len(sys.argv) == 5:
+
+    if len(sys.argv) == 7:
         hz = int(sys.argv[4])
+        
     
 
-    roof = Roof(roof_width, roof_height, True, inchworm_count)
+    roof = Roof(roof_width, roof_height, False, inchworm_count)
     
 
 
@@ -37,4 +39,20 @@ if __name__ == "__main__":
         roof_pub.publish(roof.to_message())
         roof.update_inchworms()
         r.sleep()
+
+
+
+    '''
+    TODO: 
+        - refactor roof so that it does not include inchworms
+        - get rid of all magic functions
+            - this will require fixing reading shingles & storage of local roof copies
+            - will also require a working probe roof subtask || making sure that when a inchworm installs a shingle it rewrites all neighbors
+        - bundle subtasks that exist in the state machine into functions
+        - refactor the run_one_tick to make more sense
+        - change all distance & neighbor functions to use a hex grid lib
+        - have rules for avoiding & escaping deadlock
+        - better collision avoidence?
+    
+    '''
         
