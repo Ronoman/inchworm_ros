@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-from contextlib import suppress
 import rospy
 
 from inchworm_hw_interface.msg import MagnetState
@@ -54,10 +53,10 @@ def main():
 
   rospy.init_node("magnet_state_observer")
   
-  rospy.loginfo("Waiting for /suppress_mate service...")
-  rospy.wait_for_service("/suppress_mate")
+  rospy.loginfo("Waiting for /suppress_link service...")
+  rospy.wait_for_service("/suppress_link")
   rospy.loginfo("Found service.")
-  suppress_proxy = rospy.ServiceProxy("/suppress_mate", SuppressLink)
+  suppress_proxy = rospy.ServiceProxy("/suppress_link", SuppressLink)
 
   rospy.Subscriber("/inchworm/magnet_states", MagnetState, inchwormMagCB)
 

@@ -33,7 +33,7 @@ class Inchworm:
     self.on_shingle = 0
 
     # Suppression service proxy
-    self.suprpess_proxy = rospy.ServiceProxy("/suppress_mate", SuppressLink)
+    self.suprpess_proxy = rospy.ServiceProxy("/suppress_link", SuppressLink)
 
     # State subscribers
     rospy.Subscriber("/active_mates", MateList, self.mateCB)
