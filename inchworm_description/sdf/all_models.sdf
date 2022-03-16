@@ -1,5 +1,7 @@
 <sdf version="1.7" xmlns:xacro="http://www.ros.org/wiki/xacro">
     <xacro:arg name="robot_count" default="1" />
+    <xacro:arg name="roof_width"  default="5" />
+    <xacro:arg name="roof_height" default="5" />
     
     <xacro:include filename="$(find inchworm_description)/sdf/shingle.sdf" />
     <xacro:include filename="$(find inchworm_description)/sdf/inchworm_description.sdf" />
@@ -14,15 +16,18 @@
         <xacro:property name="horiz_offset" value ="0.005"/>
         <xacro:property name="vert_offset" value="0.019478" />
         <xacro:property name="z_offset" value="0.12" />
+        <xacro:property name="NUM_COLS" value="$(arg roof_width)" />
+        <xacro:property name="NUM_ROWS" value="$(arg roof_height)" />
 
         <plugin name="assembly_soup" filename="libassembly_soup_plugin.so">
             <tf_world_frame>world</tf_world_frame>
             <publish_active_mates>1</publish_active_mates>
+
             <xacro:inchworm_mate />
             <xacro:shingle_mate />
             <xacro:iw_foot_atom />
             <xacro:shingle_atom />
-            <xacro:roof_atom num_cols="${num_cols}" num_rows="${num_rows}" shingle_height="${shingle_height}" shingle_width="${shingle_width}" overhang="${overhang}" horiz_offset="${horiz_offset}" vert_offset="${vert_offset}" z_offset="${z_offset}"/>
+            <xacro:roof_atom num_cols="${NUM_COLS}" num_rows="${NUM_ROWS}" shingle_height="${shingle_height}" shingle_width="${shingle_width}" overhang="${overhang}" horiz_offset="${horiz_offset}" vert_offset="${vert_offset}" z_offset="${z_offset}"/>
             
         </plugin>
         
@@ -30,7 +35,7 @@
 
         <xacro:macro name="spawn_robots" params="count">
             <xacro:if value="${count}">
-                <xacro:inchworm_description x="${(shingle_width + horiz_offset)*(count - 1)}" y="0" z="0.15" rx="0" ry="0" rz="0" fixed="0" idx="${count - 1}" />
+                <xacro:inchworm_description x="${shingle_width/2 + (shingle_width + horiz_offset)*(count - 1)}" y="0" z="0.15" rx="0" ry="0" rz="0" fixed="0" idx="${count - 1}" />
                 
                 <xacro:spawn_robots count="${count - 1}" />
             </xacro:if>
@@ -38,20 +43,17 @@
 
         <xacro:spawn_robots count="$(arg robot_count)" />
 
-        <xacro:property name="NUM_COLS" value="5" />
-        <xacro:property name="NUM_ROWS" value="5" />
-
         <!-- roof grid -->
-        <xacro:roof_description x="0" y="0" z="0" rx="0" ry="0" rz="0" fixed="1" idx="0" width="10" height="10"></xacro:roof_description>
+        <xacro:roof_description x="0" y="0" z="0.08" rx="${radians(9.02)}" ry="0" rz="0" fixed="1" idx="0" width="${shingle_width * NUM_COLS + shingle_width/2}" height="${shingle_height + overhang * NUM_ROWS}"></xacro:roof_description>
 
         <xacro:macro name="gen_row" params="col_count row_num">
             <xacro:if value="${col_count}">
                 <!-- If the row is divisible by 2 (1-indexed), offset the first shingle by shingle_width/2 -->
                 <xacro:if value="${row_num % 2 == 0}">
-                    <xacro:shingle_description x="${(shingle_width + horiz_offset)*(col_count - 1) + shingle_width/2}" y="${(shingle_height - overhang)*(row_num - 1)}" z="${z_offset + (vert_offset)*(row_num-1)}" rx="${radians(90)}" ry="${radians(9.02)}" rz="-${radians(90)}" fixed="1" idx="${(row_num-1)*NUM_COLS + col_count - 1}" gravity="1" />
+                    <xacro:shingle_description x="${shingle_width/2 + (shingle_width + horiz_offset)*(col_count - 1) + shingle_width/2}" y="${(shingle_height - overhang)*(row_num - 1)}" z="${z_offset + (vert_offset)*(row_num-1)}" rx="${radians(90)}" ry="${radians(9.02)}" rz="-${radians(90)}" fixed="0" idx="${(row_num-1)*NUM_COLS + col_count - 1}" gravity="1" />
                 </xacro:if>
                 <xacro:unless value="${row_num % 2 == 0}">
-                    <xacro:shingle_description x="${(shingle_width + horiz_offset)*(col_count - 1)}" y="${(shingle_height - overhang)*(row_num - 1)}" z="${z_offset + (vert_offset)*(row_num-1)}" rx="${radians(90)}" ry="${radians(9.02)}" rz="-${radians(90)}" fixed="1" idx="${(row_num-1)*NUM_COLS + col_count - 1}" gravity="1" />
+                    <xacro:shingle_description x="${shingle_width/2 + (shingle_width + horiz_offset)*(col_count - 1)}" y="${(shingle_height - overhang)*(row_num - 1)}" z="${z_offset + (vert_offset)*(row_num-1)}" rx="${radians(90)}" ry="${radians(9.02)}" rz="-${radians(90)}" fixed="0" idx="${(row_num-1)*NUM_COLS + col_count - 1}" gravity="1" />
                 </xacro:unless>
                 <xacro:gen_row col_count="${col_count - 1}" row_num="${row_num}" />
             </xacro:if>

@@ -230,7 +230,7 @@ namespace assembly_sim
 
       if(mate_models_.find(mate_model_type) == mate_models_.end()) {
         // Determine the type of mate model
-        gzlog<<"Adding mate model for "<<mate_model_type<<std::endl;
+        //gzlog<<"Adding mate model for "<<mate_model_type<<std::endl;
 
         // Store this mate model
         MateModelPtr mate_model = std::make_shared<MateModel>(mate_model_type, mate_elem);
@@ -277,7 +277,7 @@ namespace assembly_sim
         mate_elem->GetAttribute("gender")->Get(gender);
         to_kdl(mate_elem->GetElement("pose"), base_pose);
 
-        gzwarn<<"Adding mate point type: "<<type<<" gender: "<<gender<<" at: "<<base_pose<<std::endl;
+        //gzwarn<<"Adding mate point type: "<<type<<" gender: "<<gender<<" at: "<<base_pose<<std::endl;
 
         MateModelPtr mate_model = mate_models_[type];
 
@@ -301,7 +301,7 @@ namespace assembly_sim
               atom_model->female_mate_points.size()
               + atom_model->male_mate_points.size();
 
-            gzwarn<<"Adding female mate point "<<atom_model->type<<"#"<<mate_point->id<<" pose: "<<std::endl<<mate_point->pose<<std::endl;
+           // gzwarn<<"Adding female mate point "<<atom_model->type<<"#"<<mate_point->id<<" pose: "<<std::endl<<mate_point->pose<<std::endl;
 
             atom_model->female_mate_points.push_back(mate_point);
           }
@@ -313,7 +313,7 @@ namespace assembly_sim
             atom_model->female_mate_points.size()
             + atom_model->male_mate_points.size();
 
-          gzwarn<<"Adding female mate point "<<atom_model->type<<"#"<<mate_point->id<<" pose: "<<std::endl<<mate_point->pose<<std::endl;
+         // gzwarn<<"Adding female mate point "<<atom_model->type<<"#"<<mate_point->id<<" pose: "<<std::endl<<mate_point->pose<<std::endl;
 
           atom_model->female_mate_points.push_back(mate_point);
 #endif
@@ -325,7 +325,7 @@ namespace assembly_sim
             atom_model->female_mate_points.size()
             + atom_model->male_mate_points.size();
 
-          gzwarn<<"Adding male mate point "<<atom_model->type<<"#"<<mate_point->id<<" pose: "<<std::endl<<mate_point->pose<<std::endl;
+         // gzwarn<<"Adding male mate point "<<atom_model->type<<"#"<<mate_point->id<<" pose: "<<std::endl<<mate_point->pose<<std::endl;
 
           atom_model->male_mate_points.push_back(mate_point);
         } else {

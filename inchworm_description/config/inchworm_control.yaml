@@ -30,5 +30,3 @@ inchworm_N:
         goal: 0.025
       iw_ankle_foot_top_N:
         goal: 0.025
-
-  
