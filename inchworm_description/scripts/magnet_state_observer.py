@@ -4,7 +4,7 @@ from contextlib import suppress
 import rospy
 
 from inchworm_hw_interface.msg import MagnetState
-from assembly_msgs.srv import SetMateSuppression, SetMateSuppressionRequest
+from assembly_msgs.srv import SuppressLink, SuppressLinkRequest
 
 last_mag_state = MagnetState(magnet1=True, magnet2=True)
 suppress_proxy = None
@@ -27,11 +27,11 @@ def inchwormMagCB(msg):
     suppressions.append(suppress)
 
   for suppression in suppressions:
-    # Compose a SetMateSuppression request
+    # Compose a SuppressLink request
     link = suppression[0]
     suppress = suppression[1]
 
-    req = SetMateSuppressionRequest()
+    req = SuppressLinkRequest()
     req.scoped_link = link
     req.suppress = suppress
 
@@ -57,7 +57,7 @@ def main():
   rospy.loginfo("Waiting for /suppress_mate service...")
   rospy.wait_for_service("/suppress_mate")
   rospy.loginfo("Found service.")
-  suppress_proxy = rospy.ServiceProxy("/suppress_mate", SetMateSuppression)
+  suppress_proxy = rospy.ServiceProxy("/suppress_mate", SuppressLink)
 
   rospy.Subscriber("/inchworm/magnet_states", MagnetState, inchwormMagCB)
 

@@ -7,13 +7,13 @@
 
   <arg name="use_moveit" default="false" />
 
-  <arg name="robot_count" default="64" />
+  <arg name="robot_count" default="5" />
   <param name="robot_count" value="$(arg robot_count)" />
 
-  <arg name="roof_width" default="64" />
+  <arg name="roof_width" default="5" />
   <param name="roof_width" value="$(arg roof_width)" />
 
-  <arg name="roof_height" default="1" />
+  <arg name="roof_height" default="5" />
   <param name="roof_height" value="$(arg roof_height)" />
 
   <!-- Launch Gazebo, only if we're not running on the real robot-->

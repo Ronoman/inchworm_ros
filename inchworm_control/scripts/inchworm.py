@@ -3,7 +3,7 @@
 import rospy, math
 
 from assembly_msgs.msg import MateList
-from assembly_msgs.srv import SetMateSuppression, SetMateSuppressionRequest
+from assembly_msgs.srv import SuppressLink, SuppressLinkRequest
 
 from traj_planner import TrajectoryPlanner
 from enum import Enum
@@ -33,7 +33,7 @@ class Inchworm:
     self.on_shingle = 0
 
     # Suppression service proxy
-    self.suprpess_proxy = rospy.ServiceProxy("/suppress_mate", SetMateSuppression)
+    self.suprpess_proxy = rospy.ServiceProxy("/suppress_mate", SuppressLink)
 
     # State subscribers
     rospy.Subscriber("/active_mates", MateList, self.mateCB)
@@ -111,12 +111,19 @@ class Inchworm:
     unsuppresses all possible mates for shingles adjacent to `going_to`.
     '''
     
-    adj_current = self.getAdjacentShingleIndexes(currently_on)
-    adj_going   = self.getAdjacentShingleIndexes(going_to)
+    adj_current = set(self.getAdjacentShingleIndexes(currently_on))
+    adj_going   = set(self.getAdjacentShingleIndexes(going_to))
+
+    all = set(range(self.roof_height * self.roof_width))
+
+    iw_bot = ["inchworm", f"inchworm_description_{self.idx}", f"iw_root_{self.idx}"]
+    iw_top = ["inchworm", f"inchworm_description_{self.idx}", f"iw_foot_top_{self.idx}"]
+
+    req = SuppressLinkRequest()
 
     # Suppress all in adjacent current
     for idx in adj_current:
-      pass
+      shingle = ["inchworm", f"shingle_description_{idx}", f"shingle_{idx}"]
 
     # Unsuppress all in where you're going to
     for idx in adj_going:

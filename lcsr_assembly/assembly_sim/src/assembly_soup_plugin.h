@@ -20,7 +20,7 @@
 #include <kdl/frames.hpp>
 
 \
-#include <assembly_msgs/SetMateSuppression.h>
+#include <assembly_msgs/SuppressLink.h>
 
 #include "models.h"
 
@@ -35,7 +35,7 @@ namespace assembly_sim {
       ~AssemblySoup();
 
       // Ros callback for suppresing mates
-      bool SuppressMatesCallback(assembly_msgs::SetMateSuppression::Request& req, assembly_msgs::SetMateSuppression::Response& res);
+      bool SuppressMatesCallback(assembly_msgs::SuppressLink::Request& req, assembly_msgs::SuppressLink::Response& res);
 
       // Pointer to the model
     private:
