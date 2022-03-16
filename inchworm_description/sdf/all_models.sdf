@@ -42,7 +42,7 @@
             <xacro:if value="${col_count}">
                 <!-- If the row is divisible by 2 (1-indexed), offset the first shingle by shingle_width/2 -->
                 <xacro:if value="${row_num % 2 == 0}">
-                    <xacro:shingle_description x="${(shingle_width + horiz_offset)*(col_count - 1) + shingle_width/2}" y="${(shingle_height - overhang)*(row_num - 1)}" z="${z_offset + (vert_offset)*(row_num-1)}" rx="${radians(90)}" ry="${radians(9.02)}" rz="-${radians(90)}" fixed="1" idx="${(row_num-1)*NUM_COLS + col_count - 1}" gravity="1" />
+                    <xacro:shingle_description x="${(shingle_width + horiz_offset)*(col_count - 1) - shingle_width/2}" y="${(shingle_height - overhang)*(row_num - 1)}" z="${z_offset + (vert_offset)*(row_num-1)}" rx="${radians(90)}" ry="${radians(9.02)}" rz="-${radians(90)}" fixed="1" idx="${(row_num-1)*NUM_COLS + col_count - 1}" gravity="1" />
                 </xacro:if>
                 <xacro:unless value="${row_num % 2 == 0}">
                     <xacro:shingle_description x="${(shingle_width + horiz_offset)*(col_count - 1)}" y="${(shingle_height - overhang)*(row_num - 1)}" z="${z_offset + (vert_offset)*(row_num-1)}" rx="${radians(90)}" ry="${radians(9.02)}" rz="-${radians(90)}" fixed="1" idx="${(row_num-1)*NUM_COLS + col_count - 1}" gravity="1" />

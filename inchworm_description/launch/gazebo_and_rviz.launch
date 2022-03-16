@@ -7,13 +7,13 @@
 
   <arg name="use_moveit" default="false" />
 
-  <arg name="robot_count" default="5" />
+  <arg name="robot_count" default="10" />
   <param name="robot_count" value="$(arg robot_count)" />
 
-  <arg name="roof_width" default="5" />
+  <arg name="roof_width" default="10" />
   <param name="roof_width" value="$(arg roof_width)" />
 
-  <arg name="roof_height" default="5" />
+  <arg name="roof_height" default="10" />
   <param name="roof_height" value="$(arg roof_height)" />
 
   <!-- Launch Gazebo, only if we're not running on the real robot-->
@@ -25,6 +25,10 @@
 
   <!-- load all the nodes -->
   <node name="node_loader" pkg="inchworm_description" type="load_nodes.py" output="screen">
+    <param name="robot_count" value="$(arg robot_count)" />
+  </node>
+
+  <node name="high_level_control" pkg="inchworm_control" type="high_level_control.py" output="screen">
     <param name="robot_count" value="$(arg robot_count)" />
   </node>
 
