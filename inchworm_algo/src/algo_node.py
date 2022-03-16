@@ -6,10 +6,27 @@ from inchworm_algo.msg import ShingleMsg, RoofState
 from roof import Roof
 from shingle import Shingle, ShingleStatus
 from shingle_depot import ShingleDepot
+from inchworm import Inchworm, EEStatus
 from inchworm_algo.srv import *
 
+def spawn_inchworms(roof, inchworm_count):
+        inchworm_count = min(int(roof.width/2), inchworm_count)
+        inchworms = []
+        for inchworm_id in range(inchworm_count):
+            inchworms.append(Inchworm(id=inchworm_id, bottom_foot_pos=[inchworm_id * 2, 0], top_foot_pos=[(inchworm_id*2) + 1, 0], width=roof.width, height=roof.height, top_foot_stat=EEStatus.PLANTED))
+            roof.inchworm_occ[0][inchworm_id * 2] = 1
+            roof.inchworm_occ[0][(inchworm_id*2) + 1] = 1
+        return inchworms
 
 
+def update_inchworms(roof, inchworms):
+    for worm in inchworms:
+        if worm is not None:
+            worm.run_one_tick(roof)
+    for worm in inchworms:
+        if worm is not None:
+            worm.run_action(roof)
+    return roof, inchworms
 
 if __name__ == "__main__":
     rospy.init_node("algo_node")
@@ -21,15 +38,11 @@ if __name__ == "__main__":
     inchworm_count = int(sys.argv[3])
     if len(sys.argv) >= 4:
         hz = int(sys.argv[4])
-<<<<<<< HEAD
-=======
-        
-    
->>>>>>> 0b41f5592a0a0fe95b0a25c88cc916623b322888
+
 
     roof = Roof(roof_width, roof_height, False, inchworm_count)
     
-
+    inchworms = spawn_inchworms(roof, inchworm_count)
 
     # publish roof state
 
@@ -40,7 +53,7 @@ if __name__ == "__main__":
     rospy.sleep(2) # time it takes to startup the algo viz
     while not rospy.is_shutdown():
         roof_pub.publish(roof.to_message())
-        roof.update_inchworms()
+        roof, inchworms = update_inchworms(roof, inchworms)
         r.sleep()
 
 

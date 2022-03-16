@@ -119,22 +119,9 @@ class Roof():
         else:
             self.shingle_depots[0].move_shingle_depot_up()
 
-    def spawn_inchworms(self, inchworm_count):
-        inchworm_count = min(int(self.width/2), inchworm_count)
-        for inchworm_id in range(inchworm_count):
-            self.inchworms.append(Inchworm(id=inchworm_id, bottom_foot_pos=[inchworm_id * 2, 0], top_foot_pos=[(inchworm_id*2) + 1, 0], width=self.width, height=self.height, top_foot_stat=EEStatus.PLANTED))
-            self.inchworm_occ[0][inchworm_id * 2] = 1
-            self.inchworm_occ[0][(inchworm_id*2) + 1] = 1
-
+    
     # TODO:THIS REALLY SHOULD NOT BE IN THE ROOF, IT SHOULD BE IN A SIM OBJECT OR SOMETHING, LIKE LOOK AT THIS FUCKERY
-    def update_inchworms(self):
-        for worm in self.inchworms:
-            if worm is not None:
-                self.shingle_array, self.inchworm_occ, self.shingle_depots = worm.run_one_tick(self.shingle_array, self.inchworm_occ, self.shingle_depots)
-        for worm in self.inchworms:
-            if worm is not None:
-                self.shingle_array, self.inchworm_occ, self.shingle_depots, self.shingle_count = worm.run_action(self.shingle_array, self.inchworm_occ, self.shingle_depots, self.shingle_count)
-        pass
+
 
 
 
