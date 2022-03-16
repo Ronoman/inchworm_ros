@@ -3,15 +3,6 @@
 import math, pygame, rospy
 
 
-'''
-    Things to change:
-
-        Color shingles
-            based on the roof state
-        update takes in a roof_state message
-
-
-'''
 
 
 
@@ -19,7 +10,11 @@ class TileRenderer:
 
     # colors
     NO_TILE = (50, 50, 50)
+<<<<<<< HEAD
+    PLACED_TILE = (100, 100, 255)
+=======
     PLACED_TILE = (100, 100, 200)
+>>>>>>> 355448d00e84c789b74f4edb291c5f91fadbace1
     FRONTIER_TILE = (100, 0, 100)
     INSTALLED_TILE = (0, 0, 200)
 
