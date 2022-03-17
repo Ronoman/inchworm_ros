@@ -120,8 +120,8 @@ class Roof():
             self.shingle_depots[0].move_shingle_depot_up()
 
     
-    # TODO:THIS REALLY SHOULD NOT BE IN THE ROOF, IT SHOULD BE IN A SIM OBJECT OR SOMETHING, LIKE LOOK AT THIS FUCKERY
-
+    def get_shingle_depot_location(self):
+        return self.shingle_depots[0].get_location()
 
 
 
