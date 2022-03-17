@@ -63,7 +63,7 @@
       <max_distance>0.01</max_distance>
 
       <attach_threshold>
-        <linear>0.015</linear>
+        <linear>0.0015</linear>
         <angular>0.3</angular>
       </attach_threshold>
 
@@ -109,7 +109,7 @@
       </mate_point>
 
       <mate_point type="rs" gender="female">
-        <pose>0 -0.0137 0 0 0 0</pose>
+        <pose>0 -0.0145 0 0 0 0</pose>
       </mate_point>
     </atom_model>
     <!-- TODO -->
@@ -122,26 +122,18 @@
         <xacro:if value="${col_count}">
           <xacro:if  value="${row_count % 2 == 0}">
             <mate_point type="rs" gender="male">
-              <pose> ${(shingle_width + horiz_offset)*(num_cols - col_count) - shingle_width}
-                ${0.005 + (shingle_height - overhang)*(row_num - 1)} 
-                0.03 
+              <pose> ${(shingle_width + horiz_offset)*(col_count - 1)}
+                ${0.008 + (shingle_height - overhang)*(row_count - 1)} 
+                ${0.035}
                 ${radians(90)} 0 -${radians(90)}} </pose>
-              <!--  ${z_offset + (vert_offset)*(num_rows - row_num)} 
-                ${(shingle_width + horiz_offset)*(num_cols - col_count) + shingle_width/2}   
-                ${(shingle_height - overhang)*(num_rows - row_num)} 
-                ${radians(9.02)} 0 0} </pose> -->
             </mate_point>
           </xacro:if>
           <xacro:unless value="${row_count % 2 == 0}">
             <mate_point type="rs" gender="male">
-              <pose> ${(shingle_width + horiz_offset)*(num_cols - col_count) + shingle_width/2 }
-                ${0.005 + (shingle_height - overhang)*(row_num - 1)} 
-                0.03 
+              <pose> ${(shingle_width + horiz_offset)*(col_count - 1) + shingle_width/2 }
+                ${0.008 + (shingle_height - overhang)*(row_count - 1)} 
+                ${0.035}
                 ${radians(90)} 0 -${radians(90)}}</pose>
-              <!-- ${(shingle_width + horiz_offset)*(col_count - 1)} 
-                ${(shingle_height - overhang)*(row_num - 1)} 
-                ${z_offset + (vert_offset)*(row_num-1)} 
-                0 0 0}"</pose> -->
             </mate_point>
           </xacro:unless>
           <xacro:gen_row col_count="${col_count - 1}" row_count="${row_count}" />
