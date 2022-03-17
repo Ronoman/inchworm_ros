@@ -59,7 +59,10 @@ if __name__ == "__main__":
     r = rospy.Rate(hz)
     rospy.sleep(2) # time it takes to startup the algo viz
     while not rospy.is_shutdown():
-        roof_pub.publish(roof.to_message())
+        roof_msg = roof.to_message()
+        for worm in inchworms:
+            roof_msg.inchworms.append(worm.to_message())
+        roof_pub.publish(roof_msg)
         roof, inchworms = update_inchworms(roof, inchworms)
         inchworm_pub.publish(create_inchworms_msg(inchworms))
         r.sleep()

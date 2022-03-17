@@ -280,7 +280,7 @@ class Inchworm():
             move_targets.append({"pos": n, "ee": ee_to_move})
         return move_targets
 
-    # TODO: MAKE THE FOLLOWING TWO FUNCTION NOT MAGIC
+    # TODO: MAKE THE FOLLOWING TWO FUNCTION NOT MAGIC - they have to be magic until we are writing to shingles properly
     def get_best_placed_shingle(self, shingles):
         neighbors = self.get_shingle_neighbors(self.bottom_foot_position, shingles)
         neighbors.extend(self.get_shingle_neighbors(
@@ -565,6 +565,7 @@ class Inchworm():
 
                         self.move_shingle_step = 1
                         self.ee_shingle_neighbor_index = 0
+                        real_roof.claim_position([placed_shingle.x_coord, placed_shingle.y_coord])
                         self.robot_state = RobotState.MOVE_SHINGLE
                         rospy.loginfo(f"inchworm {self.id} moving shingle")
 
@@ -664,8 +665,7 @@ class Inchworm():
                             self.move_top_foot(
                                 self.ee_shingle_neighbors[self.ee_shingle_neighbor_index]["pos"])
                         else:
-                            real_roof.shingle_array[self.install_shingle_target.y_coord][self.install_shingle_target.x_coord].shingle_status = ShingleStatus.INSTALLED
-
+                            real_roof.install_shingle(self.install_shingle_target, self.install_shingle_target.x_coord, self.install_shingle_target.y_coord)
                             self.set_shingle_state(self.install_shingle_target.x_coord, self.install_shingle_target.y_coord, ShingleStatus.INSTALLED)
                             if self.top_foot_position != self.old_top_foot:
                                 real_roof.unclaim_position(self.old_top_foot)
@@ -695,8 +695,7 @@ class Inchworm():
                         self.move_bottom_foot(
                             [self.shingle_to_move.x_coord, self.shingle_to_move.y_coord])
 
-                        real_roof.shingle_array[self.shingle_to_move.y_coord][self.shingle_to_move.x_coord] = None
-                        self.shingle_to_move = self.shingle_to_move.pickup_shingle()
+                        self.shingle_to_move = real_roof.pickup_shingle(self.shingle_to_move.x_coord, self.shingle_to_move.y_coord)
                     else:
                         self.move_shingle_step = 2
 
@@ -706,8 +705,8 @@ class Inchworm():
                             f"inchworm {self.id} moving top_foot to {[self.shingle_to_move.x_coord, self.shingle_to_move.y_coord]}")
                         self.move_top_foot(
                             [self.shingle_to_move.x_coord, self.shingle_to_move.y_coord])
-                        real_roof.shingle_array[self.shingle_to_move.y_coord][self.shingle_to_move.x_coord] = None
-                        self.shingle_to_move = self.shingle_to_move.pickup_shingle()
+                        self.shingle_to_move = real_roof.pickup_shingle(self.shingle_to_move.x_coord, self.shingle_to_move.y_coord)
+
 
                     else:
                         self.move_shingle_step = 2
@@ -721,9 +720,7 @@ class Inchworm():
                         self.shingle_to_move = self.shingle_to_move.place_shingle(
                             self.bottom_foot_position[0], self.bottom_foot_position[1])
 
-                        real_roof.shingle_array[self.bottom_foot_position[1]
-                                 ][self.bottom_foot_position[0]] = self.shingle_to_move
-
+                        real_roof.place_shingle(self.shingle_to_move, self.bottom_foot_position)
                         self.move_shingle_step = 3
 
                 else:
@@ -733,8 +730,8 @@ class Inchworm():
                     else:
                         self.shingle_to_move = self.shingle_to_move.place_shingle(
                             self.top_foot_position[0], self.top_foot_position[1])
-                        real_roof.shingle_array[self.top_foot_position[1]
-                                 ][self.top_foot_position[0]] = self.shingle_to_move
+                        real_roof.place_shingle(self.shingle_to_move, self.top_foot_position)
+
                         self.move_shingle_step = 3
 
             else:
@@ -825,7 +822,7 @@ class Inchworm():
         else:
             msg.top_foot_valid_neighbors = []
 
-        msg.roof = self.roof
+        # msg.roof = self.roof
         msg.roof_width = self.roof_width
         msg.shingle_depot_pos = self.shingle_depot_pos
         msg.header.stamp = rospy.Time.now()
@@ -855,9 +852,8 @@ class Inchworm():
         functions to change in refactor
             - next_to_placed_shingle
             - get_best_placed_shingle
-            - move shingle spawning to roof.py - ~line 596
             - create coord class to use in the enter sim
-            - create functions for inchworm occ
+
     
     
     '''

@@ -2,7 +2,7 @@
 
 from shingle_depot import ShingleDepot
 from shingle import Shingle, ShingleStatus, NeighborIndex
-from inchworm import EEStatus, Inchworm
+
 
 # all x and y are in array coords currently
 
@@ -10,7 +10,7 @@ from inchworm import EEStatus, Inchworm
 
 ### NOTICE: COLLISION AVOIDENCE IS CURRENTLY CENTILIZED
 
-from inchworm_algo.msg import ShingleMsg, RoofState
+from inchworm_algo.msg import ShingleMsg, RoofState, InchwormMsg
 import rospy
 
 class Roof():
@@ -41,9 +41,9 @@ class Roof():
         self.inchworms = []
 
 
-    def place_shingle(self, shingle, x, y):
-        self.shingle_array[y][x] = shingle
-        shingle = shingle.place_shingle(x, y, self)
+    def place_shingle(self, shingle, coord):
+        self.shingle_array[coord[1]][coord[0]] = shingle
+        shingle = shingle.place_shingle(coord[0], coord[1])
         return shingle
 
 

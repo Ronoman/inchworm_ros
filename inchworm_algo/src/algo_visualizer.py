@@ -2,7 +2,7 @@
 
 import rospy, sys, std_msgs, pygame, math
 
-from inchworm_algo.msg import ShingleMsg, RoofState
+from inchworm_algo.msg import ShingleMsg, RoofState, InchwormsMsg
 
 from tile_renderer import TileRenderer
 
@@ -22,7 +22,6 @@ screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Roof Rendering")
 clock = pygame.time.Clock()   
 
-inchworms = []
 
 
 def handle_new_inchworms(msg, inchworms):
@@ -34,6 +33,7 @@ def handle_new_roof_state(msg, screen, roof_state, shingle_depot_pos, inchworms)
     # rospy.loginfo("handling new RoofState")
     roof_state = list(msg.shingles)
     # rospy.loginfo(len(msg.shingles))
+    inchworms = list(msg.inchworms)
     shingle_depot_pos = list(msg.depot_positions)
     inchworm_occ = list(msg.inchworm_occ)
     #3 Draw/render
@@ -54,6 +54,7 @@ if __name__ == '__main__':
     rospy.init_node("algo_visualizer")
 
 
+    inchworms = []
 
 
 
@@ -87,6 +88,7 @@ if __name__ == '__main__':
 
 
     rospy.Subscriber('/algo/roof_state', RoofState, lambda x: handle_new_roof_state(x, screen, roof_state, shingle_depot_pos, inchworms))
+    rospy.Subscriber('/algo/inchworms', InchwormsMsg, lambda x: handle_new_inchworms(x, inchworms))
     rospy.loginfo(f" roof size {len(roof_state)}")
     running = True
     while not rospy.is_shutdown() and running:
