@@ -344,21 +344,21 @@ class Inchworm():
     def dist(ee_pos, target_pos):
         return math.sqrt((ee_pos[0] - target_pos[0])**2 + (ee_pos[1] - target_pos[1])**2)
 
-    def next_to_shingle_depot(self, shingle_depot):
+    def next_to_shingle_depot(self, shingle_depot_location):
 
         rospy.loginfo(f"bottom_foot at {self.bottom_foot_position}")
         rospy.loginfo(f"top_foot at {self.top_foot_position}")
         if self.bottom_foot_position[0] == 0:
-            if self.bottom_foot_position[1] == shingle_depot.get_location():
+            if self.bottom_foot_position[1] == shingle_depot_location:
                 return True
-            elif self.bottom_foot_position[1] > shingle_depot.get_location():
-                self.shingle_depot_pos[0] = shingle_depot.get_location()
+            elif self.bottom_foot_position[1] > shingle_depot_location:
+                self.shingle_depot_pos[0] = shingle_depot_location
         if self.top_foot_position[0] == 0:
 
-            if self.top_foot_position[1] == shingle_depot.get_location():
+            if self.top_foot_position[1] == shingle_depot_location:
                 return True
-            elif self.top_foot_position[1] > shingle_depot.get_location():
-                self.shingle_depot_pos[0] = shingle_depot.get_location()
+            elif self.top_foot_position[1] > shingle_depot_location:
+                self.shingle_depot_pos[0] = shingle_depot_location
 
         return False
 
@@ -410,7 +410,7 @@ class Inchworm():
                 # TODO: if the data read does not match the inchworms such that the shingles are out of date, update the shingle
                 
 
-                # TODO: change this, will require a working probing state
+                # TODO: change this, will require a working probing state and being able to read shingles
                 self.roof = []
                 for row in real_roof.shingle_array:
                     for element in row:
@@ -570,7 +570,7 @@ class Inchworm():
 
                 else:
                     # if the inchworm is not next to the shingle depot, move toward it, otherwise pick up a new shingle
-                    if not self.next_to_shingle_depot(real_roof.shingle_depots[0]):
+                    if not self.next_to_shingle_depot(real_roof.get_shingle_depot_location(False)):
                         self.make_state_move_to_depot()
                     else:
                         rospy.loginfo(
@@ -586,7 +586,7 @@ class Inchworm():
             # place holder for now, shingle depot just spawns a new shingle in the persumed location
 
             rospy.sleep(Inchworm.DELAY)
-            rospy.loginfo(f"shingle depot at {real_roof.shingle_depots[0].get_location()}")
+            rospy.loginfo(f"shingle depot at {real_roof.get_shingle_depot_location(False)}")
             # check if the shingle depot has placed a shingle in the new spot
             if real_roof.spawn_shingle(): # TODO: will need to add more here to allow for a robot to pick shingle up from shingle depot
                 self.robot_state = RobotState.MAKE_DECISION
@@ -849,6 +849,15 @@ class Inchworm():
 
         sudo apt-get install python-dev libsdl-image1.2-dev libsdl-mixer1.2-dev libsdl-ttf2.0-dev libsdl1.2-dev libsmpeg-dev python-numpy subversion libportmidi-dev ffmpeg libswscale-dev libavformat-dev libavcodec-dev libfreetype6-dev
         pip install pygame==1.9.6
+
+
+
+        functions to change in refactor
+            - next_to_placed_shingle
+            - get_best_placed_shingle
+            - move shingle spawning to roof.py - ~line 596
+            - create coord class to use in the enter sim
+            - create functions for inchworm occ
     
     
     '''

@@ -9,36 +9,47 @@ def cube_to_evenr(cube):
     row = r
     return [col, row]
 
-def evenr_to_cube(hex):
-    q = hex[0] - (hex[1] + (hex[1]&1)) / 2
-    r = hex[1]
+def evenr_to_cube(hex_coord):
+    q = hex_coord[0] - (hex_coord[1] + (hex_coord[1]&1)) / 2
+    r = hex_coord[1]
     s = -q-r
     return [q, r, s]
     
 
 
-
-
-
 def cube_subtract(a, b):
-    return Cube(a.q - b.q, a.r - b.r, a.s - b.s)
+    return [a[0] - b[0], a[1] - b[1], a[2] - b[2]]
 
 def cube_distance(a, b):
     vec = cube_subtract(a, b)
-    return (abs(vec.q) + abs(vec.r) + abs(vec.s)) / 2
-    #// or: (abs(a.q - b.q) + abs(a.r - b.r) + abs(a.s - b.s)) / 2
+    return (abs(vec[0]) + abs(vec[1]) + abs(vec[2])) / 2
+
 
 
 cube_direction_vectors = [
-    Cube(+1, 0, -1), Cube(+1, -1, 0), Cube(0, -1, +1), 
-    Cube(-1, 0, +1), Cube(-1, +1, 0), Cube(0, +1, -1), 
+    [+1, 0, -1], [+1, -1, 0], [0, -1, +1], 
+    [-1, 0, +1], [-1, +1, 0], [0, +1, -1]
 ]
 
 def cube_direction(direction):
     return cube_direction_vectors[direction]
 
-def cube_add(hex, vec):
-    return Cube(hex.q + vec.q, hex.r + vec.r, hex.s + vec.s)
+def cube_add(hex_coord, vec):
+    return [hex_coord[0] + vec[0], hex_coord[1] + vec[1], hex_coord[2] + vec[2]]
 
-def cube_neighbor(hex, direction):
-    return cube_add(hex, cube_direction(direction))
+def cube_neighbor(hex_coord, direction):
+    return cube_add(hex_coord, cube_direction(direction))
+
+def get_all_neighbors(coord):
+    neighbors = []
+    hex_coord = evenr_to_cube(coord)
+    for vec in cube_direction_vectors:
+        n = cube_to_evenr(cube_neighbor(hex_coord, vec))
+        if n[0] < 0 and n[1] < 0:
+            neighbors.append(n)
+    return neighbors
+    
+def evenr_distance(x, y):
+    x_cube = evenr_to_cube(x)
+    y_cube = evenr_to_cube(y)
+    return cube_distance(x_cube, y_cube)
