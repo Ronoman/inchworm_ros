@@ -2,7 +2,7 @@
 
 import rospy, math, shingle, sys, std_msgs
 
-from inchworm_algo.msg import ShingleMsg, RoofState
+from inchworm_algo.msg import ShingleMsg, RoofState, InchwormsMsg
 from roof import Roof
 from shingle import Shingle, ShingleStatus
 from shingle_depot import ShingleDepot
@@ -28,6 +28,13 @@ def update_inchworms(roof, inchworms):
             worm.run_action(roof)
     return roof, inchworms
 
+def create_inchworms_msg(inchworms):
+    inchworm_msg = InchwormsMsg()
+    for inchworm in inchworms:
+        inchworm_msg.inchworms.append(inchworm.to_message())
+    inchworm_msg.header.stamp = rospy.Time.now()
+    return inchworm_msg
+
 if __name__ == "__main__":
     rospy.init_node("algo_node")
 
@@ -48,12 +55,13 @@ if __name__ == "__main__":
 
     roof_pub = rospy.Publisher("/algo/roof_state", RoofState, queue_size=1)
 
-
+    inchworm_pub = rospy.Publisher("/algo/inchworms", InchwormsMsg, queue_size=1)
     r = rospy.Rate(hz)
     rospy.sleep(2) # time it takes to startup the algo viz
     while not rospy.is_shutdown():
         roof_pub.publish(roof.to_message())
         roof, inchworms = update_inchworms(roof, inchworms)
+        inchworm_pub.publish(create_inchworms_msg(inchworms))
         r.sleep()
 
 

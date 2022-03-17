@@ -179,10 +179,7 @@ class Roof():
             roof_state.depot_positions = [self.shingle_depots[0].get_location(), self.shingle_depots[1].get_location()]
         else:
             roof_state.depot_positions = [self.shingle_depots[0].get_location()]
-        inchworm_states = []
-        for inchworm in self.inchworms:
-            inchworm_states.append(inchworm.to_message())
-        roof_state.inchworms = inchworm_states
+        
         roof_state.header.stamp = rospy.Time.now()
         roof_state.inchworm_occ = sum(self.inchworm_occ, [])
         return roof_state
