@@ -13,7 +13,7 @@
   <arg name="roof_width" default="2" />
   <param name="roof_width" value="$(arg roof_width)" />
 
-  <arg name="roof_height" default="10" />
+  <arg name="roof_height" default="15" />
   <param name="roof_height" value="$(arg roof_height)" />
 
   <!-- Launch Gazebo, only if we're not running on the real robot-->
