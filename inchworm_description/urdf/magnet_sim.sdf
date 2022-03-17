@@ -1,7 +1,7 @@
 <?xml version='1.0'?>
 <sdf version="1.4" xmlns:xacro="http://www.ros.org/wiki/xacro" >
   <xacro:macro name="magnet_sim" >
-    <xacro:include filename="$(find inchworm_description)/urdf/inchworm_magnets.sdf" />
+    <xacro:include filename="$(find inchworm_description)/sdf/inchworm_magnets.sdf" />
 
     <model name="inchworm_soup">
       <plugin name="assembly_soup" filename="libassembly_soup_plugin.so">

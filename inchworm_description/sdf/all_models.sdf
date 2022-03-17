@@ -5,7 +5,7 @@
     
     <xacro:include filename="$(find inchworm_description)/sdf/shingle.sdf" />
     <xacro:include filename="$(find inchworm_description)/sdf/inchworm_description.sdf" />
-    <xacro:include filename="$(find inchworm_description)/urdf/inchworm_magnets.sdf" />
+    <xacro:include filename="$(find inchworm_description)/sdf/inchworm_magnets.sdf" />
     <xacro:include filename="$(find inchworm_description)/sdf/roof.sdf" />
 
     <model name="inchworm_soup">
