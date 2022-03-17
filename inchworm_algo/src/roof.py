@@ -29,7 +29,7 @@ class Roof():
     inchworm_occ = []
     shingle_count = -1
 
-    def __init__(self, width, height, dual_side_depots, inchworm_count):
+    def __init__(self, width, height, dual_side_depots):
         self.shingle_array = []
         for i in range(height):
             self.shingle_array.append([None] * width)
@@ -39,7 +39,6 @@ class Roof():
         self.spawn_first_row()
         self.spawn_depots(dual_side_depots)
         self.inchworms = []
-        self.spawn_inchworms(inchworm_count)
 
 
     def place_shingle(self, shingle, x, y):
@@ -55,7 +54,7 @@ class Roof():
 
     def install_shingle(self, shingle, x, y):
         self.shingle_array[y][x] = shingle
-        shingle = shingle.install_shingle(x, y, self)
+        shingle = shingle.install_shingle(x, y)
         return shingle
 
 
@@ -94,6 +93,14 @@ class Roof():
         # self.shingle_array[1][1] = new_shingle
         # self.shingle_count += 1
 
+    def claim_position(self, coord):
+        self.inchworm_occ[coord[1]][coord[0]] = 1
+
+    def unclaim_position(self, coord):
+        self.inchworm_occ[coord[1]][coord[0]] = 0
+
+    def get_occ_position(self, coord):
+        return self.inchworm_occ[coord[1]][coord[0]]
         
     def increment_shingle_count(self):
         self.shingle_count += 1
@@ -115,14 +122,34 @@ class Roof():
 
     def move_shingle_depot(self, opposite_side):
         if opposite_side:
-            self.shingle_depot[1].move_shingle_depot_up()
+            self.shingle_depots[1].move_shingle_depot_up()
         else:
             self.shingle_depots[0].move_shingle_depot_up()
 
-    
-    # TODO:THIS REALLY SHOULD NOT BE IN THE ROOF, IT SHOULD BE IN A SIM OBJECT OR SOMETHING, LIKE LOOK AT THIS FUCKERY
 
+    def check_if_can_spawn_shingle(self):
+        if self.get_shingle(0, self.shingle_depots[0].get_location() + 1) != None:
+            rospy.loginfo(self.get_shingle(0, self.shingle_depots[0].get_location() + 1).shingle_status)
+            if (self.get_shingle(0, self.shingle_depots[0].get_location() + 1).shingle_status == ShingleStatus.INSTALLED):
+                rospy.loginfo("moving depot up")
+                self.move_shingle_depot(False)
+            return False
+        else:
+            return True
 
+    def spawn_shingle(self):
+        if self.check_if_can_spawn_shingle():
+            self.shingle_array[self.shingle_depots[0].get_location() + 1][0], self.shingle_count = self.shingle_depots[0].create_shingle(False, self.shingle_count)
+            self.shingle_array[self.shingle_depots[0].get_location() + 1][0].place_shingle(0, self.shingle_depots[0].get_location() + 1)
+            return True
+        else:
+            return False
+
+    def get_shingle_depot_location(self, opposite_side):
+        if opposite_side:
+            return self.shingle_depots[1].get_location()
+        else:
+            return self.shingle_depots[0].get_location()
 
 
     def to_message(self):

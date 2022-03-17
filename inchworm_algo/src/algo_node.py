@@ -40,7 +40,7 @@ if __name__ == "__main__":
         hz = int(sys.argv[4])
 
 
-    roof = Roof(roof_width, roof_height, False, inchworm_count)
+    roof = Roof(roof_width, roof_height, False)
     
     inchworms = spawn_inchworms(roof, inchworm_count)
 
