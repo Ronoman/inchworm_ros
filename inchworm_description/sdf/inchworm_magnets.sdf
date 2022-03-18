@@ -63,7 +63,7 @@
       <max_distance>0.01</max_distance>
 
       <attach_threshold>
-        <linear>0.0015</linear>
+        <linear>0.015</linear>
         <angular>0.3</angular>
       </attach_threshold>
 
@@ -122,7 +122,7 @@
         <xacro:if value="${col_count}">
           <xacro:if  value="${row_count % 2 == 0}">
             <mate_point type="rs" gender="male">
-              <pose> ${(shingle_width + horiz_offset)*(col_count - 1)}
+              <pose> ${(shingle_width + horiz_offset)*(col_count - 1) + shingle_width/2 }
                 ${0.008 + (shingle_height - overhang)*(row_count - 1)} 
                 ${0.035}
                 ${radians(90)} 0 -${radians(90)}} </pose>
@@ -130,7 +130,7 @@
           </xacro:if>
           <xacro:unless value="${row_count % 2 == 0}">
             <mate_point type="rs" gender="male">
-              <pose> ${(shingle_width + horiz_offset)*(col_count - 1) + shingle_width/2 }
+              <pose> ${(shingle_width + horiz_offset)*(col_count)}
                 ${0.008 + (shingle_height - overhang)*(row_count - 1)} 
                 ${0.035}
                 ${radians(90)} 0 -${radians(90)}}</pose>
