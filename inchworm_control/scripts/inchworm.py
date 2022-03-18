@@ -76,7 +76,6 @@ class Inchworm:
     req.scoped_link = iw_top
     self.link_suppress_proxy(req)
 
-
   def moveTo(neighbor):
     '''
     Moves the end effector not currently attached to the roof to a neighbor.
@@ -105,7 +104,9 @@ class Inchworm:
 
         # If the robot has moved, trigger an update on suppressed mates
         if not on_shingle == self.on_shingle:
+          # TODO: Finish the logic here
           self.updateSuppressedMates()
+          self.on_shingle = on_shingle
 
   def idx_to_coord(self, index, width):
     return (index % width, math.floor(index / width))
