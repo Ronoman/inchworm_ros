@@ -47,14 +47,14 @@ class Roof():
         return shingle
 
 
-    def pickup_shingle(self, x, y):
-        shingle = self.shingle_array[y][x].pickup_shingle()
-        self.shingle_array[y][x] = None
+    def pickup_shingle(self, coord):
+        shingle = self.shingle_array[coord[1]][coord[0]].pickup_shingle()
+        self.shingle_array[coord[1]][coord[0]] = None
         return shingle
 
-    def install_shingle(self, shingle, x, y):
-        self.shingle_array[y][x] = shingle
-        shingle = shingle.install_shingle(x, y)
+    def install_shingle(self, shingle):
+        self.shingle_array[shingle.y_coord][shingle.x_coord] = shingle
+        shingle = shingle.install_shingle(shingle.x_coord, shingle.y_coord)
         return shingle
 
 

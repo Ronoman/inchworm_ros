@@ -69,17 +69,4 @@ if __name__ == "__main__":
 
 
 
-    '''
-    TODO: 
-        - refactor roof so that it does not include inchworms
-        - get rid of all magic functions
-            - this will require fixing reading shingles & storage of local roof copies
-            - will also require a working probe roof subtask || making sure that when a inchworm installs a shingle it rewrites all neighbors
-        - bundle subtasks that exist in the state machine into functions
-        - refactor the run_one_tick to make more sense
-        - change all distance & neighbor functions to use a hex grid lib
-        - have rules for avoiding & escaping deadlock
-        - better collision avoidence?
-    
-    '''
         
