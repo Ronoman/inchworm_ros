@@ -7,7 +7,7 @@ from inchworm_hw_interface.srv import ReadNFCBlock, ReadNFCBlockRequest
 def main():
   rospy.init_node("nfc_read_test")
 
-  proxy = rospy.ServiceProxy("/inchworm/request_nfc", ReadNFCBlock)
+  proxy = rospy.ServiceProxy("/inchworm/nfc_read", ReadNFCBlock)
 
   req = ReadNFCBlockRequest()
 
