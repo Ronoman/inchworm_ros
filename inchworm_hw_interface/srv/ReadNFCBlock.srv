@@ -6,8 +6,7 @@ bool bottom_foot
 # Block number to read from RFID tag. Should be >=4, since 0-3 are manufacturer data
 uint8 block
 
-uint8[] data
-
 ---
 
-bool success
+# Byte array, populated with the data in requested block on success
+uint8[] data
