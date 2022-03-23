@@ -64,7 +64,7 @@ if __name__ == "__main__":
             roof_msg.inchworms.append(worm.to_message())
         roof_pub.publish(roof_msg)
         roof, inchworms = update_inchworms(roof, inchworms)
-        inchworm_pub.publish(create_inchworms_msg(inchworms))
+        # inchworm_pub.publish(create_inchworms_msg(inchworms))
         r.sleep()
 
 
