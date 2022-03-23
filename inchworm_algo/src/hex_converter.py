@@ -10,7 +10,7 @@ def cube_to_evenr(cube):
     return [col, row]
 
 def evenr_to_cube(hex_coord):
-    q = hex_coord[0] - (hex_coord[1] + (hex_coord[1]&1)) / 2
+    q = hex_coord[0] - (hex_coord[1] + (int(hex_coord[1])&1)) / 2
     r = hex_coord[1]
     s = -q-r
     return [q, r, s]

@@ -345,7 +345,8 @@ class Inchworm():
         return [x_coord, y_coord]
 
     def dist(ee_pos, target_pos):
-        return math.sqrt((ee_pos[0] - target_pos[0])**2 + (ee_pos[1] - target_pos[1])**2)
+        return hex_converter.evenr_distance(ee_pos, target_pos)
+        # return math.sqrt((ee_pos[0] - target_pos[0])**2 + (ee_pos[1] - target_pos[1])**2)
 
     def next_to_shingle_depot(self, shingle_depot_location):
 
@@ -438,12 +439,9 @@ class Inchworm():
                 installing = False
 
                 # this is a hack that can be removed once we have hex coords fully implemented
-                if (self.bottom_foot_position[1] % 2 == 0 or self.top_foot_position[1] % 2 == 0):
-                    self.avg_pos = [((self.bottom_foot_position[0] + self.top_foot_position[0])/2) +
-                                    0.5, (self.bottom_foot_position[1] + self.top_foot_position[1])/2]
-                else:
-                    self.avg_pos = [(self.bottom_foot_position[0] + self.top_foot_position[0])/2,
-                                    (self.bottom_foot_position[1] + self.top_foot_position[1])/2]
+                
+                self.avg_pos = [max(self.bottom_foot_position[0], self.top_foot_position[0]),
+                                    max(self.bottom_foot_position[1], self.top_foot_position[1])]
 
                 # rospy.loginfo(f"inchworm {self.id} bottom_foot is next to placed shingles : {self.next_to_placed_shingle(self.bottom_foot_position, shingles)}")
                 # rospy.loginfo(f"inchworm {self.id} top_foot is next to placed shingles : {self.next_to_placed_shingle(self.top_foot_position, shingles)}")
@@ -462,9 +460,9 @@ class Inchworm():
                     rospy.loginfo(f"moving towards {self.target}")
 
                     rospy.logwarn(
-                        f"pos d to target{Inchworm.dist(self.avg_pos, self.target)}")
+                        f"inchworm dis to target{Inchworm.dist(self.avg_pos, self.target)}")
                     rospy.logwarn(
-                        f"s d to target {Inchworm.dist([placed_shingle.x_coord, placed_shingle.y_coord], self.target)}")
+                        f"shingle dis to target {Inchworm.dist([placed_shingle.x_coord, placed_shingle.y_coord], self.target)}")
 
 
                     # check if the average inchworm position is farther away from the target
