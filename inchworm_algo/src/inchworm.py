@@ -383,7 +383,7 @@ class Inchworm():
         return neighbor_pos
 
     def make_state_move_to_depot(self, real_roof):
-        self.target = [0, self.shingle_depot_pos[0]]
+        self.target = [0, real_roof.get_shingle_depot_location(False)]
         rospy.loginfo(f"inchworm {self.id} going to depot")
         # figures out the position to move toward the shingle depot 
         # TODO:this should be include some path planning that works the same as moving toward the target
