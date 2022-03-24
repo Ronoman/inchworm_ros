@@ -3,11 +3,11 @@ cartwheel:
       type: joint
       duration: 2.0
       payload:
-        - -0.5
+        - 0
         - 0.35148
         - 2.44896
         - 0.33461
-        - 23
+        - 0
 
   - wait:
       type: delay
@@ -17,11 +17,11 @@ cartwheel:
       type: joint
       duration: 2.0
       payload:
-        - -0.5
+        - 0
         - -0.02472
         - 2.44436
         - 0.708898
-        - 23
+        - 0
 
   - wait:
       type: delay
@@ -31,11 +31,11 @@ cartwheel:
       type: joint
       duration: 2.0
       payload:
-        - -0.5
+        - 0
         - 0.660577
         - 1.4361548
         - 1.048674
-        - 23
+        - 0
 
   - wait:
       type: delay
@@ -45,8 +45,8 @@ cartwheel:
       type: joint
       duration: 2.0
       payload:
-        - -0.5
+        - 0
         - 0.8853059
         - 1.43692183
         - 0.8461894
-        - 23
+        - 0

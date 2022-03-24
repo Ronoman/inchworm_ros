@@ -38,6 +38,8 @@
     <param name="baud" value="115200" />
   </node>
 
+  <!-- <node name="desired_pose_startup" type="desired_pose_startup.py" pkg="inchworm_hw_interface" /> -->
+
   <node name="plotjuggler" type="plotjuggler" pkg="plotjuggler" />
 
   <node name="rviz" type="rviz" pkg="rviz" args="-d $(find inchworm_description)/rviz/inchworm_frames.rviz" />
