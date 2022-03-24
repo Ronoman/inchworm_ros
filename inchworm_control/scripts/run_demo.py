@@ -3,8 +3,6 @@
 import rospy, glob, rospkg, yaml, sys
 
 from inchworm_hw_interface.msg import MagnetState
-from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
-from sensor_msgs.msg import JointState
 
 from traj_planner import TrajectoryPlanner
 
@@ -20,10 +18,10 @@ def magnet(action):
   mag_state_pub.publish(state)
   rospy.sleep(float(action["duration"]))
 
-def nfc(action):
+def nfc(_):
   print("nfc")
 
-def comm(action):
+def comm(_):
   print("comm")
 
 def delay(action):
@@ -63,17 +61,20 @@ def main():
 
   # Run each action sequentially
   for action in actions:
+    print(data)
     data = list(action.values())[0]
 
     print(action)
     print()
 
+    name = list(action.keys())[0]
+
     # If the type is in our function map, invoke the function and pass in the action data
     if data["type"] in ACTION_FN_MAP:
-      name = list(action.keys())[0]
       print(f"Running action {name}")
       ACTION_FN_MAP[data["type"]](data)
     elif data["type"] == "joint":
+      print(f"Running action {name}")
       planner.run_quintic_traj(data["payload"], data["duration"])
     else:
       rospy.logerr(f"Invalid action type {data['type']}, quitting")

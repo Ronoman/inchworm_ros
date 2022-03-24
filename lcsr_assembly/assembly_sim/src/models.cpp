@@ -99,7 +99,7 @@ namespace assembly_sim {
     max_erp = joint->GetParam("erp",0);
     max_stop_erp = joint->GetParam("stop_erp",0);
 
-    gzmsg<<"Joint "<<description<<" created."<<std::endl;
+    //gzmsg<<"Joint "<<description<<" created."<<std::endl;
   }
 
   void GetConnectedLinks(

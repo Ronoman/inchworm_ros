@@ -69,16 +69,21 @@ def printJointAngles():
     print(f"Joint 4: {angles[joint4]}")
 
 if __name__ == "__main__":
+    prefix = ""
+
+    if rospy.get_namespace() == "/":
+        prefix = "/inchworm_0/"
+
     moveit_commander.roscpp_initialize(sys.argv)
     rospy.init_node("move_ee")
 
     buffer = tf2_ros.Buffer()
     listener = tf2_ros.TransformListener(buffer)
 
-    js_sub = rospy.Subscriber("/inchworm/joint_states", JointState, jointStateCB, queue_size=1)
+    js_sub = rospy.Subscriber(f"{prefix}joint_states", JointState, jointStateCB, queue_size=1)
 
-    goal_pub = rospy.Publisher("/inchworm/next_goal", PoseStamped, queue_size=1)
-    traj_pub = rospy.Publisher("/inchworm/position_trajectory_controller/command", JointTrajectory, queue_size=1)
+    goal_pub = rospy.Publisher(f"{prefix}next_goal", PoseStamped, queue_size=1)
+    traj_pub = rospy.Publisher(f"{prefix}position_trajectory_controller/command", JointTrajectory, queue_size=1)
 
     robot = moveit_commander.RobotCommander()
 

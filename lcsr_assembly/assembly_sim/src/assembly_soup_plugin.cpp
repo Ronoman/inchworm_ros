@@ -46,7 +46,133 @@ namespace assembly_sim
   {
   }
 
-  bool AssemblySoup::SuppressMatesCallback(assembly_msgs::SetMateSuppression::Request& req, assembly_msgs::SetMateSuppression::Response& res)
+  bool AssemblySoup::SuppressMateCallback(assembly_msgs::SuppressMate::Request& req, assembly_msgs::SuppressMate::Response& res)
+  {
+    gzmsg<<"Request to set suppression to "<<req.suppress<<" for mate: "<<std::endl;
+    gzmsg<<" Male: "<<std::endl;
+    for(auto &name : req.scoped_male) {
+        gzmsg<<"  - "<<name<<std::endl;
+    }
+    gzmsg<<" Female: "<<std::endl;
+    for(auto &name : req.scoped_female) {
+        gzmsg<<"  - "<<name<<std::endl;
+    }
+
+    // Must have at least a parent model and child link
+    if(req.scoped_male.size() < 2) {
+        gzerr<<"Male link path is length "<<req.scoped_male.size()<<" but at least one parent model is needed"<<std::endl;
+        return false;
+    }
+    if(req.scoped_female.size() < 2) {
+        gzerr<<"Female link path is length "<<req.scoped_female.size()<<" but at least one parent model is needed"<<std::endl;
+        return false;
+    }
+
+    // If the parent model is not the model this plugin is attached to, don't process
+    if(this->model_->GetName() != req.scoped_male[0]) {
+        gzerr<<"Root model name \""<<req.scoped_male[0]<<"\" is not the assembly sim model: \""<<this->model_->GetName()<<"\""<<std::endl;
+        return false;
+    }
+    if(this->model_->GetName() != req.scoped_female[0]) {
+        gzerr<<"Root model name \""<<req.scoped_female[0]<<"\" is not the assembly sim model: \""<<this->model_->GetName()<<"\""<<std::endl;
+        return false;
+    }
+
+    // Save the top level model as the start
+    gazebo::physics::BasePtr cur_model = model_;
+
+    // Iterate over all but first and last, searching by female
+    for(int i = 1; i < req.scoped_female.size(); i++)
+    {
+      std::string model = req.scoped_female[i];
+
+      cur_model = cur_model->GetChild(model);
+
+      // If this child doesn't exist, then its not a valid scope list
+      if(!cur_model)
+      {
+        gzwarn << "ASSEMBLY SOUP: Failed to suppress mate with name " << req.scoped_female[req.scoped_female.size() -1] << std::endl;
+        gzerr<<"Could not find model: "<<model<<std::endl;
+        gzwarn << "Scope tree:" << std::endl;
+        for(auto &link_name : req.scoped_male) {
+          gzwarn << "\tLink name: " << link_name << std::endl;
+        }
+        return false;
+      }
+    }
+
+    gazebo::physics::BasePtr female_link = cur_model;
+
+    // Reset the top level model
+    cur_model = model_;
+
+    // Iterate over all but first and last, searching by male
+    for(int i = 1; i < req.scoped_male.size(); i++)
+    {
+      std::string model = req.scoped_male[i];
+
+      cur_model = cur_model->GetChild(model);
+
+      // If this child doesn't exist, then its not a valid scope list
+      if(!cur_model)
+      {
+        gzwarn << "ASSEMBLY SOUP: Failed to suppress mate with name " << req.scoped_male[req.scoped_male.size() -1] << std::endl;
+        gzerr<<"Could not find model: "<<model<<std::endl;
+        gzwarn << "Scope tree:" << std::endl;
+        for(auto &link_name : req.scoped_male) {
+          gzwarn << "\tLink name: " << link_name << std::endl;
+        }
+        return false;
+      }
+    }
+
+    gazebo::physics::BasePtr male_link = cur_model;
+
+    // False until we've confirmed that there is a link that this plugin manages we can un/suppress
+    bool found_link = false;
+
+    // Iterate over all mates
+    for (boost::unordered_set<MatePtr>::iterator it = mates_.begin();
+         it != mates_.end();
+         ++it)
+    {
+      MatePtr mate = *it;
+      std::string desc = mate->getDescription();
+
+      std::string male_name = mate->male->link->GetName();
+      std::string female_name = mate->female->link->GetName();
+
+      // Look for all mates that match the link
+      if (male_name == male_link->GetName() && female_name == female_link->GetName())
+      {
+        if(req.suppress)
+        {
+          gzwarn << "Suppress Mate - found matching mate for: " << desc << std::endl;
+          mate->suppressMate(true);
+          res.suppressed = true;
+
+          found_link = true;
+        }
+        else
+        {
+          gzwarn << "Unsuppress Mate - found matching mate for: " << desc << std::endl;
+          mate->suppressMate(false);
+          res.suppressed = false;
+
+          found_link = true;
+        }
+      }
+    }
+
+    if(!found_link) {
+        gzerr<<"Could not find mate: "<<male_link->GetName()<<"<->"<<female_link->GetName()<<std::endl;
+    }
+
+    // If we found a link, service succeeded.
+    return found_link;
+  }
+
+  bool AssemblySoup::SuppressLinkCallback(assembly_msgs::SuppressLink::Request& req, assembly_msgs::SuppressLink::Response& res)
   {
     gzmsg<<"Request to set suppression to "<<req.suppress<<" for link: "<<std::endl;
     for(auto &name : req.scoped_link) {
@@ -166,7 +292,8 @@ namespace assembly_sim
 
     // Create a node handle for ros topics
     ros::NodeHandle nh;
-    suppress_mates_srv_ = nh.advertiseService("suppress_mate", &AssemblySoup::SuppressMatesCallback, this);
+    suppress_link_srv_ = nh.advertiseService("suppress_link", &AssemblySoup::SuppressLinkCallback, this);
+    suppress_mate_srv_ = nh.advertiseService("suppress_mate", &AssemblySoup::SuppressMateCallback, this);
 
     // Subscribe to the suppress mates topic
 
@@ -230,7 +357,7 @@ namespace assembly_sim
 
       if(mate_models_.find(mate_model_type) == mate_models_.end()) {
         // Determine the type of mate model
-        gzlog<<"Adding mate model for "<<mate_model_type<<std::endl;
+        //gzlog<<"Adding mate model for "<<mate_model_type<<std::endl;
 
         // Store this mate model
         MateModelPtr mate_model = std::make_shared<MateModel>(mate_model_type, mate_elem);
@@ -277,7 +404,7 @@ namespace assembly_sim
         mate_elem->GetAttribute("gender")->Get(gender);
         to_kdl(mate_elem->GetElement("pose"), base_pose);
 
-        gzwarn<<"Adding mate point type: "<<type<<" gender: "<<gender<<" at: "<<base_pose<<std::endl;
+        //gzwarn<<"Adding mate point type: "<<type<<" gender: "<<gender<<" at: "<<base_pose<<std::endl;
 
         MateModelPtr mate_model = mate_models_[type];
 
@@ -301,7 +428,7 @@ namespace assembly_sim
               atom_model->female_mate_points.size()
               + atom_model->male_mate_points.size();
 
-            gzwarn<<"Adding female mate point "<<atom_model->type<<"#"<<mate_point->id<<" pose: "<<std::endl<<mate_point->pose<<std::endl;
+           // gzwarn<<"Adding female mate point "<<atom_model->type<<"#"<<mate_point->id<<" pose: "<<std::endl<<mate_point->pose<<std::endl;
 
             atom_model->female_mate_points.push_back(mate_point);
           }
@@ -313,7 +440,7 @@ namespace assembly_sim
             atom_model->female_mate_points.size()
             + atom_model->male_mate_points.size();
 
-          gzwarn<<"Adding female mate point "<<atom_model->type<<"#"<<mate_point->id<<" pose: "<<std::endl<<mate_point->pose<<std::endl;
+         // gzwarn<<"Adding female mate point "<<atom_model->type<<"#"<<mate_point->id<<" pose: "<<std::endl<<mate_point->pose<<std::endl;
 
           atom_model->female_mate_points.push_back(mate_point);
 #endif
@@ -325,7 +452,7 @@ namespace assembly_sim
             atom_model->female_mate_points.size()
             + atom_model->male_mate_points.size();
 
-          gzwarn<<"Adding male mate point "<<atom_model->type<<"#"<<mate_point->id<<" pose: "<<std::endl<<mate_point->pose<<std::endl;
+         // gzwarn<<"Adding male mate point "<<atom_model->type<<"#"<<mate_point->id<<" pose: "<<std::endl<<mate_point->pose<<std::endl;
 
           atom_model->male_mate_points.push_back(mate_point);
         } else {
@@ -399,7 +526,7 @@ namespace assembly_sim
         ++it_fa)
     {
       AtomPtr female_atom = *it_fa;
-      gzwarn<<"Inspecting female atom: "<<female_atom->link->GetName()<<std::endl;
+      // gzwarn<<"Inspecting female atom: "<<female_atom->link->GetName()<<std::endl;
 
       // Get the link associated with this atom
       // If any male mates match this link, ignore them
@@ -421,7 +548,7 @@ namespace assembly_sim
         {
           AtomPtr male_atom = *it_ma;
 
-          gzwarn << "Inspecting male atom: " << male_atom->link->GetName() << std::endl;
+          // gzwarn << "Inspecting male atom: " << male_atom->link->GetName() << std::endl;
 
           // You can't mate with yourself
           if(male_atom == female_atom) { continue; }
