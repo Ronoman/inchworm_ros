@@ -1,6 +1,8 @@
 from enum import Enum
 from pickletools import int4
 
+from numpy import real
+
 from inchworm_algo.msg import InchwormMsg
 import rospy
 import math
@@ -394,7 +396,10 @@ class Inchworm():
 
             self.decide_on_movement_to_shingle(EE.TOP_FOOT, self.ee_to_move_to)
         if real_roof.get_occ_position(self.ee_shingle_neighbors[0]["pos"]) == 0:
+            real_roof.claim_position(self.ee_shingle_neighbors[0]["pos"])
             self.robot_state = RobotState.MOVE_TO_TARGET
+        else:
+            self.robot_state = RobotState.MAKE_DECISION
         self.moved_to_bottom = False # not used currently
 
     def get_shingle_neighbors(self, pos, shingles):
