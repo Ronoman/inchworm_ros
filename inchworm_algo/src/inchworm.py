@@ -770,8 +770,39 @@ class Inchworm():
         return real_roof
 
     # returns true if there is a shingle at that location
-    def probe(self, location, inchworm_occ, shingles):
-        pass
+    def probe(self, real_roof, shingle_probe_pos):
+        '''
+            - move to shingle to probe if you are not already there
+            - gets the status of the shingle from the roof
+        '''
+
+        rospy.loginfo(
+                f"inchworm {self.id} probe shingle step of {self.probe_step}")
+        if self.probe_step == 0:
+            self.probe_status = False
+            self.old_shingle_pos = shingle_probe_pos
+            if self.ee_shingle_neighbors[self.ee_shingle_neighbor_index]["ee"] == EE.BOTTOM_FOOT:
+                if shingle_probe_pos != self.bottom_foot_position:
+                    self.move_bottom_foot(shingle_probe_pos)
+                else:
+                    self.probe_step = 1
+            else:
+                if shingle_probe_pos != self.top_foot_position:
+                    self.move_top_foot(shingle_probe_pos)
+                else:
+                    self.probe_step = 1
+        elif self.probe_step == 1:
+            self.probe_status = (real_roof.get_shingle(shingle_probe_pos[0], shingle_probe_pos[1]) is not None and real_roof.get_shingle(shingle_probe_pos[0], shingle_probe_pos[1]).shingle_status == ShingleStatus.INSTALLED or
+                real_roof.get_shingle(shingle_probe_pos[0], shingle_probe_pos[1]).shingle_status == ShingleStatus.PLACED)
+            self.probe_step = 2
+        else:
+            
+            self.probe_step = 0
+        if self.probe_step == 2:
+            return (0, self.probe_status)
+        else:
+            return (-1, False)
+
 
     def decide_on_movement_to_shingle(self, ee_to_move, neighbor_funtion):
         if ee_to_move == EE.BOTTOM_FOOT:
