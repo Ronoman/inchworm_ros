@@ -9,6 +9,14 @@ from shingle_depot import ShingleDepot
 from inchworm import Inchworm, EEStatus
 from inchworm_algo.srv import *
 
+from std_msgs.msg import Int32
+
+r = None
+
+def rateCB(msg):
+    global r
+    r = rospy.Rate(msg.data)
+
 def spawn_inchworms(roof, inchworm_count):
         inchworm_count = min(int(roof.width/2), inchworm_count)
         inchworms = []
@@ -55,8 +63,10 @@ if __name__ == "__main__":
     # publish roof state
 
     roof_pub = rospy.Publisher("/algo/roof_state", RoofState, queue_size=1)
-
     inchworm_pub = rospy.Publisher("/algo/inchworms", InchwormsMsg, queue_size=1)
+
+    rate_sub = rospy.Subscriber("/algo/rate", Int32, rateCB)
+
     r = rospy.Rate(hz)
     rospy.sleep(2) # time it takes to startup the algo viz
     while not rospy.is_shutdown():
