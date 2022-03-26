@@ -20,9 +20,10 @@ def spawn_inchworms(roof, inchworm_count):
 
 
 def update_inchworms(roof, inchworms):
+    
     for worm in inchworms:
         if worm is not None:
-            worm.run_one_tick(roof)
+            worm.make_decision(roof)
     for worm in inchworms:
         if worm is not None:
             worm.run_action(roof)
