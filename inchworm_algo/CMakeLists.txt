@@ -64,11 +64,12 @@ add_message_files(
 ## Generate services in the 'srv' folder
 add_service_files(
   FILES
-  InstallShingle.srv  
-  PlaceShingle.srv  
+  GetInchwormState.srv
+  InstallShingle.srv
+  PlaceShingle.srv
   RequestShingle.srv
   PickupShingle.srv
-  ReadShingle.srv  
+  ReadShingle.srv
   UpdateShingle.srv
 )
 

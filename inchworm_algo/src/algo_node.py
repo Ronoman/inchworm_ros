@@ -1,21 +1,30 @@
 #!/usr/bin/env python3
 
-import rospy, math, shingle, sys, std_msgs
+import rospy, sys
 
-from inchworm_algo.msg import ShingleMsg, RoofState, InchwormsMsg
 from roof import Roof
-from shingle import Shingle, ShingleStatus
-from shingle_depot import ShingleDepot
 from inchworm import Inchworm, EEStatus
-from inchworm_algo.srv import *
 
-from std_msgs.msg import Int32
+from std_msgs.msg import Int32, Bool
+from inchworm_algo.msg import RoofState, InchwormsMsg
 
+from inchworm_algo.srv import GetInchwormState, GetInchwormStateResponse
+
+# Globals that can be accessed by ROS callbacks
 r = None
+inchworms = []
+paused = False
 
 def rateCB(msg):
     global r
     r = rospy.Rate(msg.data)
+
+def pauseCB(msg):
+    global paused
+    paused = msg.data
+
+def handle_get_inchworm_state(req):
+    return GetInchwormStateResponse(state=inchworms[req.inchworm_idx].to_message())
 
 def spawn_inchworms(roof, inchworm_count):
         inchworm_count = min(int(roof.width/2), inchworm_count)
@@ -55,7 +64,6 @@ if __name__ == "__main__":
     if len(sys.argv) >= 4:
         hz = int(sys.argv[4])
 
-
     roof = Roof(roof_width, roof_height, False)
     
     inchworms = spawn_inchworms(roof, inchworm_count)
@@ -66,18 +74,18 @@ if __name__ == "__main__":
     inchworm_pub = rospy.Publisher("/algo/inchworms", InchwormsMsg, queue_size=1)
 
     rate_sub = rospy.Subscriber("/algo/rate", Int32, rateCB)
+    pause_sub = rospy.Subscriber("/algo/pause", Bool, pauseCB)
+
+    rospy.Service("/algo/get_inchworm_state", GetInchwormState, handle_get_inchworm_state)
 
     r = rospy.Rate(hz)
     rospy.sleep(2) # time it takes to startup the algo viz
     while not rospy.is_shutdown():
-        roof_msg = roof.to_message()
-        for worm in inchworms:
-            roof_msg.inchworms.append(worm.to_message())
-        roof_pub.publish(roof_msg)
-        roof, inchworms = update_inchworms(roof, inchworms)
-        # inchworm_pub.publish(create_inchworms_msg(inchworms))
+        if not paused:
+            roof_msg = roof.to_message()
+            for worm in inchworms:
+                roof_msg.inchworms.append(worm.to_message())
+            roof_pub.publish(roof_msg)
+            roof, inchworms = update_inchworms(roof, inchworms)
+            # inchworm_pub.publish(create_inchworms_msg(inchworms))
         r.sleep()
-
-
-
-        
