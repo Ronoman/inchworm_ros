@@ -227,8 +227,6 @@ class Inchworm():
                 self.inchworm_pos = self.top_foot_position
                 
         else:
-            rospy.loginfo(f"inchworm {self.id} is in else :{((self.bottom_foot_position[1] + self.top_foot_position[1]) /2)%1}")
-
             self.inchworm_pos = [max(self.bottom_foot_position[0], self.top_foot_position[0]),
                                     max(self.bottom_foot_position[1], self.top_foot_position[1])] 
 
@@ -329,7 +327,6 @@ class Inchworm():
         '''checks to make sure a shingle location is valid for install'''
         validity_count = 0
         if shingle.y_coord % 2 == 0:
-            rospy.loginfo("shingle is on a even row")
             test_x = shingle.x_coord + Inchworm.EVEN_ROW_N_LOOKUP[1][0]
             test_y = shingle.y_coord + Inchworm.EVEN_ROW_N_LOOKUP[1][1]
             if test_x > -1 and test_y > -1 and self.get_shingle_state(test_x, test_y) == ShingleStatus.INSTALLED:
@@ -519,8 +516,8 @@ class Inchworm():
                             self.robot_state = RobotState.INSTALL_SHINGLE
                             # signal intention to move
                             self.claim_pos(real_roof, [placed_shingle.x_coord, placed_shingle.y_coord]) 
-                            rospy.logwarn(
-                                f"inchworm {self.id} installing shingle")
+                            # rospy.logwarn(
+                            #     f"inchworm {self.id} installing shingle")
                             installing = True
                             self.installing_status = 1
                         else:
@@ -609,7 +606,6 @@ class Inchworm():
                     # rospy.loginfo(f"robot {self.id} clamed new posiiton {claimed_new_postion}")
                     # try and claim the placed shingle if the inchworm is trying to move a shingle
                     if claimed_new_postion and real_roof.get_occ_position([placed_shingle.x_coord, placed_shingle.y_coord]) == 0:
-                        rospy.logwarn(f"inchworm {self.id} is trying to claim the placed shingle")
                         self.claim_pos(real_roof,[placed_shingle.x_coord, placed_shingle.y_coord])
                         self.robot_state = RobotState.MOVE_SHINGLE
                         # rospy.loginfo(f"inchworm {self.id} moving shingle")
@@ -684,7 +680,6 @@ class Inchworm():
                     self.robot_state = RobotState.MAKE_DECISION
 
         elif self.robot_state == RobotState.INSTALL_SHINGLE:
-            rospy.logwarn(self.placed_shingle_is_valid(self.install_shingle_target))
             if self.placed_shingle_is_valid(self.install_shingle_target):
                 # double check that the placed shingle is a valid install 
                 # rospy.loginfo(
@@ -756,8 +751,8 @@ class Inchworm():
                 if self.ee_shingle_neighbors[self.foot_shingle_neighbor_to_move_to]["foot"] == EE.BOTTOM_FOOT:
                     # move the foot to the new position and pick up a shingle
                     if [self.shingle_to_move.x_coord, self.shingle_to_move.y_coord] != self.bottom_foot_position:
-                        rospy.loginfo(
-                            f"inchworm {self.id} moving bottom_foot to {[self.shingle_to_move.x_coord, self.shingle_to_move.y_coord]}")
+                        # rospy.loginfo(
+                        #     f"inchworm {self.id} moving bottom_foot to {[self.shingle_to_move.x_coord, self.shingle_to_move.y_coord]}")
                         self.move_bottom_foot(
                             [self.shingle_to_move.x_coord, self.shingle_to_move.y_coord])
 
@@ -767,8 +762,8 @@ class Inchworm():
                 else:
                     # move the foot to the new position and pick up a shingle
                     if [self.shingle_to_move.x_coord, self.shingle_to_move.y_coord] != self.top_foot_position:
-                        rospy.loginfo(
-                            f"inchworm {self.id} moving top_foot to {[self.shingle_to_move.x_coord, self.shingle_to_move.y_coord]}")
+                        # rospy.loginfo(
+                        #     f"inchworm {self.id} moving top_foot to {[self.shingle_to_move.x_coord, self.shingle_to_move.y_coord]}")
                         self.move_top_foot(
                             [self.shingle_to_move.x_coord, self.shingle_to_move.y_coord])
                         self.shingle_to_move = real_roof.pickup_shingle([self.shingle_to_move.x_coord, self.shingle_to_move.y_coord])
