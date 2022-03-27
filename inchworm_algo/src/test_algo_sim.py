@@ -8,10 +8,10 @@ from std_msgs.msg import Int32
 
 
 # Inchworm counts to test. Currently the roof is [20, 20]
-INCHWORM_COUNTS = [i+1 for i in range(10)]
+INCHWORM_COUNTS = [i+1 for i in range(8)]
 
-WIDTH = 20
-HEIGHT = 20
+WIDTH = 16
+HEIGHT = 16
 RATE = 500
 
 durations = []

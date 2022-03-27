@@ -216,22 +216,22 @@ class Inchworm():
     def calc_inchworm_pos(self):
         '''calculates the effective position of the inchworm'''
         if self.target[1] == (self.bottom_foot_position[1] + self.top_foot_position[1]) /2:
-            self.inchworm_pos = [(self.bottom_foot_position[0] + self.top_foot_position[0]) / 2,
+            inchworm_pos = [(self.bottom_foot_position[0] + self.top_foot_position[0]) / 2,
                                     (self.bottom_foot_position[1] + self.top_foot_position[1]) / 2]
         elif ((self.bottom_foot_position[1] + self.top_foot_position[1]) /2)%1 != 0:
             # special case if the robot is on a diagonal
             bottom_foot_dis_to_target = Inchworm.dist(self.bottom_foot_position, self.target)
             top_foot_dis_to_target = Inchworm.dist(self.top_foot_position, self.target)
             if top_foot_dis_to_target > bottom_foot_dis_to_target:
-                 self.inchworm_pos = self.bottom_foot_position
+                 inchworm_pos = self.bottom_foot_position
             else:
-                self.inchworm_pos = self.top_foot_position
+                inchworm_pos = self.top_foot_position
                 
         else:
-            self.inchworm_pos = [max(self.bottom_foot_position[0], self.top_foot_position[0]),
-                                    max(self.bottom_foot_position[1], self.top_foot_position[1])] 
+            inchworm_pos = [max(self.bottom_foot_position[0], self.top_foot_position[0]),
+                                    max(self.bottom_foot_position[1], self.top_foot_position[1])]
 
-        pass
+        return inchworm_pos
     
     def rebuild_roof(self):  # TODO: IF THIS STARTS TO MAKE THINGS SLOW, MAKE IT NOT RECUSIVE
         for i, occ in enumerate(self.roof):
@@ -239,7 +239,6 @@ class Inchworm():
                 x = i % self.roof_width
                 y = int(i/self.roof_width)
                 self.make_children_valid(x, y)
-        pass
 
     def make_children_valid(self, x, y):
         self.set_shingle_state(x, y, ShingleStatus.PLACED)
@@ -492,7 +491,7 @@ class Inchworm():
                 placed_shingle = self.get_best_placed_shingle(real_roof.shingle_array)
 
 
-                self.calc_inchworm_pos()
+                inchworm_pos = self.calc_inchworm_pos()
                 # rospy.loginfo(
                 #     f"inchworm {self.id} set target at {self.target}")
                 # rospy.loginfo(f"moving towards {self.target}")
@@ -507,7 +506,7 @@ class Inchworm():
 
 
                 # check if the average inchworm position is farther away from the target
-                if Inchworm.dist(self.inchworm_pos, self.target) > Inchworm.dist([placed_shingle.x_coord, placed_shingle.y_coord], self.target):
+                if Inchworm.dist(inchworm_pos, self.target) > Inchworm.dist([placed_shingle.x_coord, placed_shingle.y_coord], self.target):
                     # when you are in here, the inchworm is moving along installed shingles, or installing a shingle
                     rospy.loginfo(f"inchworm {self.id} is farther away from the target that the placed shingle")
                     # check if placed shingle is in the target position and should be installed
@@ -633,8 +632,10 @@ class Inchworm():
             else:
                 # if the inchworm is not next to the shingle depot, move toward it, otherwise pick up a new shingle
                 if not self.next_to_shingle_depot(real_roof.get_shingle_depot_location(False)):
+                    rospy.loginfo(f"inchworm {self.id} moving towards depot")
                     self.make_state_move_to_depot(real_roof)
                 else:
+                    rospy.loginfo(f"inchworm {self.id} is picking up a new shingle from the depot")
                     self.robot_state = RobotState.PICKUP_SHINGLE_FROM_DEPOT
 
         return real_roof
@@ -649,6 +650,9 @@ class Inchworm():
             # rospy.loginfo(f"shingle depot at {real_roof.get_shingle_depot_location(False)}")
             # check if the shingle depot has placed a shingle in the new spot
             if real_roof.spawn_shingle(): # TODO: depot currently spawns the shingle in the new location, this will need to change
+                self.robot_state = RobotState.MAKE_DECISION
+            elif self.next_to_placed_shingle(self.bottom_foot_position, real_roof.shingle_array) or self.next_to_placed_shingle(self.top_foot_position, real_roof.shingle_array):
+                rospy.loginfo(f"inchworm {self.id} failed to spawn shingle, but is next to a spawned shingle")
                 self.robot_state = RobotState.MAKE_DECISION
             
         elif self.robot_state == RobotState.MOVE_TO_TARGET:

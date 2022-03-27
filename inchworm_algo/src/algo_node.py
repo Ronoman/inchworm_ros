@@ -87,15 +87,16 @@ if __name__ == "__main__":
     status = False
     rospy.sleep(2) # time it takes to startup the algo viz
     while not rospy.is_shutdown() and not status:
-        roof_msg = roof.to_message()
-        for worm in inchworms:
-            roof_msg.inchworms.append(worm.to_message())
-        roof_pub.publish(roof_msg)
-        status, roof, inchworms = update_inchworms(roof, inchworms)
-        # inchworm_pub.publish(create_inchworms_msg(inchworms))
-        if status:
-            rospy.loginfo("roof has been shingled")
-            finished_msg = Int32()
-            finished_msg.data = ticks
-            algo_finished_pub.publish(finished_msg)
+        if not paused:
+            roof_msg = roof.to_message()
+            for worm in inchworms:
+                roof_msg.inchworms.append(worm.to_message())
+            roof_pub.publish(roof_msg)
+            status, roof, inchworms = update_inchworms(roof, inchworms)
+            # inchworm_pub.publish(create_inchworms_msg(inchworms))
+            if status:
+                rospy.loginfo("roof has been shingled")
+                finished_msg = Int32()
+                finished_msg.data = ticks
+                algo_finished_pub.publish(finished_msg)
         r.sleep()
