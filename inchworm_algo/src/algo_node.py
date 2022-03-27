@@ -74,13 +74,8 @@ if __name__ == "__main__":
     
     inchworms = spawn_inchworms(roof, inchworm_count)
 
-    # publish roof state
-
     roof_pub = rospy.Publisher("/algo/roof_state", RoofState, queue_size=1)
-
     algo_finished_pub = rospy.Publisher("/algo/ticks_elapsed", Int32, queue_size=1)
-
-
     inchworm_pub = rospy.Publisher("/algo/inchworms", InchwormsMsg, queue_size=1)
 
     rate_sub = rospy.Subscriber("/algo/rate", Int32, rateCB)

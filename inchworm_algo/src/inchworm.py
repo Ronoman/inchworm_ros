@@ -13,6 +13,7 @@ from shingle_depot import ShingleDepot
 import hex_converter
 # all x and y are in array coords currently
 
+DEBUG = False
 
 class EEStatus(Enum):
     PLANTED = 0
