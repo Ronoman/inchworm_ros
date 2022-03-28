@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-import rospy, math, sys
+import rospy, math, sys, tf2_ros
 
 from assembly_msgs.msg import MateList
 from assembly_msgs.srv import SuppressMate, SuppressMateRequest, SuppressLink, SuppressLinkRequest
@@ -8,6 +8,7 @@ from assembly_msgs.srv import SuppressMate, SuppressMateRequest, SuppressLink, S
 from traj_planner import TrajectoryPlanner
 from enum import Enum
 from joint_consts import JointConstants
+from tf.transformations import euler_from_quaternion, quaternion_from_euler
 
 class Inchworm:
   '''
@@ -58,6 +59,40 @@ class Inchworm:
 
     print(f"Initialize inchworm class for inchworm {self.idx}.")
 
+  # Transform stuff
+  def getTransform(frame_from, frame_to, buffer, listener):
+      have_transform = False
+      trans = None
+
+      while not have_transform:
+          try:
+              trans = buffer.lookup_transform(frame_from, frame_to, rospy.Time(0))
+              have_transform = True
+          except (tf2_ros.LookupException, tf2_ros.ConnectivityException, tf2_ros.ExtrapolationException) as err:
+              print(f"Lookup from {frame_from} to {frame_to} failed with error:")
+              print(err)
+
+              rospy.sleep(1.0)
+              continue
+
+      return trans
+
+  def transToRPY(trans):
+      quat = [trans.rotation.x, trans.rotation.y, trans.rotation.z, trans.rotation.w]
+
+      (r, p, y) = [math.degrees(n) for n in euler_from_quaternion(quat)]
+
+      return r,p,y
+
+  def rpyToQuat(roll, pitch, yaw):
+      # Assume incoming is in degrees
+      roll, pitch, yaw = [math.radians(n) for n in (roll, pitch, yaw)]
+
+      quat = quaternion_from_euler(roll, pitch, yaw)
+
+      return quat
+  # Transform stuff done
+
   def suppressAll(self):
     '''
     Run on __init__(). Suppresses all robot mates. Immediately followed by a updateSuppressedMates() call to enable
@@ -76,20 +111,95 @@ class Inchworm:
     req.scoped_link = iw_top
     self.link_suppress_proxy(req)
 
-  def moveTo(neighbor):
+  def moveTo(self,neighbor):
     '''
     Moves the end effector not currently attached to the roof to a neighbor.
     neighbor: One of the `Neighbors` enum. This gets mapped to a JointConstants set of joint angles
     '''
+    jointMap = {
+      1: JointConstants.upper_left,
+      2: JointConstants.upper_right,
+      3: JointConstants.right,
+      4: JointConstants.bottom_right,
+      5: JointConstants.bottom_left,
+      6: JointConstants.left
+    }
+    if (neighbor == 0) : #for testing reasons
+      angles = [0, 0, 0, 0, 0]
+    elif (neighbor <= 6):
+      angles = jointMap.get(neighbor)
+    elif (neighbor == 7):
+      a1 = 28.369 * math.pi / 180
+      a2 = 123.27 * math.pi / 180
+      a3 = 37.389 * math.pi / 180
+      angles = [-2.4634861806310004, a1, a2, a3 ,2.46881244854237]
+	
+
+    # if self.foot_down == 1: #depending on the foot down, the joint angles swap
+     # angles.reverse()
+
+    self.planner.run_quintic_traj(angles, 4.0)
+    #return when done?
     
-    pass
 
-  def swapFeet():
-    '''
-    Swaps which foot is attached to the roof. Make sure the free end effector is placed above a mounting point before calling.
-    '''
+  def swapMagnet(self, turnOff, turnOn):
+    # Find all shingle indices adjacent to and including currently_on and going_to.
+    adj_current = self.getAdjacentShingleIndexes(currently_on) + [currently_on] if currently_on > -1 else []
+    adj_going   = self.getAdjacentShingleIndexes(going_to) + [going_to]
 
-    pass
+    iw_bot = ["inchworm", f"inchworm_description_{self.idx}", f"iw_root_{self.idx}"]
+    iw_top = ["inchworm", f"inchworm_description_{self.idx}", f"iw_foot_top_{self.idx}"]
+
+    req = SuppressMateRequest()
+    req.suppress = True
+
+    # Suppress all in adjacent current
+    for idx in adj_current:
+      print(f"\tSuppressing shingle {idx}")
+      shingle = ["inchworm", f"shingle_description_{idx}", f"shingle_{idx}"]
+
+      req.scoped_female = shingle
+
+      req.scoped_male = turnOff
+      self.mate_suppress_proxy(req)
+
+    req.suppress = False
+
+    # Unsuppress all in where you're going to
+    for idx in adj_going:
+      print(f"\tUnsuppressing shingle {idx}")
+      shingle = ["inchworm", f"shingle_description_{idx}", f"shingle_{idx}"]
+
+      req.scoped_female = shingle
+
+      req.scoped_male = turnOn
+      self.mate_suppress_proxy(req)
+
+
+  def swapFeet(self):
+    '''
+    Swaps which foot is attached to the roof. Make sure before calling the free end effector is placed above a mounting point before calling.
+    '''
+    iw_bot = ["inchworm", f"inchworm_description_{self.idx}", f"iw_root_{self.idx}"]
+    iw_top = ["inchworm", f"inchworm_description_{self.idx}", f"iw_foot_top_{self.idx}"]    
+
+    # self.currently_on = #TODO eli ????????
+
+    if (self.foot_down == 0):
+      turnOff = iw_bot
+      turnOn = iw_top
+      #switch to top foot
+      self.foot_down = 1
+      pass
+    if (self.foot_down == 1):
+      turnOff = iw_top
+      turnOn = iw_bot
+      #switch to bottom foot
+      self.foot_down = 0
+      pass
+
+    self.swapMagnet(turnOff, turnOn)
+    
 
   def mateCB(self, msg):
     '''
@@ -194,3 +304,20 @@ if __name__ == "__main__":
   rospy.sleep(1)
 
   print(iw.getAdjacentShingleIndexes(12))
+
+  #go to hover above upper-left
+  iw.moveTo(1)
+  rospy.sleep(5)
+  #supress the top foot magnet
+  #put the end effector down
+  iw.moveTo(7)
+  rospy.sleep(5)
+  #turn on the top foot magnet
+  #turn off the bottom foot magnet
+  #switch planted foot
+  iw.swapFeet()
+  #straighten out
+  rospy.sleep(1)
+  iw.moveTo(0)
+
+  rospy.sleep(5)

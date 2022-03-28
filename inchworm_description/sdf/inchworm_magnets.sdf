@@ -122,7 +122,7 @@
         <xacro:if value="${col_count}">
           <xacro:if  value="${row_count % 2 == 0}">
             <mate_point type="rs" gender="male">
-              <pose> ${(shingle_width + horiz_offset)*(num_cols - col_count) + shingle_width/2 }
+              <pose> ${(shingle_width + horiz_offset)*(num_cols - col_count) + shingle_width }
                 ${0.008 + (shingle_height - overhang)*(num_rows - row_count)} 
                 ${0.035}
                 ${radians(90)} 0 -${radians(90)}} </pose>
@@ -130,7 +130,7 @@
           </xacro:if>
           <xacro:unless value="${row_count % 2 == 0}">
             <mate_point type="rs" gender="male">
-              <pose> ${(shingle_width + horiz_offset)*(num_cols - col_count)}
+              <pose> ${(shingle_width + horiz_offset)*(num_cols - col_count)  + shingle_width/2}
                 ${0.008 + (shingle_height - overhang)*(num_rows - row_count)} 
                 ${0.035}
                 ${radians(90)} 0 -${radians(90)}}</pose>
@@ -143,7 +143,7 @@
       <xacro:macro name="gen_grid" params="row_num col_num">
         <xacro:if value="${row_num}">
           <xacro:gen_row col_count="${col_num}" row_count="${row_num}" /> 
-          <xacro:gen_grid row_num="${row_num}" col_num="${col_num}"/> 
+          <xacro:gen_grid row_num="${row_num - 1}" col_num="${col_num}"/> 
         </xacro:if>
       </xacro:macro>
 
