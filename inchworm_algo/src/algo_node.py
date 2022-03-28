@@ -1,13 +1,12 @@
 #!/usr/bin/env python3
 
-import rospy, sys
+import rospy, sys, random
 
 from roof import Roof
 from inchworm import Inchworm, EEStatus
 from std_msgs.msg import Int32, Bool
 from shingle import ShingleStatus
 from inchworm_algo.msg import RoofState, InchwormsMsg
-
 from inchworm_algo.srv import GetInchwormState, GetInchwormStateResponse
 
 # Globals that can be accessed by ROS callbacks
@@ -41,6 +40,7 @@ def update_inchworms(roof, inchworms):
     global ticks
     ticks += 1
     is_done = False
+    random.shuffle(inchworms)
     for worm in inchworms:
         if worm is not None:
             worm.make_decision(roof)
