@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 from enum import Enum
 from operator import truediv
 from pickletools import int4
@@ -82,7 +84,7 @@ class Inchworm():
         self.ee_shingle_neighbors = []
         self.installing_status = 0
 
-        self.shingle_order = self.create_shingle_order(width, height)
+        self.shingle_order = self.create_diagonal_order(width, height)
         self.claimed_pos = set()
 
     # this is used to create ox-plow order in shingling
@@ -108,6 +110,34 @@ class Inchworm():
                 else:
                     for j in range(width):
                         shingle_index_order.append([j, i])
+
+        return shingle_index_order
+
+    def create_diagonal_order(self, width, height):
+        in_bounds = lambda x,y: x >= 0 and x < width and y >= 0 and y < height
+        
+        shingle_index_order = []
+
+        UP_RIGHT_EVEN = [1, 1]
+        UP_RIGHT_ODD  = [0, 1]
+
+        # Iterate right to left
+        for col in range(width-1, -1, -1):
+            start = [col, 1]
+            shingle_index_order.append(start)
+
+            next = start
+            for row in range(1, height):
+                if row % 2 == 0:
+                    # even
+                    next = [next[0] + UP_RIGHT_EVEN[0], next[1] + UP_RIGHT_EVEN[1]]
+                else:
+                    # odd
+                    next = [next[0] + UP_RIGHT_ODD[0], next[1] + UP_RIGHT_ODD[1]]
+
+                if in_bounds(next[0], next[1]):
+                    shingle_index_order.append(next)
+        print(shingle_index_order)
 
         return shingle_index_order
 
@@ -937,3 +967,7 @@ class Inchworm():
     
     
     '''
+
+if __name__ == "__main__":
+    iw = Inchworm(width=10, height=10)
+    iw.create_diagonal_order()
