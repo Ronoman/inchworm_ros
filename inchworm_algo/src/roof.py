@@ -166,7 +166,10 @@ class Roof():
 
         for shingle in shingle_array_temp:
             if shingle is None:
-                shingle_array_msg.append(0)
+                if self.neighbor_is_placed(len(shingle_array_msg)):
+                    shingle_array_msg.append(3)
+                else:
+                    shingle_array_msg.append(0)
             elif shingle.shingle_status == ShingleStatus.PLACED:
                 shingle_array_msg.append(1)
             elif shingle.shingle_status == ShingleStatus.INSTALLED:
@@ -184,7 +187,39 @@ class Roof():
         roof_state.inchworm_occ = sum(self.inchworm_occ, [])
         return roof_state
 
+    def neighbor_is_placed(self, shingle_index):
+        
+        list_of_neighbors = []
+        shingle_coord = [shingle_index%self.width, int(shingle_index/self.width)]
+        # rospy.loginfo(f"the shingle index is {shingle_index}, for a coord {shingle_coord}")
+        
+        if shingle_coord[1]%2:
+            for tuple in self.ODD_ROW_N_LOOKUP:
+                neighbor_x = shingle_coord[0]+tuple[0]
+                neighbor_y = shingle_coord[1]+tuple[1]
+            
+                if neighbor_x  >= 0 and neighbor_y >=0 and neighbor_x  < self.width and neighbor_y < self.height:
+                    list_of_neighbors.append([shingle_coord[0]+tuple[0], shingle_coord[1]+tuple[1]])
 
+        else:
+            for tuple in self.EVEN_ROW_N_LOOKUP:
+                neighbor_x = shingle_coord[0]+tuple[0]
+                neighbor_y = shingle_coord[1]+tuple[1]
+
+                if neighbor_x  >= 0 and neighbor_y >=0 and neighbor_x  < self.width and neighbor_y < self.height:
+                    list_of_neighbors.append([shingle_coord[0]+tuple[0], shingle_coord[1]+tuple[1]])
+        
+        # rospy.logwarn(f"neightbors of {shingle_coord} is {list_of_neighbors}")
+
+        for neighbor in list_of_neighbors:
+            # rospy.loginfo(f"attempting to read at location {neighbor[1]} , {neighbor[0]}")
+
+            if self.shingle_array[neighbor[1]][neighbor[0]] is not None:
+                rospy.logwarn (f"non-none tile at {neighbor[0]} , {neighbor[1]}, status is {self.shingle_array[neighbor[1]][neighbor[0]].shingle_status}, found by {shingle_coord}")
+                if self.shingle_array[neighbor[1]][neighbor[0]].shingle_status == ShingleStatus.INSTALLED:
+                    return True
+
+        return False
 
 
     '''
