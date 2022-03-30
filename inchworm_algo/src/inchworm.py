@@ -779,6 +779,51 @@ class Inchworm():
             rospy.sleep(Inchworm.DELAY)
             # moving shingles is a multi step process so it requires a state machine in order to be non-blocking
             if self.move_shingle_step == 1:
+                if self.ee_shingle_neighbors[self.foot_shingle_neighbor_to_move_to]["foot"] == EE.BOTTOM_FOOT:
+                    status = self.probe(real_roof, [self.shingle_to_move.x_coord, self.shingle_to_move.y_coord])
+                    if status[0] == 0:
+                        if status[1]:
+                            self.move_shingle_step = 2
+                        else:
+                            
+                            self.move_shingle_step = 6
+                            pass # update world view
+                    
+                else:
+                    status = self.probe(real_roof, [self.shingle_to_move.x_coord, self.shingle_to_move.y_coord])
+                    if status[0] == 0:
+                        if status[1]:
+                            self.move_shingle_step = 2
+                        else:
+                            
+                            self.move_shingle_step = 6
+                            pass # update world view
+                pass # check the placed shingle pos
+            elif self.move_shingle_step == 2:
+                if self.ee_shingle_neighbors[self.foot_shingle_neighbor_to_move_to]["foot"] == EE.BOTTOM_FOOT:
+                    self.bottom_foot_position = self.old_bottom_foot# TODO: change this, this is a improper hack
+                    status = self.probe(real_roof, self.ee_shingle_neighbors[self.foot_shingle_neighbor_to_move_to]["pos"])
+                    if status[0] == 0:
+                        if status[1]:
+                            self.move_shingle_step = 3
+                        else:
+                            
+                            self.move_shingle_step = 6
+                            pass # update world view
+                    
+                else:
+                    self.top_foot_position = self.old_top_foot# TODO: change this, this is a improper hack
+                    status = self.probe(real_roof, self.ee_shingle_neighbors[self.foot_shingle_neighbor_to_move_to]["pos"])
+                    if status[0] == 0:
+                        if status[1]:
+                            self.move_shingle_step = 3
+                        else:
+                            
+                            self.move_shingle_step = 6
+                            pass # update world view
+                pass # check the placed shingle pos
+                pass # check the new shingle pos
+            if self.move_shingle_step == 3:
                 self.old_shingle_pos = [
                     self.shingle_to_move.x_coord, self.shingle_to_move.y_coord]
 
@@ -792,7 +837,8 @@ class Inchworm():
                             [self.shingle_to_move.x_coord, self.shingle_to_move.y_coord])
 
                         self.shingle_to_move = real_roof.pickup_shingle([self.shingle_to_move.x_coord, self.shingle_to_move.y_coord])
-                        self.move_shingle_step = 2
+                        self.move_shingle_step = 4
+                    
 
                 else:
                     # move the foot to the new position and pick up a shingle
@@ -802,9 +848,11 @@ class Inchworm():
                         self.move_top_foot(
                             [self.shingle_to_move.x_coord, self.shingle_to_move.y_coord])
                         self.shingle_to_move = real_roof.pickup_shingle([self.shingle_to_move.x_coord, self.shingle_to_move.y_coord])
-                        self.move_shingle_step = 2
+                        
+                        self.move_shingle_step = 4
+                        
 
-            elif self.move_shingle_step == 2:
+            elif self.move_shingle_step == 4:
                 # move the foot to the new location
                 if self.ee_shingle_neighbors[self.foot_shingle_neighbor_to_move_to]["foot"] == EE.BOTTOM_FOOT:
                     if self.ee_shingle_neighbors[self.foot_shingle_neighbor_to_move_to]["pos"] != self.bottom_foot_position:
@@ -816,7 +864,7 @@ class Inchworm():
                             self.bottom_foot_position[0], self.bottom_foot_position[1])
 
                         real_roof.place_shingle(self.shingle_to_move, self.bottom_foot_position)
-                        self.move_shingle_step = 3
+                        self.move_shingle_step = 5
                 # moves the foot to the new location
                 else:
                     if self.ee_shingle_neighbors[self.foot_shingle_neighbor_to_move_to]["pos"] != self.top_foot_position:
@@ -828,7 +876,7 @@ class Inchworm():
                             self.top_foot_position[0], self.top_foot_position[1])
                         real_roof.place_shingle(self.shingle_to_move, self.top_foot_position)
 
-                        self.move_shingle_step = 3
+                        self.move_shingle_step = 5
 
             else:
                 # moves the foot to it's old postion
@@ -868,11 +916,13 @@ class Inchworm():
             self.old_shingle_pos = shingle_probe_pos
             if self.ee_shingle_neighbors[self.ee_shingle_neighbor_index]["ee"] == EE.BOTTOM_FOOT:
                 if shingle_probe_pos != self.bottom_foot_position:
+                    self.old_bottom_foot = self.bottom_foot_position
                     self.move_bottom_foot(shingle_probe_pos)
                 else:
                     self.probe_step = 1
             else:
                 if shingle_probe_pos != self.top_foot_position:
+                    self.old_top_foot = self.top_foot_position
                     self.move_top_foot(shingle_probe_pos)
                 else:
                     self.probe_step = 1
@@ -959,12 +1009,43 @@ class Inchworm():
 
 
 
-        functions to change in refactor
-            - next_to_placed_shingle
-            - get_best_placed_shingle
-            - create coord class to use in the enter sim
+        
 
-    
+     Things to do to make imperfect info happen
+        - read from shingles
+        - update roof state based on reads
+        - probe before you try and place a shingle
+        - update based on probe
+        - discovery mode to see if there is a placed shingle
+            - make inchworms remeber one is?
+            - write to a shingle below it if there is a placed shingle there
+        - 
+
+
+
+
+
+
+        Dealing with imperfect info
+            When moving
+                - trust our current world on installed shingles
+                - read and update world
+                    - especialy if installed neighbors is out of data
+            When moving shingle
+                - read shingle data
+                - if placed shingle data & inchworm wants to move
+                    - claim both pos
+                    - probe both
+                    - if new data - both probe & try and read
+                        - update world & shingle data
+                            - especialy info on installed shingles
+                        - move back to org pos
+                        - make a new decision
+                    - otherwise
+                        - move shingle
+                        - update shingle data
+            When installing shingle
+                - update info on the shingle that you are installing from
     
     '''
 
