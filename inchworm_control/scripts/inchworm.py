@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+from audioop import reverse
 import rospy, math, sys, tf2_ros
 
 from assembly_msgs.msg import MateList
@@ -51,11 +52,11 @@ class Inchworm:
     # self.mag_state_pub = rospy.Publisher()
 
     print("Disabling all mates...")
-    self.suppressAll()
+    #self.suppressAll()
 
     # This shouldn't disable any mates, and should enable mates adjacent to and including the starting shingle.
     print("Enabling starting point mates...")
-    self.updateSuppressedMates(-9999999999, self.on_shingle)
+    #self.updateSuppressedMates(-9999999999, self.on_shingle)
 
     print(f"Initialize inchworm class for inchworm {self.idx}.")
 
@@ -111,7 +112,7 @@ class Inchworm:
     req.scoped_link = iw_top
     self.link_suppress_proxy(req)
 
-  def moveTo(self,neighbor):
+  def moveTo(self,neighbor,time):
     '''
     Moves the end effector not currently attached to the roof to a neighbor.
     neighbor: One of the `Neighbors` enum. This gets mapped to a JointConstants set of joint angles
@@ -133,19 +134,27 @@ class Inchworm:
       a2 = 123.27 * math.pi / 180
       a3 = 37.389 * math.pi / 180
       angles = [-2.4634861806310004, a1, a2, a3 ,2.46881244854237]
+      print(angles)
+    elif (neighbor == 8):
+      a1 = 28.369 * math.pi / 180
+      a2 = 123.27 * math.pi / 180
+      a3 = 37.389 * math.pi / 180
+      angles = [-0.6624653531080993, a1, a2, a3 ,0.6722559646440031]
 	
+    if self.foot_down == 1: #depending on the foot down, the joint angles swap
+      print(angles)
+      print("swapping the angles")
+      angles.reverse()
+      print(angles)
+      
 
-    # if self.foot_down == 1: #depending on the foot down, the joint angles swap
-     # angles.reverse()
-
-    self.planner.run_quintic_traj(angles, 4.0)
+    self.planner.run_quintic_traj(angles, time)
     #return when done?
-    
 
   def swapMagnet(self, turnOff, turnOn):
     # Find all shingle indices adjacent to and including currently_on and going_to.
-    adj_current = self.getAdjacentShingleIndexes(currently_on) + [currently_on] if currently_on > -1 else []
-    adj_going   = self.getAdjacentShingleIndexes(going_to) + [going_to]
+    adj_current = self.getAdjacentShingleIndexes(self.on_shingle) + [self.on_shingle] if self.on_shingle > -1 else []
+    #adj_going   = self.getAdjacentShingleIndexes(going_to) + [going_to]
 
     iw_bot = ["inchworm", f"inchworm_description_{self.idx}", f"iw_root_{self.idx}"]
     iw_top = ["inchworm", f"inchworm_description_{self.idx}", f"iw_foot_top_{self.idx}"]
@@ -165,8 +174,8 @@ class Inchworm:
 
     req.suppress = False
 
-    # Unsuppress all in where you're going to
-    for idx in adj_going:
+    # Unsuppress all in where you're going to (this is wrong, but this is for testing)
+    for idx in adj_current:
       print(f"\tUnsuppressing shingle {idx}")
       shingle = ["inchworm", f"shingle_description_{idx}", f"shingle_{idx}"]
 
@@ -174,7 +183,6 @@ class Inchworm:
 
       req.scoped_male = turnOn
       self.mate_suppress_proxy(req)
-
 
   def swapFeet(self):
     '''
@@ -185,38 +193,43 @@ class Inchworm:
 
     # self.currently_on = #TODO eli ????????
 
+    print(f"foot down: {self.foot_down}")
+    print(f"on_shingle: {self.on_shingle}")
     if (self.foot_down == 0):
       turnOff = iw_bot
       turnOn = iw_top
       #switch to top foot
-      self.foot_down = 1
+      foot_down = 1
       pass
     if (self.foot_down == 1):
       turnOff = iw_top
       turnOn = iw_bot
       #switch to bottom foot
-      self.foot_down = 0
+      foot_down = 0
       pass
 
+    self.foot_down = foot_down
     self.swapMagnet(turnOff, turnOn)
-    
 
   def mateCB(self, msg):
     '''
     Callback for active_mate messages. Used to determine where the robot is currently
     '''
 
+    
     # For all iw_root_N in the mates
     for i,mate in enumerate(msg.male):
       # If my index is in the string, we're mated to a shingle
-      if str(self.idx) in mate:
+      if f"inchworm_description_{self.idx}" in mate:
         on_shingle = int(msg.female[i][-1])
 
         # If the robot has moved, trigger an update on suppressed mates
         if not on_shingle == self.on_shingle:
-          # TODO: Finish the logic here
-          self.updateSuppressedMates()
+          # TODO: Finish the logic here (should work)
+          #self.updateSuppressedMates(self.on_shingle, on_shingle)
+          print(f"before: {self.on_shingle} after: {on_shingle}")
           self.on_shingle = on_shingle
+          
 
   def idx_to_coord(self, index, width):
     return (index % width, math.floor(index / width))
@@ -267,6 +280,19 @@ class Inchworm:
     req = SuppressMateRequest()
     req.suppress = True
 
+    # Unsuppress all in where you're going to
+    for idx in adj_going:
+      print(f"\tUnsuppressing shingle {idx}")
+      shingle = ["inchworm", f"shingle_description_{idx}", f"shingle_{idx}"]
+
+      req.scoped_female = shingle
+
+      req.scoped_male = iw_bot
+      self.mate_suppress_proxy(req)
+
+      req.scoped_male = iw_top
+      self.mate_suppress_proxy(req)
+
     # Suppress all in adjacent current
     for idx in adj_current:
       print(f"\tSuppressing shingle {idx}")
@@ -282,18 +308,6 @@ class Inchworm:
 
     req.suppress = False
 
-    # Unsuppress all in where you're going to
-    for idx in adj_going:
-      print(f"\tUnsuppressing shingle {idx}")
-      shingle = ["inchworm", f"shingle_description_{idx}", f"shingle_{idx}"]
-
-      req.scoped_female = shingle
-
-      req.scoped_male = iw_bot
-      self.mate_suppress_proxy(req)
-
-      req.scoped_male = iw_top
-      self.mate_suppress_proxy(req)
 
 if __name__ == "__main__":
   # This only exists to test the class.
@@ -306,18 +320,30 @@ if __name__ == "__main__":
   print(iw.getAdjacentShingleIndexes(12))
 
   #go to hover above upper-left
-  iw.moveTo(1)
-  rospy.sleep(5)
+  iw.moveTo(1, 5.0)
+  print("first move")
   #supress the top foot magnet
   #put the end effector down
-  iw.moveTo(7)
-  rospy.sleep(5)
+  iw.moveTo(7, 1.0)
+  print("second move")
   #turn on the top foot magnet
   #turn off the bottom foot magnet
   #switch planted foot
   iw.swapFeet()
+  print("swap feet")
+  rospy.sleep(1.0)
+  iw.moveTo(1, 1.0)
   #straighten out
-  rospy.sleep(1)
-  iw.moveTo(0)
+  #iw.moveTo(0)
+  #print("lift up")
+  #rospy.sleep(5)
+  iw.moveTo(6, 5.0)
+  print("check the distance")
+  rospy.sleep(10)
 
+
+  iw.moveTo(1, 5.0)
+  iw.moveTo(7, 1.0)
+  iw.swapFeet()
+  iw.moveTo(4, 5.0)
   rospy.sleep(5)
