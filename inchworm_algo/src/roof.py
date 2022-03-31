@@ -215,7 +215,7 @@ class Roof():
             # rospy.loginfo(f"attempting to read at location {neighbor[1]} , {neighbor[0]}")
 
             if self.shingle_array[neighbor[1]][neighbor[0]] is not None:
-                rospy.logwarn (f"non-none tile at {neighbor[0]} , {neighbor[1]}, status is {self.shingle_array[neighbor[1]][neighbor[0]].shingle_status}, found by {shingle_coord}")
+                # rospy.logwarn (f"non-none tile at {neighbor[0]} , {neighbor[1]}, status is {self.shingle_array[neighbor[1]][neighbor[0]].shingle_status}, found by {shingle_coord}")
                 if self.shingle_array[neighbor[1]][neighbor[0]].shingle_status == ShingleStatus.INSTALLED:
                     return True
 

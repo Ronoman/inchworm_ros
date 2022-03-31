@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 
 from enum import Enum
+from importlib.resources import path
 from operator import truediv
 from pickletools import int4
-from turtle import pos
+from turtle import end_fill, pos
 
 from numpy import real
 
@@ -72,9 +73,9 @@ class Inchworm():
         self.top_foot_shingle_stat = top_foot_shingle_stat
         self.behavior = behavior
         self.roof_width = width
-        self.roof = [ShingleStatus.UNINSTALLED] * width * height
+        self.roof = [[ShingleStatus.UNINSTALLED] * height]* width
         for i in range(width):
-            self.roof[i] = ShingleStatus.INSTALLED
+            self.roof[i][0] = ShingleStatus.INSTALLED
         self.shingle_depot_pos = shingle_depot_pos
         self.next_tick_time = rospy.Time.now()
         self.robot_state = RobotState.MAKE_DECISION
@@ -153,10 +154,10 @@ class Inchworm():
         return self
 
     def get_shingle_state(self, x, y):
-        return self.roof[x + y * self.roof_width]
+        return self.roof[x][y]
 
     def set_shingle_state(self, x, y, shingle_state):
-        self.roof[x + y * self.roof_width] = shingle_state
+        self.roof[x][y] = shingle_state
 
     def place_shingle(self, ee, shingle, roof):
         if (ee == 1):
@@ -264,11 +265,10 @@ class Inchworm():
         return inchworm_pos
     
     def rebuild_roof(self):  # TODO: IF THIS STARTS TO MAKE THINGS SLOW, MAKE IT NOT RECUSIVE
-        for i, occ in enumerate(self.roof):
-            if occ == 1:
-                x = i % self.roof_width
-                y = int(i/self.roof_width)
-                self.make_children_valid(x, y)
+        for i, row in enumerate(self.roof):
+            for j, occ in enumerate(row):
+                if occ == 1:
+                    self.make_children_valid(i, j)
 
     def make_children_valid(self, x, y):
         self.set_shingle_state(x, y, ShingleStatus.PLACED)
@@ -346,7 +346,6 @@ class Inchworm():
         neighbors = self.get_shingle_pos_neighbors(pos)
 
         for n in neighbors:
-            if n[0] < self.roof_width:
                 read_shingle = shingles[n[1]][n[0]]
                 if read_shingle is not None:
                     if read_shingle.shingle_status == ShingleStatus.PLACED:
@@ -437,13 +436,13 @@ class Inchworm():
             for n in Inchworm.EVEN_ROW_N_LOOKUP:
                 new_neighbor_pos = [foot_pos[0] + n[0], foot_pos[1] + n[1]]
                 if new_neighbor_pos != self.bottom_foot_position and new_neighbor_pos != self.top_foot_position:
-                    if new_neighbor_pos[0] < self.roof_width and new_neighbor_pos[1] < len(self.roof)/self.roof_width and new_neighbor_pos[0] > -1 and new_neighbor_pos[1] > -1:
+                    if new_neighbor_pos[0] < self.roof_width and new_neighbor_pos[1] < len(self.roof[0]) and new_neighbor_pos[0] > -1 and new_neighbor_pos[1] > -1:
                         neighbor_pos.append(
                             [new_neighbor_pos[0], new_neighbor_pos[1]])
         else:
             for n in Inchworm.ODD_ROW_N_LOOKUP:
                 new_neighbor_pos = [foot_pos[0] + n[0], foot_pos[1] + n[1]]
-                if new_neighbor_pos[0] < self.roof_width and new_neighbor_pos[1] < len(self.roof)/self.roof_width and new_neighbor_pos != self.bottom_foot_position and new_neighbor_pos != self.top_foot_position:
+                if new_neighbor_pos[0] < self.roof_width and new_neighbor_pos[1] < len(self.roof[0]) and new_neighbor_pos != self.bottom_foot_position and new_neighbor_pos != self.top_foot_position:
                     if new_neighbor_pos[0] > -1 and new_neighbor_pos[1] > -1:
                         neighbor_pos.append(new_neighbor_pos)
         return neighbor_pos
@@ -471,7 +470,7 @@ class Inchworm():
         neighbors = self.get_shingle_pos_neighbors(pos)
         shingle_neighbors = []
         for n in neighbors:
-            if n[1] < len(self.roof)/self.roof_width and n[0] < self.roof_width:
+            if n[1] < len(self.roof[0]) and n[0] < self.roof_width:
                 read_shingle = shingles[n[1]][n[0]]
                 if read_shingle is not None:
                     if read_shingle.shingle_status == ShingleStatus.PLACED:
@@ -483,6 +482,7 @@ class Inchworm():
         # rospy.loginfo(f"robot {self.id} is in state {self.robot_state}")
 
         # general idea is that this contitional is run everytime the robot has to make a desision,
+        
 
         if self.robot_state == RobotState.MAKE_DECISION:
             # read the shingles at the current foot positions
@@ -492,14 +492,17 @@ class Inchworm():
             
 
             # TODO: change this, will require a working probing state and being able to read shingles
-            self.roof = []
-            for row in real_roof.shingle_array:
-                for element in row:
-                    if element is not None:
-                        self.roof.append(element.shingle_status)
-                    else:
-                        self.roof.append(ShingleStatus.UNINSTALLED)
+            # Filip this is why you make the shingle map x then y, its not just used by the roof
             
+            self.roof = [[None]*len(real_roof.shingle_array)]*len(real_roof.shingle_array[0])
+
+            for ii, y in enumerate(real_roof.shingle_array):
+                for jj, x in enumerate(real_roof.shingle_array[ii]):
+                    if x is not None:
+                        self.roof[jj][ii] = x.shingle_status
+                    else:
+                        self.roof[jj][ii] = ShingleStatus.UNINSTALLED
+
             self.claim_pos(real_roof,self.bottom_foot_position)
             self.claim_pos(real_roof,self.top_foot_position)
             # rebuild the roof based on constraints
@@ -522,6 +525,9 @@ class Inchworm():
 
 
                 inchworm_pos = self.calc_inchworm_pos()
+
+                self.tile_path([placed_shingle.x_coord, placed_shingle.y_coord], self.target)
+
                 # rospy.loginfo(
                 #     f"inchworm {self.id} set target at {self.target}")
                 # rospy.loginfo(f"moving towards {self.target}")
@@ -906,6 +912,80 @@ class Inchworm():
         msg.header.stamp = rospy.Time.now()
         return msg
 
+    def tile_path(self, start, goal):
+        frontier_path = self.calc_frontier(self.roof)
+        # rospy.loginfo(f"frontier is {frontier_path}")
+        path_to_goal = [[start[0], start[1], 100]]
+        # rospy.sleep(10)
+
+        while path_to_goal[-1][0] is not goal[0] or path_to_goal[-1][1] is not goal[1]:
+            neighbors = []
+            for point in frontier_path:
+                if self.is_neighbor(path_to_goal[-1][0:2], point):
+                    neighbors.append([point[0], point[1], Inchworm.dist(point, goal)])
+
+            # rospy.loginfo(f"looking at neighbors{neighbors}")
+
+            next_best_tile = path_to_goal[-1]
+            # rospy.loginfo(f"starting best tile is {next_best_tile}")
+
+            for adjacent in neighbors:
+                # rospy.loginfo(f"adjacent is {adjacent}")
+
+                if (adjacent[2] + (next_best_tile[1] - point[1])/2) < next_best_tile[2]:
+                    next_best_tile = adjacent
+                    
+            # rospy.loginfo(f"best tile is {next_best_tile}")
+            if not (next_best_tile[0] is path_to_goal[-1][0] and next_best_tile[1] is path_to_goal[-1][1]):
+                path_to_goal.append(next_best_tile)
+            else:
+                rospy.logwarn(f"PATH STUCK IN A DEAD END, CHECK NEIGHBORS")
+                rospy.sleep(100)
+
+        rospy.loginfo(f"path to get to the goal along the frontier is {path_to_goal}")
+
+        return goal 
+
+    def calc_frontier(self, robot_map):
+        frontier_shingles = []
+
+        for width in range(len(robot_map)):
+            for height in range(len(robot_map[width])):
+                if self.next_to_installed_shingle([width,height], robot_map) and robot_map[width][height] is not ShingleStatus.INSTALLED:
+                    frontier_shingles.append([width, height])
+
+        return frontier_shingles
+
+    def next_to_installed_shingle(self, pos, shingles):
+        neighbors = self.get_neighbors_of_a_shingle(pos)
+        for n in neighbors:
+            read_shingle = shingles[n[0]][n[1]]
+            if read_shingle is not None:
+                if read_shingle == ShingleStatus.INSTALLED:
+                    return True
+        return False
+
+    def get_neighbors_of_a_shingle(self, pos):
+        neighbor_pos = []
+        if pos[1] % 2 == 0:  # even row lookup
+            for n in Inchworm.EVEN_ROW_N_LOOKUP:
+                new_neighbor_pos = [pos[0] + n[0], pos[1] + n[1]]
+                if new_neighbor_pos[0] < self.roof_width and new_neighbor_pos[1] < len(self.roof[0]) and new_neighbor_pos[0] > -1 and new_neighbor_pos[1] > -1:
+                    neighbor_pos.append(new_neighbor_pos)
+        else:
+            for n in Inchworm.ODD_ROW_N_LOOKUP:
+                new_neighbor_pos = [pos[0] + n[0], pos[1] + n[1]]
+                if new_neighbor_pos[0] < self.roof_width and new_neighbor_pos[1] < len(self.roof[0]) and new_neighbor_pos[0] > -1 and new_neighbor_pos[1] > -1:
+                    neighbor_pos.append(new_neighbor_pos)
+        return neighbor_pos
+
+    def is_neighbor(self, origin, pos):
+        neighbors = self.get_neighbors_of_a_shingle(origin)
+        for shingle in neighbors:
+            if shingle[0] == pos[0] and shingle[1] == pos[1]:
+                return True
+
+        return False
     '''
     TODO:
         - get rid of all magic functions
