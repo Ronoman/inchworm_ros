@@ -83,8 +83,8 @@ class Inchworm():
         self.foot_shingle_neighbor_to_move_to = 0
         self.ee_shingle_neighbors = []
         self.installing_status = 0
-
-        self.shingle_order = self.create_diagonal_order(width, height)
+        self.probe_step = 0
+        self.shingle_order = self.create_shingle_order(width, height)
         self.claimed_pos = set()
 
     # this is used to create ox-plow order in shingling
@@ -226,14 +226,12 @@ class Inchworm():
 
         return self
 
-    def read_shingle(self, shingle):
-        x = shingle.x_coord
-        y = shingle.y_coord
+    def read_shingle_at(self, real_roof, shingle_coord):
+        
         # update the "roof" to include shingle, if the shingle is in a place
-        if ((x != -1) and (y != -1)):
-            self.set_shingle_state(x, y, shingle.shingle_state)
-        # update end effector status?
-        return self
+        self.set_shingle_state(shingle_coord[0], shingle_coord[1], real_roof.get_shingle(shingle_coord[0], shingle_coord[1]).shinlge_status) 
+        
+
 
     def move_bottom_foot(self, new_pos):
         self.bottom_foot_status = EEStatus.IN_AIR
@@ -492,13 +490,16 @@ class Inchworm():
             
 
             # TODO: change this, will require a working probing state and being able to read shingles
-            self.roof = []
-            for row in real_roof.shingle_array:
-                for element in row:
-                    if element is not None:
-                        self.roof.append(element.shingle_status)
-                    else:
-                        self.roof.append(ShingleStatus.UNINSTALLED)
+            # self.roof = []
+            # for row in real_roof.shingle_array:
+            #     for element in row:
+            #         if element is not None:
+            #             self.roof.append(element.shingle_status)
+            #         else:
+            #             self.roof.append(ShingleStatus.UNINSTALLED)
+
+            self.read_shingle_at(real_roof, self.bottom_foot_position)
+            self.read_shingle_at(real_roof, self.top_foot_position)
             
             self.claim_pos(real_roof,self.bottom_foot_position)
             self.claim_pos(real_roof,self.top_foot_position)
@@ -632,6 +633,9 @@ class Inchworm():
                             f"inchworm {self.id} could not figure out which end effector to use to move the shingle at {placed_shingle_location}")
 
                     self.move_shingle_step = 1
+                    self.probe_step = 0
+                    self.original_bottom_foot_pos = self.bottom_foot_position
+                    self.original_top_foot_pos = self.top_foot_position
                     # rospy.loginfo(f"placed shingle occ grid {real_roof.get_occ_position([placed_shingle.x_coord, placed_shingle.y_coord])}")
                     # rospy.loginfo(f"robot {self.id} clamed new posiiton {claimed_new_postion}")
                     # try and claim the placed shingle if the inchworm is trying to move a shingle
@@ -721,7 +725,15 @@ class Inchworm():
                 #     f"inchworm {self.id} is installing a shingle at {self.target}")
                 # installation is a two step process
                 # small state machine to allow for multi step install
+                '''
+                create pre step where we move to the target, and check if there is a shingle there
+                    - set original foot positions
+                    - probe the potental point
+                    - if 
+                '''
+
                 if self.installing_status == 1:
+
                     # figure out which foot needs to install the shingle, this needs to be done once per install
                     if Inchworm.dist(self.bottom_foot_position, self.target) > Inchworm.dist(self.top_foot_position, self.target):
                         self.decide_on_movement_to_shingle(EE.BOTTOM_FOOT, self.valid_foot_positions, real_roof)
@@ -729,8 +741,25 @@ class Inchworm():
                     else:
                         self.decide_on_movement_to_shingle(EE.TOP_FOOT, self.valid_foot_positions, real_roof)
                         self.installing_status = 2
+
+                elif self.installing_status == 2:
+                    self.original_bottom_foot_pos = self.bottom_foot_position
+                    self.original_top_foot_pos = self.top_foot_position
+                    status = self.probe(real_roof, [self.install_shingle_target.x_coord, self.install_shingle_target.y_coord])
+                    if status[0] == 0:
+                        if status[1]:
+                            rospy.loginfo(f"inchworm {self.id} found an shingle at {[self.install_shingle_target.x_coord, self.install_shingle_target.y_coord]}")
+                            self.move_shingle_step = 2
+                        else:
+                            rospy.loginfo(f"inchworm {self.id} did not find an shingle at {[self.install_shingle_target.x_coord, self.install_shingle_target.y_coord]}")
+                            self.set_shingle_state(self.install_shingle_target.x_coord, self.install_shingle_target.y_coord, ShingleStatus.UNINSTALLED)
+                            # TODO: UPDATE THE BASE SHINGLE TO INFORM IT THAT THERE IS NOT A PLACED SHINGLE
+                            self.move_shingle_step = 6
+                            pass #TODO: update world view
+                    
+                    self.installing_status = 3
                 # install the shingle and place the foot on the new shingle
-                elif self.installing_status == 2: 
+                elif self.installing_status == 3: 
                     # determains which foot we are controling 
                     if self.ee_shingle_neighbors[self.foot_shingle_neighbor_to_move_to]["foot"] == EE.BOTTOM_FOOT:
                         # insure that the foot is in the correct location, if not we move the foot
@@ -742,15 +771,15 @@ class Inchworm():
                             # install the shingle and place the foot on the newly installed shingle
                             real_roof.install_shingle(self.install_shingle_target)
                             self.set_shingle_state(self.install_shingle_target.x_coord, self.install_shingle_target.y_coord, ShingleStatus.INSTALLED)
-                            if self.bottom_foot_position != self.old_bottom_foot:
-                                self.unclaim_pos(real_roof, self.old_bottom_foot)
-                                self.old_bottom_foot = self.bottom_foot_position
+                            # if self.bottom_foot_position != self.old_bottom_foot:
+                            #     self.unclaim_pos(real_roof, self.old_bottom_foot)
+                            #     self.old_bottom_foot = self.bottom_foot_position
                             rospy.sleep(Inchworm.DELAY)
                             # rospy.loginfo(
                             #     f"inchworm {self.id} has installed a shingle at {[[self.install_shingle_target.y_coord],[self.install_shingle_target.x_coord]]}")
-                            self.bottom_foot_status = EEStatus.PLANTED
-                            self.robot_state = RobotState.MAKE_DECISION
-                            self.installing_status = 0
+                            # self.bottom_foot_status = EEStatus.PLANTED
+                            # self.robot_state = RobotState.MAKE_DECISION
+                            self.installing_status = 4
 
                     else:
                         # insure that the foot is in the correct location, if not we move the foot
@@ -762,15 +791,27 @@ class Inchworm():
                             # install the shingle and place the foot on the newly installed shingle
                             real_roof.install_shingle(self.install_shingle_target)
                             self.set_shingle_state(self.install_shingle_target.x_coord, self.install_shingle_target.y_coord, ShingleStatus.INSTALLED)
-                            if self.top_foot_position != self.old_top_foot:
-                                self.unclaim_pos(real_roof, self.old_top_foot)
-                                self.old_top_foot = self.top_foot_position
+                            # if self.top_foot_position != self.old_top_foot:
+                            #     self.unclaim_pos(real_roof, self.old_top_foot)
+                            #     self.old_top_foot = self.top_foot_position
                             rospy.sleep(Inchworm.DELAY)
                             # rospy.loginfo(
                             #     f"inchworm {self.id} has installed a shingle at {[[self.install_shingle_target.y_coord],[self.install_shingle_target.x_coord]]}")
-                            self.top_foot_status = EEStatus.PLANTED
-                            self.robot_state = RobotState.MAKE_DECISION
-                            self.installing_status = 0
+                            # self.top_foot_status = EEStatus.PLANTED
+                            # self.robot_state = RobotState.MAKE_DECISION
+                            self.installing_status = 4
+                elif self.installing_status == 4:
+                    if self.original_bottom_foot_pos != self.bottom_foot_position:
+                        self.move_bottom_foot(self.original_bottom_foot_pos)
+                        self.bottom_foot_status = EEStatus.PLANTED
+                    if self.original_top_foot_pos != self.top_foot_position:
+                        self.move_top_foot(self.original_top_foot_pos)
+                        self.top_foot_status = EEStatus.PLANTED
+                    self.unclaim_pos(real_roof, [self.install_shingle_target.x_coord, self.install_shingle_target.y_coord])
+                    self.robot_state = RobotState.MAKE_DECISION
+                    self.installing_status = 0
+
+
 
         elif self.robot_state == RobotState.PATROL_FRONTIER:
             # TODO: This is where we could implement moving along the frontier, just moving about
@@ -779,51 +820,37 @@ class Inchworm():
             rospy.sleep(Inchworm.DELAY)
             # moving shingles is a multi step process so it requires a state machine in order to be non-blocking
             if self.move_shingle_step == 1:
-                if self.ee_shingle_neighbors[self.foot_shingle_neighbor_to_move_to]["foot"] == EE.BOTTOM_FOOT:
-                    status = self.probe(real_roof, [self.shingle_to_move.x_coord, self.shingle_to_move.y_coord])
-                    if status[0] == 0:
-                        if status[1]:
-                            self.move_shingle_step = 2
-                        else:
-                            
-                            self.move_shingle_step = 6
-                            pass # update world view
                     
-                else:
-                    status = self.probe(real_roof, [self.shingle_to_move.x_coord, self.shingle_to_move.y_coord])
-                    if status[0] == 0:
-                        if status[1]:
-                            self.move_shingle_step = 2
-                        else:
-                            
-                            self.move_shingle_step = 6
-                            pass # update world view
+                status = self.probe(real_roof, [self.shingle_to_move.x_coord, self.shingle_to_move.y_coord])
+                if status[0] == 0:
+                    if status[1]:
+                        rospy.loginfo(f"inchworm {self.id} found an shingle at {[self.shingle_to_move.x_coord, self.shingle_to_move.y_coord]}")
+                        self.move_shingle_step = 2
+                    else:
+                        rospy.loginfo(f"inchworm {self.id} did not find an shingle at {[self.shingle_to_move.x_coord, self.shingle_to_move.y_coord]}")
+                        self.set_shingle_state(self.shingle_to_move.x_coord, self.shingle_to_move.y_coord, ShingleStatus.UNINSTALLED)
+                        # UPDATE BASE SHINGLE
+                        self.move_shingle_step = 6
+                        pass #TODO: update world view
+                    
                 pass # check the placed shingle pos
             elif self.move_shingle_step == 2:
-                if self.ee_shingle_neighbors[self.foot_shingle_neighbor_to_move_to]["foot"] == EE.BOTTOM_FOOT:
-                    self.bottom_foot_position = self.old_bottom_foot# TODO: change this, this is a improper hack
-                    status = self.probe(real_roof, self.ee_shingle_neighbors[self.foot_shingle_neighbor_to_move_to]["pos"])
-                    if status[0] == 0:
-                        if status[1]:
-                            self.move_shingle_step = 3
-                        else:
-                            
-                            self.move_shingle_step = 6
-                            pass # update world view
+                
+                status = self.probe(real_roof, self.ee_shingle_neighbors[self.foot_shingle_neighbor_to_move_to]["pos"])
+                if status[0] == 0:
+                    if not status[1]:
+                        rospy.loginfo(f"inchworm {self.id} did not find an shingle at {self.ee_shingle_neighbors[self.foot_shingle_neighbor_to_move_to]['pos']}")
+
+                        self.move_shingle_step = 3
+                    else:
+                        rospy.loginfo(f"inchworm {self.id} found an shingle at {self.ee_shingle_neighbors[self.foot_shingle_neighbor_to_move_to]['pos']}")
+                        # create new shingle in this position
+                        self.read_shingle_at(real_roof, self.ee_shingle_neighbors[self.foot_shingle_neighbor_to_move_to]['pos'])
+                        # TODO: UPDATE BASE SHINGLE 
+                        self.move_shingle_step = 6
+                        pass #TODO: update world view
                     
-                else:
-                    self.top_foot_position = self.old_top_foot# TODO: change this, this is a improper hack
-                    status = self.probe(real_roof, self.ee_shingle_neighbors[self.foot_shingle_neighbor_to_move_to]["pos"])
-                    if status[0] == 0:
-                        if status[1]:
-                            self.move_shingle_step = 3
-                        else:
-                            
-                            self.move_shingle_step = 6
-                            pass # update world view
-                pass # check the placed shingle pos
-                pass # check the new shingle pos
-            if self.move_shingle_step == 3:
+            elif self.move_shingle_step == 3:
                 self.old_shingle_pos = [
                     self.shingle_to_move.x_coord, self.shingle_to_move.y_coord]
 
@@ -881,18 +908,23 @@ class Inchworm():
             else:
                 # moves the foot to it's old postion
                 if self.ee_shingle_neighbors[self.foot_shingle_neighbor_to_move_to]["foot"] == EE.BOTTOM_FOOT:
-                    self.move_bottom_foot(self.old_bottom_foot)
+                    self.move_bottom_foot(self.original_bottom_foot_pos)
                     self.bottom_foot_status = EEStatus.PLANTED
 
                 else:
-                    self.move_top_foot(self.old_top_foot)
+                    self.move_top_foot(self.original_top_foot_pos)
                     self.top_foot_status = EEStatus.PLANTED
                 # un claim the positions that it was using
-                self.unclaim_pos(real_roof, [self.shingle_to_move.x_coord, self.shingle_to_move.y_coord])
-                self.unclaim_pos(real_roof,self.old_shingle_pos)
+                try:
+                    self.unclaim_pos(real_roof, [self.shingle_to_move.x_coord, self.shingle_to_move.y_coord])
+                    self.unclaim_pos(real_roof,self.old_shingle_pos)
+                except Exception as e:
+                    rospy.logwarn(e)
+                    rospy.logwarn(self.move_shingle_step)
                 # rospy.loginfo(f"shingles claimed after unclaiming {self.claimed_pos}")
                 self.robot_state = RobotState.MAKE_DECISION
                 self.move_shingle_step = 0
+                self.probe_step = 0
 
         elif self.robot_state == RobotState.PROBE_SHINGLE:
             # TODO: should move the inchworm to the suposed location and probe it
@@ -914,21 +946,24 @@ class Inchworm():
         if self.probe_step == 0:
             self.probe_status = False
             self.old_shingle_pos = shingle_probe_pos
-            if self.ee_shingle_neighbors[self.ee_shingle_neighbor_index]["ee"] == EE.BOTTOM_FOOT:
+            if self.ee_shingle_neighbors[self.foot_shingle_neighbor_to_move_to]["foot"] == EE.BOTTOM_FOOT:
                 if shingle_probe_pos != self.bottom_foot_position:
+                    rospy.loginfo("moving bottom foot")
                     self.old_bottom_foot = self.bottom_foot_position
                     self.move_bottom_foot(shingle_probe_pos)
                 else:
                     self.probe_step = 1
             else:
+                rospy.loginfo(f"{shingle_probe_pos}, {self.top_foot_position}")
                 if shingle_probe_pos != self.top_foot_position:
+                    rospy.loginfo("moving top foot")
                     self.old_top_foot = self.top_foot_position
                     self.move_top_foot(shingle_probe_pos)
                 else:
                     self.probe_step = 1
         elif self.probe_step == 1:
-            self.probe_status = (real_roof.get_shingle(shingle_probe_pos[0], shingle_probe_pos[1]) is not None and real_roof.get_shingle(shingle_probe_pos[0], shingle_probe_pos[1]).shingle_status == ShingleStatus.INSTALLED or
-                real_roof.get_shingle(shingle_probe_pos[0], shingle_probe_pos[1]).shingle_status == ShingleStatus.PLACED)
+            self.probe_status = (real_roof.get_shingle(shingle_probe_pos[0], shingle_probe_pos[1]) is not None and (real_roof.get_shingle(shingle_probe_pos[0], shingle_probe_pos[1]).shingle_status == ShingleStatus.INSTALLED or
+                real_roof.get_shingle(shingle_probe_pos[0], shingle_probe_pos[1]).shingle_status == ShingleStatus.PLACED))
             self.probe_step = 2
         else:
             
@@ -1046,6 +1081,9 @@ class Inchworm():
                         - update shingle data
             When installing shingle
                 - update info on the shingle that you are installing from
+
+
+            -- some issus with claiming & unclaiming on probes
     
     '''
 
