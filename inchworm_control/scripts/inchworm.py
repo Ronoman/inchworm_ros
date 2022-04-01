@@ -194,12 +194,9 @@ class Inchworm:
     if self.foot_down == 1: #if foot down is 1, do the mapping
       newPose = self.mapPoses.get(pose)
 
-    angles = self.jointMap.get(pose)
-    print(angles)
-    if self.foot_down == 1: #if foot down is 1, flip the angle array
-      angles.reverse()
-      print("??????")
-      print(angles)
+    angles = self.jointMap.get(newPose)
+    #print(angles)
+
 
     self.planner.run_quintic_traj(angles, time)
     #return when done?
@@ -404,9 +401,9 @@ if __name__ == "__main__":
   iw.swapFeet()
   print("upper left")
   iw.moveTo(leftLift, 1.0)
-  iw.moveTo(lowerRightLift, 6.0)
-  iw.moveTo(lowerRightHover, 1.0)
-  iw.moveTo(lowerRightDown, 1.0)
+  iw.moveTo(upperLeftLift, 6.0)
+  iw.moveTo(upperLeftHover, 1.0)
+  iw.moveTo(upperLeftDown, 1.0)
   print("swap")
   iw.swapFeet()
   print("right")
@@ -416,15 +413,12 @@ if __name__ == "__main__":
   iw.moveTo(rightDown, 1.0)
   print("swap")
   iw.swapFeet()
-  print("upper left")
+  print("lower left")
   iw.moveTo(leftLift, 1.0)
-  iw.moveTo(lowerRightLift, 6.0)
-  iw.moveTo(lowerRightHover, 1.0)
-  iw.moveTo(lowerRightDown, 1.0)
+  iw.moveTo(lowerLeftLift, 6.0)
+  iw.moveTo(lowerLeftHover, 1.0)
+  iw.moveTo(lowerLeftDown, 1.0)
   print("swap")
   iw.swapFeet()
-
-
-
   print("straighten")
   iw.moveTo(straight, 10.0)
