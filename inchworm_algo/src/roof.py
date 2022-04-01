@@ -42,19 +42,23 @@ class Roof():
 
 
     def place_shingle(self, shingle, coord):
-        self.shingle_array[coord[1]][coord[0]] = shingle
         shingle = shingle.place_shingle(coord[0], coord[1])
+        self.shingle_array[coord[1]][coord[0]] = shingle
         return shingle
 
 
     def pickup_shingle(self, coord):
-        shingle = self.shingle_array[coord[1]][coord[0]].pickup_shingle()
-        self.shingle_array[coord[1]][coord[0]] = None
+        if self.shingle_array[coord[1]][coord[0]] is not None:
+            shingle = self.shingle_array[coord[1]][coord[0]].pickup_shingle()
+            self.shingle_array[coord[1]][coord[0]] = None
+        else:
+            rospy.logwarn(f"Shingle at location {[coord[0], coord[1]]} was not marked as being placed in the roof")
+            shingle = self.shingle_array[coord[1]][coord[0]]
         return shingle
 
     def install_shingle(self, shingle):
-        self.shingle_array[shingle.y_coord][shingle.x_coord] = shingle
         shingle = shingle.install_shingle(shingle.x_coord, shingle.y_coord)
+        self.shingle_array[shingle.y_coord][shingle.x_coord] = shingle
         return shingle
 
 
