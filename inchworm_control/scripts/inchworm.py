@@ -29,49 +29,73 @@ class Inchworm:
 
   class Poses(Enum):
     STRAIGHT = 0
-    UPPER_LEFT_HOVER = 1
-    UPPER_LEFT_DOWN = 2
-    UPPER_RIGHT_HOVER = 3
+    UPPER_LEFT_DOWN = 1
+    UPPER_LEFT_HOVER = 2
+    UPPER_LEFT_LIFT = 3
     UPPER_RIGHT_DOWN = 4
-    RIGHT_HOVER = 5
-    RIGHT_DOWN = 6
-    BOTTOM_RIGHT_HOVER = 7
-    BOTTOM_RIGHT_DOWN = 8
-    BOTTOM_LEFT_HOVER = 9
-    BOTTOM_LEFT_DOWN = 10
-    LEFT_HOVER = 11
-    LEFT_DOWN = 12
+    UPPER_RIGHT_HOVER = 5
+    UPPER_RIGHT_LIFT = 6
+    RIGHT_DOWN = 7
+    RIGHT_HOVER = 8
+    RIGHT_LIFT = 9
+    BOTTOM_RIGHT_DOWN = 10
+    BOTTOM_RIGHT_HOVER = 11
+    BOTTOM_RIGHT_LIFT = 12
+    BOTTOM_LEFT_DOWN = 13
+    BOTTOM_LEFT_HOVER = 14
+    BOTTOM_LEFT_LIFT = 15
+    LEFT_DOWN = 16
+    LEFT_HOVER = 17
+    LEFT_LIFT = 18
 
   mapPoses = {
     Poses.STRAIGHT: Poses.STRAIGHT,
     Poses.UPPER_LEFT_DOWN: Poses.BOTTOM_RIGHT_DOWN,
     Poses.UPPER_LEFT_HOVER: Poses.BOTTOM_RIGHT_HOVER,
+    Poses.UPPER_LEFT_LIFT: Poses.BOTTOM_RIGHT_LIFT,
     Poses.UPPER_RIGHT_DOWN: Poses.BOTTOM_LEFT_DOWN,
     Poses.UPPER_RIGHT_HOVER: Poses.BOTTOM_LEFT_HOVER,
+    Poses.UPPER_RIGHT_LIFT: Poses.BOTTOM_LEFT_LIFT,
     Poses.RIGHT_DOWN: Poses.LEFT_DOWN,
     Poses.RIGHT_HOVER: Poses.LEFT_HOVER,
+    Poses.RIGHT_LIFT: Poses.LEFT_LIFT,
     Poses.BOTTOM_RIGHT_DOWN: Poses.UPPER_LEFT_DOWN,
     Poses.BOTTOM_RIGHT_HOVER: Poses.UPPER_LEFT_HOVER,
+    Poses.BOTTOM_RIGHT_LIFT: Poses.UPPER_LEFT_LIFT,
     Poses.BOTTOM_LEFT_DOWN: Poses.UPPER_RIGHT_DOWN,
     Poses.BOTTOM_LEFT_HOVER: Poses.UPPER_RIGHT_HOVER,
+    Poses.BOTTOM_LEFT_LIFT: Poses.UPPER_RIGHT_LIFT,
     Poses.LEFT_DOWN: Poses.RIGHT_DOWN,
-    Poses.LEFT_HOVER: Poses.RIGHT_HOVER
+    Poses.LEFT_HOVER: Poses.RIGHT_HOVER,
+    Poses.LEFT_LIFT: Poses.RIGHT_LIFT
   }
 
   jointMap = {
-    Poses.STRAIGHT: [0,0,0,0,0],
+    Poses.STRAIGHT: JointConstants.straight,
+
     Poses.UPPER_LEFT_HOVER: JointConstants.upper_left,
     Poses.UPPER_LEFT_DOWN: JointConstants.upper_left_down,
+    Poses.UPPER_LEFT_LIFT: JointConstants.upper_left_lift,
+
     Poses.UPPER_RIGHT_HOVER: JointConstants.upper_right,
     Poses.UPPER_RIGHT_DOWN: JointConstants.upper_right_down,
+    Poses.UPPER_RIGHT_LIFT: JointConstants.upper_right_lift,
+
     Poses.RIGHT_HOVER: JointConstants.right,
     Poses.RIGHT_DOWN: JointConstants.right_down,
+    Poses.RIGHT_LIFT: JointConstants.right_lift,
+
     Poses.BOTTOM_RIGHT_HOVER: JointConstants.bottom_right,
     Poses.BOTTOM_RIGHT_DOWN: JointConstants.bottom_right_down,
+    Poses.BOTTOM_RIGHT_LIFT: JointConstants.bottom_right_lift,
+
     Poses.BOTTOM_LEFT_HOVER: JointConstants.bottom_left,
     Poses.BOTTOM_LEFT_DOWN: JointConstants.bottom_left_down,
+    Poses.BOTTOM_LEFT_LIFT: JointConstants.bottom_left_lift,
+
     Poses.LEFT_HOVER: JointConstants.left,
-    Poses.LEFT_DOWN: JointConstants.left_down
+    Poses.LEFT_DOWN: JointConstants.left_down,
+    Poses.LEFT_LIFT: JointConstants.left_lift
   }
 
   def __init__(self, idx=0):
@@ -170,7 +194,12 @@ class Inchworm:
     if self.foot_down == 1: #if foot down is 1, do the mapping
       newPose = self.mapPoses.get(pose)
 
-    angles = self.jointMap.get(newPose)
+    angles = self.jointMap.get(pose)
+    print(angles)
+    if self.foot_down == 1: #if foot down is 1, flip the angle array
+      angles.reverse()
+      print("??????")
+      print(angles)
 
     self.planner.run_quintic_traj(angles, time)
     #return when done?
@@ -345,27 +374,57 @@ if __name__ == "__main__":
   straight = Inchworm.Poses.STRAIGHT
   upperLeftDown = Inchworm.Poses.UPPER_LEFT_DOWN
   upperLeftHover = Inchworm.Poses.UPPER_LEFT_HOVER
+  upperLeftLift = Inchworm.Poses.UPPER_LEFT_LIFT
+
   upperRightDown = Inchworm.Poses.UPPER_RIGHT_DOWN
   upperRightHover = Inchworm.Poses.UPPER_RIGHT_HOVER
+  upperRightLift = Inchworm.Poses.UPPER_RIGHT_LIFT
+
   rightDown = Inchworm.Poses.RIGHT_DOWN
   rightHover = Inchworm.Poses.RIGHT_HOVER
+  rightLift = Inchworm.Poses.RIGHT_LIFT
+
   lowerRightDown = Inchworm.Poses.BOTTOM_RIGHT_DOWN
   lowerRightHover = Inchworm.Poses.BOTTOM_RIGHT_HOVER
+  lowerRightLift = Inchworm.Poses.BOTTOM_RIGHT_LIFT
+
   lowerLeftDown = Inchworm.Poses.BOTTOM_LEFT_DOWN
   lowerLeftHover = Inchworm.Poses.BOTTOM_LEFT_HOVER
+  lowerLeftLift = Inchworm.Poses.BOTTOM_LEFT_LIFT
+
   leftDown = Inchworm.Poses.LEFT_DOWN
   leftHover = Inchworm.Poses.LEFT_HOVER
+  leftLift = Inchworm.Poses.LEFT_LIFT
 
   print("right")
-  iw.moveTo(rightHover, 5.0)
+  iw.moveTo(rightLift, 5.0)
+  iw.moveTo(rightHover, 1.0)
   iw.moveTo(rightDown, 1.0)
   print("swap")
   iw.swapFeet()
-  print("lift")
-  iw.moveTo(upperLeftHover, 6.0)
-  iw.moveTo(upperLeftDown, 1.0)
+  print("upper left")
+  iw.moveTo(leftLift, 1.0)
+  iw.moveTo(lowerRightLift, 6.0)
+  iw.moveTo(lowerRightHover, 1.0)
+  iw.moveTo(lowerRightDown, 1.0)
   print("swap")
   iw.swapFeet()
+  print("right")
+  iw.moveTo(lowerRightLift, 1.0)
+  iw.moveTo(rightLift, 5.0)
+  iw.moveTo(rightHover, 1.0)
+  iw.moveTo(rightDown, 1.0)
+  print("swap")
+  iw.swapFeet()
+  print("upper left")
+  iw.moveTo(leftLift, 1.0)
+  iw.moveTo(lowerRightLift, 6.0)
+  iw.moveTo(lowerRightHover, 1.0)
+  iw.moveTo(lowerRightDown, 1.0)
+  print("swap")
+  iw.swapFeet()
+
+
+
   print("straighten")
-  iw.moveTo(straight, 10.)
-  iw.moveTo(rightDown, 1.0)
+  iw.moveTo(straight, 10.0)
