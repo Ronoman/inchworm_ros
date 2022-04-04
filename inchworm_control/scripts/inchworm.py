@@ -20,6 +20,7 @@ class Inchworm:
   '''
 
   class Neighbors(Enum):
+    NONE = 0 #for when the robot is straight up for motion planning, ignore for shingle
     UPPER_LEFT = 1
     UPPER_RIGHT = 2
     RIGHT = 3
@@ -98,6 +99,15 @@ class Inchworm:
     Poses.LEFT_LIFT: JointConstants.left_lift
   }
 
+  transform = {
+    Neighbors.LEFT: Neighbors.RIGHT,
+    Neighbors.UPPER_LEFT: Neighbors.BOTTOM_RIGHT,
+    Neighbors.UPPER_RIGHT: Neighbors.BOTTOM_LEFT,
+    Neighbors.RIGHT: Neighbors.LEFT,
+    Neighbors.BOTTOM_RIGHT: Neighbors.UPPER_LEFT,
+    Neighbors.BOTTOM_LEFT: Neighbors.UPPER_RIGHT
+  }
+
   def __init__(self, idx=0):
     self.idx = idx
 
@@ -111,6 +121,12 @@ class Inchworm:
 
     # Index of shingle the robot is on. Updated by mateCB from Magnet Sim
     self.on_shingle = self.idx
+
+    #position on the roof of the robot
+    #self.position = self.idx
+
+    #for higher abstraction, last neighbor sent
+    self.lastNeighbor = self.Neighbors.NONE
 
     # Suppression service proxy
     rospy.wait_for_service("/suppress_mate")
@@ -201,11 +217,27 @@ class Inchworm:
     self.planner.run_quintic_traj(angles, time)
     #return when done?
 
+  def roofToShingleIndex(self, idx):
+    # grab the matelist
+    # we have the roof indexes we care about
+    # grab the roof indexes as the male end of the mate, shingle is the female end of mate
+    # return shingles
+
+
+    # what do I need to make this happen?
+    #     store the last mate message somewhere accessible
+
+    for i,mate in enumerate(msg.male):
+      # If my index is in the string, we're mated to a shingle
+      if f"roof0_{idx}" in mate:
+        shingle = int(msg.female[i][-1])
+    pass
+
+
   def swapMagnet(self, turnOff, turnOn):
     # Find all shingle indices adjacent to and including currently_on and going_to.
     adj_current = self.getAdjacentShingleIndexes(self.on_shingle) + [self.on_shingle] if self.on_shingle > -1 else []
-    #adj_going   = self.getAdjacentShingleIndexes(going_to) + [going_to]
-
+    
     iw_bot = ["inchworm", f"inchworm_description_{self.idx}", f"iw_root_{self.idx}"]
     iw_top = ["inchworm", f"inchworm_description_{self.idx}", f"iw_foot_top_{self.idx}"]
 
@@ -240,8 +272,6 @@ class Inchworm:
     '''
     iw_bot = ["inchworm", f"inchworm_description_{self.idx}", f"iw_root_{self.idx}"]
     iw_top = ["inchworm", f"inchworm_description_{self.idx}", f"iw_foot_top_{self.idx}"]    
-
-    # self.currently_on = #TODO eli ????????
 
     print(f"foot down: {self.foot_down}")
     print(f"on_shingle: {self.on_shingle}")
@@ -279,6 +309,8 @@ class Inchworm:
           #self.updateSuppressedMates(self.on_shingle, on_shingle)
           print(f"before: {self.on_shingle} after: {on_shingle}")
           self.on_shingle = on_shingle
+
+  
           
   def idx_to_coord(self, index, width):
     return (index % width, math.floor(index / width))
@@ -357,6 +389,37 @@ class Inchworm:
 
     req.suppress = False
 
+  def move(self, neighbor):
+    mapToPoses = {
+      iw.Neighbors.BOTTOM_LEFT: [iw.Poses.BOTTOM_LEFT_HOVER, iw.Poses.BOTTOM_LEFT_LIFT, iw.Poses.BOTTOM_LEFT_DOWN],
+      iw.Neighbors.BOTTOM_RIGHT:  [iw.Poses.BOTTOM_RIGHT_HOVER, iw.Poses.BOTTOM_RIGHT_LIFT, iw.Poses.BOTTOM_RIGHT_DOWN],
+      iw.Neighbors.RIGHT:  [iw.Poses.RIGHT_HOVER, iw.Poses.RIGHT_LIFT, iw.Poses.RIGHT_DOWN],
+      iw.Neighbors.UPPER_RIGHT:  [iw.Poses.UPPER_RIGHT_HOVER, iw.Poses.UPPER_RIGHT_LIFT, iw.Poses.UPPER_RIGHT_DOWN],
+      iw.Neighbors.UPPER_LEFT:  [iw.Poses.UPPER_LEFT_HOVER, iw.Poses.UPPER_LEFT_LIFT, iw.Poses.UPPER_LEFT_DOWN],
+      iw.Neighbors.LEFT:  [iw.Poses.LEFT_HOVER, iw.Poses.LEFT_LIFT, iw.Poses.LEFT_DOWN]
+    }
+
+    if (self.lastNeighbor != iw.Neighbors.NONE):
+      poses = mapToPoses.get(self.lastNeighbor)
+      #hover above last place
+      self. moveTo(poses[0], 1.0)
+      #lift above last place
+      self.moveTo(poses[1], 1.0)
+      rospy.sleep(1.0)
+      #grab the last place
+      #lift above the last place
+
+    poses = mapToPoses.get(neighbor)
+    #go to lift above next place
+    self.moveTo(poses[1], 7.0)
+    #hover above next place
+    self.moveTo(poses[0], 1.0)
+    #plant foot
+    self.moveTo(poses[2], 1.0)
+    self.swapFeet()
+    
+    self.lastNeighbor = self.transform.get(neighbor)
+
 
 if __name__ == "__main__":
   # This only exists to test the class.
@@ -393,6 +456,18 @@ if __name__ == "__main__":
   leftHover = Inchworm.Poses.LEFT_HOVER
   leftLift = Inchworm.Poses.LEFT_LIFT
 
+  print("test new functions")
+  print("right")
+  iw.move(iw.Neighbors.RIGHT)
+  print("upper left")
+  iw.move(iw.Neighbors.UPPER_LEFT)
+  print("right")
+  iw.move(iw.Neighbors.RIGHT)
+  print("lower left")
+  iw.move(iw.Neighbors.BOTTOM_LEFT)
+
+  rospy.sleep(10)
+
   print("right")
   iw.moveTo(rightLift, 5.0)
   iw.moveTo(rightHover, 1.0)
@@ -400,21 +475,27 @@ if __name__ == "__main__":
   print("swap")
   iw.swapFeet()
   print("upper left")
-  iw.moveTo(leftLift, 1.0)
+  iw.moveTo(leftHover, 1.0)
+  iw.moveTo(leftLift, 1.5)
+  rospy.sleep(1.0)
   iw.moveTo(upperLeftLift, 6.0)
-  iw.moveTo(upperLeftHover, 1.0)
+  iw.moveTo(upperLeftHover, 1.5)
   iw.moveTo(upperLeftDown, 1.0)
   print("swap")
   iw.swapFeet()
   print("right")
-  iw.moveTo(lowerRightLift, 1.0)
+  iw.moveTo(lowerRightHover, 1.0)
+  iw.moveTo(lowerRightLift, 1.5)
+  rospy.sleep(1.0)
   iw.moveTo(rightLift, 5.0)
   iw.moveTo(rightHover, 1.0)
   iw.moveTo(rightDown, 1.0)
   print("swap")
   iw.swapFeet()
   print("lower left")
-  iw.moveTo(leftLift, 1.0)
+  iw.moveTo(leftHover, 1.0)
+  iw.moveTo(leftLift, 1.5)
+  rospy.sleep(1.0)
   iw.moveTo(lowerLeftLift, 6.0)
   iw.moveTo(lowerLeftHover, 1.0)
   iw.moveTo(lowerLeftDown, 1.0)
