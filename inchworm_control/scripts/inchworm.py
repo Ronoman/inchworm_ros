@@ -166,38 +166,6 @@ class Inchworm:
 
     print(f"Initialize inchworm class for inchworm {self.idx}.")
 
-  def getTransform(frame_from, frame_to, buffer):
-      have_transform = False
-      trans = None
-
-      while not have_transform:
-          try:
-              trans = buffer.lookup_transform(frame_from, frame_to, rospy.Time(0))
-              have_transform = True
-          except (tf2_ros.LookupException, tf2_ros.ConnectivityException, tf2_ros.ExtrapolationException) as err:
-              print(f"Lookup from {frame_from} to {frame_to} failed with error:")
-              print(err)
-
-              rospy.sleep(1.0)
-              continue
-
-      return trans
-
-  def transToRPY(trans):
-      quat = [trans.rotation.x, trans.rotation.y, trans.rotation.z, trans.rotation.w]
-
-      (r, p, y) = [math.degrees(n) for n in euler_from_quaternion(quat)]
-
-      return r,p,y
-
-  def rpyToQuat(roll, pitch, yaw):
-      # Assume incoming is in degrees
-      roll, pitch, yaw = [math.radians(n) for n in (roll, pitch, yaw)]
-
-      quat = quaternion_from_euler(roll, pitch, yaw)
-
-      return quat
-
   def suppressAll(self):
     '''
     Run on __init__(). Suppresses all robot mates. Immediately followed by a updateSuppressedMates() call to enable
@@ -313,6 +281,7 @@ class Inchworm:
                 print(f"before: {self.on_shingle} after: {on_shingle}")
                 self.on_shingle = on_shingle
                 roof_mate_idx = int(msg.male[j].split("::")[-1])
+                print(f"Robot on roof index {roof_mate_idx}")
                 self.on_coord = self.idx_to_coord(roof_mate_idx, self.roof_width)
                 print(f"Robot on coord {self.on_coord}")
 
