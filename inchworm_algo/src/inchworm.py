@@ -948,7 +948,8 @@ class Inchworm():
         path_to_goal = [[start[0], start[1], 100]]
         # rospy.sleep(10)
 
-        while path_to_goal[-1][0] is not goal[0] or path_to_goal[-1][1] is not goal[1] and self.get_shingle_state(goal[0], goal[1]) is not ShingleStatus.INSTALLED:
+        while (path_to_goal[-1][0] is not goal[0] or path_to_goal[-1][1] is not goal[1]) and (
+            self.get_shingle_state(goal[0], goal[1]) is not ShingleStatus.INSTALLED or self.get_shingle_state(goal[0], goal[1]) is not ShingleStatus.PLACED): 
             neighbors = []
             for point in frontier_path:
                 if self.is_neighbor(path_to_goal[-1][0:2], point):
@@ -962,7 +963,7 @@ class Inchworm():
             for adjacent in neighbors:
                 # rospy.loginfo(f"adjacent is {adjacent}")
 
-                if (adjacent[2] + (next_best_tile[1] - point[1])/2) < next_best_tile[2]:
+                if adjacent[2]  < next_best_tile[2]:
                     next_best_tile = adjacent
                     
             # rospy.loginfo(f"best tile is {next_best_tile}")
