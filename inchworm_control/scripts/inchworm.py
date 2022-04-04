@@ -114,7 +114,8 @@ class Inchworm:
       Neighbors.RIGHT:  [Poses.RIGHT_HOVER, Poses.RIGHT_LIFT, Poses.RIGHT_DOWN],
       Neighbors.UPPER_RIGHT:  [Poses.UPPER_RIGHT_HOVER, Poses.UPPER_RIGHT_LIFT, Poses.UPPER_RIGHT_DOWN],
       Neighbors.UPPER_LEFT:  [Poses.UPPER_LEFT_HOVER, Poses.UPPER_LEFT_LIFT, Poses.UPPER_LEFT_DOWN],
-      Neighbors.LEFT:  [Poses.LEFT_HOVER, Poses.LEFT_LIFT, Poses.LEFT_DOWN]
+      Neighbors.LEFT:  [Poses.LEFT_HOVER, Poses.LEFT_LIFT, Poses.LEFT_DOWN],
+      Neighbors.NONE: [Poses.STRAIGHT, Poses.STRAIGHT, Poses.STRAIGHT]
     }
 
 
@@ -426,7 +427,7 @@ class Inchworm:
     roof_idx = shingle_idx #will change later, Eli is doing the roof->shingle math
 
     #go to shingle
-    if (self.lastNeighbor != iw.Neighbors.NONE):
+    if (self.lastNeighbor != Inchworm.Neighbors.NONE):
       poses = self.mapNeighborToPoses.get(self.lastNeighbor)
       #hover above last place
       self. moveTo(poses[0], 1.0)
@@ -451,7 +452,7 @@ class Inchworm:
   #THIS IS JUST FOR MOVING AROUND ROOF, NOT PICKING UP SHINGLES
   def move(self, neighbor):
    
-    if (self.lastNeighbor != iw.Neighbors.NONE):
+    if (self.lastNeighbor != Inchworm.Neighbors.NONE):
       poses = self.mapNeighborToPoses.get(self.lastNeighbor)
       #hover above last place
       self. moveTo(poses[0], 1.0)
@@ -483,32 +484,6 @@ if __name__ == "__main__":
 
   print(iw.getAdjacentShingleIndexes(12))
 
-  straight = Inchworm.Poses.STRAIGHT
-  upperLeftDown = Inchworm.Poses.UPPER_LEFT_DOWN
-  upperLeftHover = Inchworm.Poses.UPPER_LEFT_HOVER
-  upperLeftLift = Inchworm.Poses.UPPER_LEFT_LIFT
-
-  upperRightDown = Inchworm.Poses.UPPER_RIGHT_DOWN
-  upperRightHover = Inchworm.Poses.UPPER_RIGHT_HOVER
-  upperRightLift = Inchworm.Poses.UPPER_RIGHT_LIFT
-
-  rightDown = Inchworm.Poses.RIGHT_DOWN
-  rightHover = Inchworm.Poses.RIGHT_HOVER
-  rightLift = Inchworm.Poses.RIGHT_LIFT
-
-  lowerRightDown = Inchworm.Poses.BOTTOM_RIGHT_DOWN
-  lowerRightHover = Inchworm.Poses.BOTTOM_RIGHT_HOVER
-  lowerRightLift = Inchworm.Poses.BOTTOM_RIGHT_LIFT
-
-  lowerLeftDown = Inchworm.Poses.BOTTOM_LEFT_DOWN
-  lowerLeftHover = Inchworm.Poses.BOTTOM_LEFT_HOVER
-  lowerLeftLift = Inchworm.Poses.BOTTOM_LEFT_LIFT
-
-  leftDown = Inchworm.Poses.LEFT_DOWN
-  leftHover = Inchworm.Poses.LEFT_HOVER
-  leftLift = Inchworm.Poses.LEFT_LIFT
-
-  print("test new functions")
   print("right")
   iw.move(iw.Neighbors.RIGHT)
   print("upper left")
@@ -518,46 +493,8 @@ if __name__ == "__main__":
   print("upper left")
   iw.move(iw.Neighbors.UPPER_LEFT)
 
-  print("PAUSE")
-
-  rospy.sleep(20)
   print("grab left")
-  iw.pickupShingle()
+  iw.pickupShingle(6, iw.Neighbors.LEFT)
+  
 
-  rospy.sleep(10)
-
-  print("right")
-  iw.moveTo(rightLift, 5.0)
-  iw.moveTo(rightHover, 1.0)
-  iw.moveTo(rightDown, 1.0)
-  print("swap")
-  iw.swapFeet()
-  print("upper left")
-  iw.moveTo(leftHover, 1.0)
-  iw.moveTo(leftLift, 1.5)
-  rospy.sleep(1.0)
-  iw.moveTo(upperLeftLift, 6.0)
-  iw.moveTo(upperLeftHover, 1.5)
-  iw.moveTo(upperLeftDown, 1.0)
-  print("swap")
-  iw.swapFeet()
-  print("right")
-  iw.moveTo(lowerRightHover, 1.0)
-  iw.moveTo(lowerRightLift, 1.5)
-  rospy.sleep(1.0)
-  iw.moveTo(rightLift, 5.0)
-  iw.moveTo(rightHover, 1.0)
-  iw.moveTo(rightDown, 1.0)
-  print("swap")
-  iw.swapFeet()
-  print("lower left")
-  iw.moveTo(leftHover, 1.0)
-  iw.moveTo(leftLift, 1.5)
-  rospy.sleep(1.0)
-  iw.moveTo(lowerLeftLift, 6.0)
-  iw.moveTo(lowerLeftHover, 1.0)
-  iw.moveTo(lowerLeftDown, 1.0)
-  print("swap")
-  iw.swapFeet()
-  print("straighten")
-  iw.moveTo(straight, 10.0)
+ 
