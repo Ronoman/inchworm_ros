@@ -153,6 +153,8 @@ class Inchworm:
     # State subscribers
     rospy.Subscriber("/active_mates", MateList, self.mateCB)
 
+    rospy.sleep(0.25)
+
     # self.mag_state_pub = rospy.Publisher()
 
     print("Disabling all mates...")
@@ -160,7 +162,7 @@ class Inchworm:
 
     # This shouldn't disable any mates, and should enable mates adjacent to and including the starting shingle.
     print("Enabling starting point mates...")
-    self.updateSuppressedMates(-9999999999, self.on_shingle)
+    self.updateSuppressedMates(-9999999999, self.coord_to_idx(self.on_coord, self.roof_width))
 
     print(f"Initialize inchworm class for inchworm {self.idx}.")
 
@@ -228,25 +230,9 @@ class Inchworm:
 
     self.planner.run_quintic_traj(angles, time)
 
-  def roofToShingleIndex(self, idx):
-    # grab the matelist
-    # we have the roof indexes we care about
-    # grab the roof indexes as the male end of the mate, shingle is the female end of mate
-    # return shingles
-
-
-    # what do I need to make this happen?
-    #     store the last mate message somewhere accessible
-
-    for i,mate in enumerate(msg.male):
-      # If my index is in the string, we're mated to a shingle
-      if f"roof0_{idx}" in mate:
-        shingle = int(msg.female[i][-1])
-    pass
-
   def swapMagnet(self, turnOff, turnOn):
     # Find all shingle indices adjacent to and including currently_on and going_to.
-    adj_current = self.getAdjacentShingleIndexes(self.on_shingle) + [self.on_shingle] if self.on_shingle > -1 else []
+    adj_current = self.getAdjacentShingleIndexes(self.idx_to_coord(self.on_shingle, self.roof_width)) + [self.on_shingle] if self.on_shingle > -1 else []
 
    
 
@@ -305,6 +291,7 @@ class Inchworm:
     Callback for active_mate messages. Used to determine where the robot is currently
     '''
 
+    self.last_mate_msg = msg
     
     # For all iw_root_N in the mates
     for i,mate in enumerate(msg.male):
@@ -329,6 +316,7 @@ class Inchworm:
                 self.on_coord = self.idx_to_coord(roof_mate_idx, self.roof_width)
                 print(f"Robot on coord {self.on_coord}")
 
+                return
 
   def idx_to_coord(self, index, width):
     return (index % width, math.floor(index / width))
@@ -336,32 +324,55 @@ class Inchworm:
   def coord_to_idx(self, coord, width):
     return width*coord[1] + coord[0]
 
-  def getAdjacentShingleIndexes(self, relative_to):
+  def getAdjacentShingleIndexes(self, roof_coord):
     '''
     Returns a list of shingle indexes that are adjacent to the robot. Used to determine which mates to disable
+    This function uses self.on_coord, looks up adjacent roof indexes, then finds shingles that are attached to those roof mount points.
     '''
     
     EVEN_ROW_N_LOOKUP = [(1, 0), (1, -1), (0, -1), (-1, 0), (0, 1), (1, 1)]
     ODD_ROW_N_LOOKUP = [(1, 0), (0, -1), (-1, -1), (-1, 0), (-1, 1), (0, 1)]
 
-    # Determine the shingle coords of the relative_to position
-    coord = self.idx_to_coord(relative_to, self.roof_width)
+    # The coordinate we look up relative to is the roof coordinate that the inchworm is on
 
     pair_offsets = []
 
-    if coord[1] % 2 == 0:
+    # Determine which list to lookup from, based on whether this inchworm is on an even or odd row
+    if roof_coord[1] % 2 == 0:
       pair_offsets = EVEN_ROW_N_LOOKUP
     else:
       pair_offsets = ODD_ROW_N_LOOKUP
 
     neighbor_coords = []
 
+    # If the coordinate is in bounds, append it to the list
     for pair in pair_offsets:
-      adj_coord = (coord[0] + pair[0], coord[1] + pair[1])
+      adj_coord = (roof_coord[0] + pair[0], roof_coord[1] + pair[1])
       if adj_coord[0] >= 0 and adj_coord[0] < self.roof_width and adj_coord[1] >= 0 and adj_coord[1] < self.roof_height:
         neighbor_coords.append(adj_coord)
 
-    return [self.coord_to_idx(coord, self.roof_width) for coord in neighbor_coords]
+    # Convert all adjacent coordinates into indexes, so that we can lookup into the mate message
+    roof_indexes = [self.coord_to_idx(coord, self.roof_width) for coord in neighbor_coords]
+
+    # Shingle indexes attached to the roof_indexes above
+    shingle_indexes = []
+
+    while self.last_mate_msg is None:
+      rospy.sleep(0.1)
+
+    last_mate = self.last_mate_msg
+    for idx in roof_indexes:
+      for i,mate in enumerate(last_mate.male):
+        # If we find the corresponding roof mate point in the male list, lookup the shingle index and add it to the output list
+        if idx == int(mate.split("::")[-1]):
+          shingle_idx = int(last_mate.female[i].split("::")[1].split("_")[-1])
+          shingle_indexes.append(shingle_idx)
+
+    print(f"Shingle indexes adjacent to roof coord {roof_coord}:")
+    for idx in shingle_indexes:
+      print(f"\t{idx}")
+
+    return shingle_indexes
 
   def updateSuppressedMates(self, currently_on, going_to):
     '''
@@ -370,8 +381,8 @@ class Inchworm:
     '''
     
     # Find all shingle indices adjacent to and including currently_on and going_to.
-    adj_current = self.getAdjacentShingleIndexes(currently_on) + [currently_on] if currently_on > -1 else []
-    adj_going   = self.getAdjacentShingleIndexes(going_to) + [going_to]
+    adj_current = self.getAdjacentShingleIndexes(self.idx_to_coord(currently_on, self.roof_width)) + [currently_on] if currently_on > -1 else []
+    adj_going   = self.getAdjacentShingleIndexes(self.idx_to_coord(going_to, self.roof_width)) + [going_to]
 
     iw_bot = ["inchworm", f"inchworm_description_{self.idx}", f"iw_root_{self.idx}"]
     iw_top = ["inchworm", f"inchworm_description_{self.idx}", f"iw_foot_top_{self.idx}"]
@@ -414,7 +425,7 @@ class Inchworm:
     roof = ["inchworm", f"roof_description_0", f"roof_0", f"male_{roof_idx}"]
 
     # Find all shingle indices adjacent to and including currently_on and going_to.
-    adj_current = self.getAdjacentShingleIndexes(self.on_shingle) + [self.on_shingle] if self.on_shingle > -1 else []
+    adj_current = self.getAdjacentShingleIndexes(self.idx_to_coord(self.on_shingle, self.roof_width)) + [self.on_shingle] if self.on_shingle > -1 else []
     
     req = SuppressMateRequest()
     req.suppress = True
@@ -426,9 +437,6 @@ class Inchworm:
 
     req.scoped_male = roof
     self.mate_suppress_proxy(req)
-
-
-
 
   def pickupShingle(self, shingle_idx, neighbor):
     roof_idx = shingle_idx #will change later, Eli is doing the roof->shingle math
@@ -491,7 +499,7 @@ if __name__ == "__main__":
   iw = Inchworm(idx=0)
   rospy.sleep(1)
 
-  print(iw.getAdjacentShingleIndexes(12))
+  print(iw.getAdjacentShingleIndexes(iw.idx_to_coord(12, iw.roof_width)))
 
   print("right")
   iw.move(iw.Neighbors.RIGHT)
