@@ -108,6 +108,16 @@ class Inchworm:
     Neighbors.BOTTOM_LEFT: Neighbors.UPPER_RIGHT
   }
 
+  mapNeighborToPoses = {
+      Neighbors.BOTTOM_LEFT: [Poses.BOTTOM_LEFT_HOVER, Poses.BOTTOM_LEFT_LIFT, Poses.BOTTOM_LEFT_DOWN],
+      Neighbors.BOTTOM_RIGHT:  [Poses.BOTTOM_RIGHT_HOVER, Poses.BOTTOM_RIGHT_LIFT, Poses.BOTTOM_RIGHT_DOWN],
+      Neighbors.RIGHT:  [Poses.RIGHT_HOVER, Poses.RIGHT_LIFT, Poses.RIGHT_DOWN],
+      Neighbors.UPPER_RIGHT:  [Poses.UPPER_RIGHT_HOVER, Poses.UPPER_RIGHT_LIFT, Poses.UPPER_RIGHT_DOWN],
+      Neighbors.UPPER_LEFT:  [Poses.UPPER_LEFT_HOVER, Poses.UPPER_LEFT_LIFT, Poses.UPPER_LEFT_DOWN],
+      Neighbors.LEFT:  [Poses.LEFT_HOVER, Poses.LEFT_LIFT, Poses.LEFT_DOWN]
+    }
+
+
   def __init__(self, idx=0):
     self.idx = idx
 
@@ -128,7 +138,7 @@ class Inchworm:
     #for higher abstraction, last neighbor sent
     self.lastNeighbor = self.Neighbors.NONE
     # The roof coordinate that the robot is currently on. Roof idx != shingle idx
-    self.on_coord = self.idx_to_coord(self.idx)
+    self.on_coord = self.idx_to_coord(self.idx, self.roof_width)
 
     # Most recent mate callback. Used to inspect current shingle config
     self.last_mate_msg = None
@@ -238,7 +248,6 @@ class Inchworm:
         shingle = int(msg.female[i][-1])
     pass
 
-
   def swapMagnet(self, turnOff, turnOn):
     # Find all shingle indices adjacent to and including currently_on and going_to.
     adj_current = self.getAdjacentShingleIndexes(self.on_shingle) + [self.on_shingle] if self.on_shingle > -1 else []
@@ -314,8 +323,6 @@ class Inchworm:
           #self.updateSuppressedMates(self.on_shingle, on_shingle)
           print(f"before: {self.on_shingle} after: {on_shingle}")
           self.on_shingle = on_shingle
-
-  
           
   def idx_to_coord(self, index, width):
     return (index % width, math.floor(index / width))
@@ -394,18 +401,58 @@ class Inchworm:
 
     req.suppress = False
 
-  def move(self, neighbor):
-    mapToPoses = {
-      iw.Neighbors.BOTTOM_LEFT: [iw.Poses.BOTTOM_LEFT_HOVER, iw.Poses.BOTTOM_LEFT_LIFT, iw.Poses.BOTTOM_LEFT_DOWN],
-      iw.Neighbors.BOTTOM_RIGHT:  [iw.Poses.BOTTOM_RIGHT_HOVER, iw.Poses.BOTTOM_RIGHT_LIFT, iw.Poses.BOTTOM_RIGHT_DOWN],
-      iw.Neighbors.RIGHT:  [iw.Poses.RIGHT_HOVER, iw.Poses.RIGHT_LIFT, iw.Poses.RIGHT_DOWN],
-      iw.Neighbors.UPPER_RIGHT:  [iw.Poses.UPPER_RIGHT_HOVER, iw.Poses.UPPER_RIGHT_LIFT, iw.Poses.UPPER_RIGHT_DOWN],
-      iw.Neighbors.UPPER_LEFT:  [iw.Poses.UPPER_LEFT_HOVER, iw.Poses.UPPER_LEFT_LIFT, iw.Poses.UPPER_LEFT_DOWN],
-      iw.Neighbors.LEFT:  [iw.Poses.LEFT_HOVER, iw.Poses.LEFT_LIFT, iw.Poses.LEFT_DOWN]
-    }
+  def popShingle(self, shingle_idx, roof_idx):
+    shingle = ["inchworm", f"shingle_description_{shingle_idx}", f"shingle_{shingle_idx}"]
+    roof = ["inchworm", f"roof_description_0", f"roof_0", f"male_{roof_idx}"]
 
+    # Find all shingle indices adjacent to and including currently_on and going_to.
+    adj_current = self.getAdjacentShingleIndexes(self.on_shingle) + [self.on_shingle] if self.on_shingle > -1 else []
+    
+    req = SuppressMateRequest()
+    req.suppress = True
+
+    
+    print(f"\tSuppressing shingle {shingle_idx}")
+
+    req.scoped_female = shingle
+
+    req.scoped_male = roof
+    self.mate_suppress_proxy(req)
+
+
+
+
+  def pickupShingle(self, shingle_idx, neighbor):
+    roof_idx = shingle_idx #will change later, Eli is doing the roof->shingle math
+
+    #go to shingle
     if (self.lastNeighbor != iw.Neighbors.NONE):
-      poses = mapToPoses.get(self.lastNeighbor)
+      poses = self.mapNeighborToPoses.get(self.lastNeighbor)
+      #hover above last place
+      self. moveTo(poses[0], 1.0)
+      #lift above last place
+      self.moveTo(poses[1], 1.0)
+      rospy.sleep(1.0)
+      #grab the last place
+      #lift above the last place
+    poses = self.mapNeighborToPoses.get(neighbor)
+
+    #go to lift above next place
+    self.moveTo(poses[1], 7.0)
+    #hover above next place
+    self.moveTo(poses[0], 1.0)
+    #plant foot on shingle
+    self.moveTo(poses[2], 1.0)
+    self.popShingle(self, shingle_idx, roof_idx)
+    #move foot up
+    self.moveTo(poses[0], 1.0)
+    self.moveTo(poses[1], 1.0)
+
+  #THIS IS JUST FOR MOVING AROUND ROOF, NOT PICKING UP SHINGLES
+  def move(self, neighbor):
+   
+    if (self.lastNeighbor != iw.Neighbors.NONE):
+      poses = self.mapNeighborToPoses.get(self.lastNeighbor)
       #hover above last place
       self. moveTo(poses[0], 1.0)
       #lift above last place
@@ -414,7 +461,7 @@ class Inchworm:
       #grab the last place
       #lift above the last place
 
-    poses = mapToPoses.get(neighbor)
+    poses = self.mapNeighborToPoses.get(neighbor)
     #go to lift above next place
     self.moveTo(poses[1], 7.0)
     #hover above next place
@@ -468,8 +515,14 @@ if __name__ == "__main__":
   iw.move(iw.Neighbors.UPPER_LEFT)
   print("right")
   iw.move(iw.Neighbors.RIGHT)
-  print("lower left")
-  iw.move(iw.Neighbors.BOTTOM_LEFT)
+  print("upper left")
+  iw.move(iw.Neighbors.UPPER_LEFT)
+
+  print("PAUSE")
+
+  rospy.sleep(20)
+  print("grab left")
+  iw.pickupShingle()
 
   rospy.sleep(10)
 
