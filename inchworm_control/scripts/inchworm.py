@@ -112,6 +112,12 @@ class Inchworm:
     # Index of shingle the robot is on. Updated by mateCB from Magnet Sim
     self.on_shingle = self.idx
 
+    # The roof coordinate that the robot is currently on. Roof idx != shingle idx
+    self.on_coord = self.idx_to_coord(self.idx)
+
+    # Most recent mate callback. Used to inspect current shingle config
+    self.last_mate_msg = None
+
     # Suppression service proxy
     rospy.wait_for_service("/suppress_mate")
     self.mate_suppress_proxy = rospy.ServiceProxy("/suppress_mate", SuppressMate)
