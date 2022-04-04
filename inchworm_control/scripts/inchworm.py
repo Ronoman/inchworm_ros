@@ -114,7 +114,8 @@ class Inchworm:
       Neighbors.RIGHT:  [Poses.RIGHT_HOVER, Poses.RIGHT_LIFT, Poses.RIGHT_DOWN],
       Neighbors.UPPER_RIGHT:  [Poses.UPPER_RIGHT_HOVER, Poses.UPPER_RIGHT_LIFT, Poses.UPPER_RIGHT_DOWN],
       Neighbors.UPPER_LEFT:  [Poses.UPPER_LEFT_HOVER, Poses.UPPER_LEFT_LIFT, Poses.UPPER_LEFT_DOWN],
-      Neighbors.LEFT:  [Poses.LEFT_HOVER, Poses.LEFT_LIFT, Poses.LEFT_DOWN]
+      Neighbors.LEFT:  [Poses.LEFT_HOVER, Poses.LEFT_LIFT, Poses.LEFT_DOWN],
+      Neighbors.NONE: [Poses.STRAIGHT, Poses.STRAIGHT, Poses.STRAIGHT]
     }
 
 
@@ -129,15 +130,15 @@ class Inchworm:
     # 0 is bottom foot, 1 is top foot
     self.foot_down = 0
 
-    # Index of shingle the robot is on. Updated by mateCB from Magnet Sim
-    self.on_shingle = self.idx
+    # Index of shingle the robot is on. Updated by mateCB from Magnet Sim.
+    self.on_shingle = -1
 
     #position on the roof of the robot
     #self.position = self.idx
 
     #for higher abstraction, last neighbor sent
     self.lastNeighbor = self.Neighbors.NONE
-    # The roof coordinate that the robot is currently on. Roof idx != shingle idx
+    # The roof coordinate that the robot is currently on. Roof idx != shingle idx. Updated by mateCB
     self.on_coord = self.idx_to_coord(self.idx, self.roof_width)
 
     # Most recent mate callback. Used to inspect current shingle config
@@ -163,8 +164,7 @@ class Inchworm:
 
     print(f"Initialize inchworm class for inchworm {self.idx}.")
 
-  # Transform stuff
-  def getTransform(frame_from, frame_to, buffer, listener):
+  def getTransform(frame_from, frame_to, buffer):
       have_transform = False
       trans = None
 
@@ -195,7 +195,6 @@ class Inchworm:
       quat = quaternion_from_euler(roll, pitch, yaw)
 
       return quat
-  # Transform stuff done
 
   def suppressAll(self):
     '''
@@ -226,11 +225,8 @@ class Inchworm:
       newPose = self.mapPoses.get(pose)
 
     angles = self.jointMap.get(newPose)
-    #print(angles)
-
 
     self.planner.run_quintic_traj(angles, time)
-    #return when done?
 
   def roofToShingleIndex(self, idx):
     # grab the matelist
@@ -315,15 +311,26 @@ class Inchworm:
     for i,mate in enumerate(msg.male):
       # If my index is in the string, we're mated to a shingle
       if f"inchworm_description_{self.idx}" in mate:
-        on_shingle = int(msg.female[i][-1])
+        # Fully scoped shingle names come in this format:
+        # inchworm::shingle_description_{idx}::shingle_{idx}::1
+        # Following line is to extract the first idx.
+        on_shingle = int(msg.female[i].split("::")[1].split("_")[-1])
 
         # If the robot has moved, trigger an update on suppressed mates
         if not on_shingle == self.on_shingle:
-          # TODO: Finish the logic here (should work)
-          #self.updateSuppressedMates(self.on_shingle, on_shingle)
-          print(f"before: {self.on_shingle} after: {on_shingle}")
-          self.on_shingle = on_shingle
-          
+          # Check if shingle is attached to roof
+          for j,mate in enumerate(msg.female):
+            if f"shingle_description_{on_shingle}" in mate:
+              male_mate = msg.male[j]
+              if f"roof_description" in male_mate:
+                # Shingle is on the roof. Update on_shingle and on_coord
+                print(f"before: {self.on_shingle} after: {on_shingle}")
+                self.on_shingle = on_shingle
+                roof_mate_idx = int(msg.male[j].split("::")[-1])
+                self.on_coord = self.idx_to_coord(roof_mate_idx, self.roof_width)
+                print(f"Robot on coord {self.on_coord}")
+
+
   def idx_to_coord(self, index, width):
     return (index % width, math.floor(index / width))
 
@@ -426,7 +433,7 @@ class Inchworm:
     roof_idx = shingle_idx #will change later, Eli is doing the roof->shingle math
 
     #go to shingle
-    if (self.lastNeighbor != iw.Neighbors.NONE):
+    if (self.lastNeighbor != Inchworm.Neighbors.NONE):
       poses = self.mapNeighborToPoses.get(self.lastNeighbor)
       #hover above last place
       self. moveTo(poses[0], 1.0)
@@ -451,7 +458,7 @@ class Inchworm:
   #THIS IS JUST FOR MOVING AROUND ROOF, NOT PICKING UP SHINGLES
   def move(self, neighbor):
    
-    if (self.lastNeighbor != iw.Neighbors.NONE):
+    if (self.lastNeighbor != Inchworm.Neighbors.NONE):
       poses = self.mapNeighborToPoses.get(self.lastNeighbor)
       #hover above last place
       self. moveTo(poses[0], 1.0)

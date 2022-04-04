@@ -20,6 +20,8 @@ class TrajectoryPlanner:
 
     self.current_joint_state = None
 
+    rospy.sleep(0.25)
+
   def jointCB(self, msg):
     self.current_joint_state = msg
 
@@ -114,6 +116,9 @@ class TrajectoryPlanner:
     int num_pts    : The number of points to interpolate for the joint trajectory.
     bool wait      : Whether this function should block through the trajectory execution or not.
     '''
+
+    while self.current_joint_state is None:
+      rospy.sleep(0.1)
 
     last_states = self.current_joint_state
 
