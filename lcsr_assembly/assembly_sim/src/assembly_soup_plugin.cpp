@@ -48,15 +48,15 @@ namespace assembly_sim
 
   bool AssemblySoup::SuppressMateCallback(assembly_msgs::SuppressMate::Request& req, assembly_msgs::SuppressMate::Response& res)
   {
-    gzmsg<<"Request to set suppression to "<<req.suppress<<" for mate: "<<std::endl;
-    gzmsg<<" Male: "<<std::endl;
-    for(auto &name : req.scoped_male) {
-        gzmsg<<"  - "<<name<<std::endl;
-    }
-    gzmsg<<" Female: "<<std::endl;
-    for(auto &name : req.scoped_female) {
-        gzmsg<<"  - "<<name<<std::endl;
-    }
+    // gzmsg<<"Request to set suppression to "<<req.suppress<<" for mate: "<<std::endl;
+    // gzmsg<<" Male: "<<std::endl;
+    // for(auto &name : req.scoped_male) {
+    //     gzmsg<<"  - "<<name<<std::endl;
+    // }
+    // gzmsg<<" Female: "<<std::endl;
+    // for(auto &name : req.scoped_female) {
+    //     gzmsg<<"  - "<<name<<std::endl;
+    // }
 
     // Must have at least a parent model and child link
     if(req.scoped_male.size() < 2) {
@@ -174,10 +174,10 @@ namespace assembly_sim
 
   bool AssemblySoup::SuppressLinkCallback(assembly_msgs::SuppressLink::Request& req, assembly_msgs::SuppressLink::Response& res)
   {
-    gzmsg<<"Request to set suppression to "<<req.suppress<<" for link: "<<std::endl;
-    for(auto &name : req.scoped_link) {
-        gzmsg<<" - "<<name<<std::endl;
-    }
+    // gzmsg<<"Request to set suppression to "<<req.suppress<<" for link: "<<std::endl;
+    // for(auto &name : req.scoped_link) {
+    //     gzmsg<<" - "<<name<<std::endl;
+    // }
 
     // Must have at least a parent model and child link
     if(req.scoped_link.size() < 2) {
@@ -235,7 +235,7 @@ namespace assembly_sim
       {
         if(req.suppress)
         {
-          gzwarn << "Suppress Mate - found matching mate for: " << desc << std::endl;
+          gzwarn << "Suppress Link - found matching mate for: " << desc << std::endl;
           mate->suppressMate(true);
           res.suppressed = true;
 
@@ -243,7 +243,7 @@ namespace assembly_sim
         }
         else
         {
-          gzwarn << "Unsuppress Mate - found matching mate for: " << desc << std::endl;
+          gzwarn << "Unsuppress Link - found matching mate for: " << desc << std::endl;
           mate->suppressMate(false);
           res.suppressed = false;
 
