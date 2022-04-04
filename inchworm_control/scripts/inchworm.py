@@ -69,6 +69,35 @@ class Inchworm:
     Poses.LEFT_LIFT: Poses.RIGHT_LIFT
   }
 
+  # Maps the Poses enum onto JointConstants (5-tuple of joint angles for a given pose)
+  POSE_JOINT_MAP = {
+    Poses.STRAIGHT: JointConstants.straight,
+
+    Poses.UPPER_LEFT_HOVER: JointConstants.upper_left,
+    Poses.UPPER_LEFT_DOWN: JointConstants.upper_left_down,
+    Poses.UPPER_LEFT_LIFT: JointConstants.upper_left_lift,
+
+    Poses.UPPER_RIGHT_HOVER: JointConstants.upper_right,
+    Poses.UPPER_RIGHT_DOWN: JointConstants.upper_right_down,
+    Poses.UPPER_RIGHT_LIFT: JointConstants.upper_right_lift,
+
+    Poses.RIGHT_HOVER: JointConstants.right,
+    Poses.RIGHT_DOWN: JointConstants.right_down,
+    Poses.RIGHT_LIFT: JointConstants.right_lift,
+
+    Poses.BOTTOM_RIGHT_HOVER: JointConstants.bottom_right,
+    Poses.BOTTOM_RIGHT_DOWN: JointConstants.bottom_right_down,
+    Poses.BOTTOM_RIGHT_LIFT: JointConstants.bottom_right_lift,
+
+    Poses.BOTTOM_LEFT_HOVER: JointConstants.bottom_left,
+    Poses.BOTTOM_LEFT_DOWN: JointConstants.bottom_left_down,
+    Poses.BOTTOM_LEFT_LIFT: JointConstants.bottom_left_lift,
+
+    Poses.LEFT_HOVER: JointConstants.left,
+    Poses.LEFT_DOWN: JointConstants.left_down,
+    Poses.LEFT_LIFT: JointConstants.left_lift
+  }
+
   # Used to figure the direction of the previous neighbor. If the inchworm just went to Neighbors.LEFT, it came from Neighbors.RIGHT.
   LAST_NEIGHBOR_MAP = {
     Neighbors.LEFT: Neighbors.RIGHT,
