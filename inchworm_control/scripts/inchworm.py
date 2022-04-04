@@ -156,11 +156,11 @@ class Inchworm:
     # self.mag_state_pub = rospy.Publisher()
 
     print("Disabling all mates...")
-    #self.suppressAll()
+    self.suppressAll()
 
     # This shouldn't disable any mates, and should enable mates adjacent to and including the starting shingle.
     print("Enabling starting point mates...")
-    #self.updateSuppressedMates(-9999999999, self.on_shingle)
+    self.updateSuppressedMates(-9999999999, self.on_shingle)
 
     print(f"Initialize inchworm class for inchworm {self.idx}.")
 
@@ -247,9 +247,8 @@ class Inchworm:
   def swapMagnet(self, turnOff, turnOn):
     # Find all shingle indices adjacent to and including currently_on and going_to.
     adj_current = self.getAdjacentShingleIndexes(self.on_shingle) + [self.on_shingle] if self.on_shingle > -1 else []
-    
-    iw_bot = ["inchworm", f"inchworm_description_{self.idx}", f"iw_root_{self.idx}"]
-    iw_top = ["inchworm", f"inchworm_description_{self.idx}", f"iw_foot_top_{self.idx}"]
+
+   
 
     req = SuppressMateRequest()
     req.suppress = True
@@ -380,19 +379,6 @@ class Inchworm:
     req = SuppressMateRequest()
     req.suppress = True
 
-    # Unsuppress all in where you're going to
-    for idx in adj_going:
-      print(f"\tUnsuppressing shingle {idx}")
-      shingle = ["inchworm", f"shingle_description_{idx}", f"shingle_{idx}"]
-
-      req.scoped_female = shingle
-
-      req.scoped_male = iw_bot
-      self.mate_suppress_proxy(req)
-
-      req.scoped_male = iw_top
-      self.mate_suppress_proxy(req)
-
     # Suppress all in adjacent current
     for idx in adj_current:
       print(f"\tSuppressing shingle {idx}")
@@ -407,6 +393,21 @@ class Inchworm:
       self.mate_suppress_proxy(req)
 
     req.suppress = False
+
+    # Unsuppress all in where you're going to
+    for idx in adj_going:
+      print(f"\tUnsuppressing shingle {idx}")
+      shingle = ["inchworm", f"shingle_description_{idx}", f"shingle_{idx}"]
+
+      req.scoped_female = shingle
+
+      if (self.foot_down == 0):
+        req.scoped_male = iw_bot
+        self.mate_suppress_proxy(req)
+
+      elif (self.foot_down == 1):
+        req.scoped_male = iw_top
+        self.mate_suppress_proxy(req)
 
   def popShingle(self, shingle_idx, roof_idx):
     shingle = ["inchworm", f"shingle_description_{shingle_idx}", f"shingle_{shingle_idx}"]
@@ -475,7 +476,9 @@ class Inchworm:
     self.moveTo(poses[0], 1.0)
     #plant foot
     self.moveTo(poses[2], 1.0)
-    self.swapFeet()
+
+    if (neighbor != Inchworm.Neighbors.NONE):
+      self.swapFeet()
     
     self.lastNeighbor = self.transform.get(neighbor)
 
@@ -490,32 +493,6 @@ if __name__ == "__main__":
 
   print(iw.getAdjacentShingleIndexes(12))
 
-  straight = Inchworm.Poses.STRAIGHT
-  upperLeftDown = Inchworm.Poses.UPPER_LEFT_DOWN
-  upperLeftHover = Inchworm.Poses.UPPER_LEFT_HOVER
-  upperLeftLift = Inchworm.Poses.UPPER_LEFT_LIFT
-
-  upperRightDown = Inchworm.Poses.UPPER_RIGHT_DOWN
-  upperRightHover = Inchworm.Poses.UPPER_RIGHT_HOVER
-  upperRightLift = Inchworm.Poses.UPPER_RIGHT_LIFT
-
-  rightDown = Inchworm.Poses.RIGHT_DOWN
-  rightHover = Inchworm.Poses.RIGHT_HOVER
-  rightLift = Inchworm.Poses.RIGHT_LIFT
-
-  lowerRightDown = Inchworm.Poses.BOTTOM_RIGHT_DOWN
-  lowerRightHover = Inchworm.Poses.BOTTOM_RIGHT_HOVER
-  lowerRightLift = Inchworm.Poses.BOTTOM_RIGHT_LIFT
-
-  lowerLeftDown = Inchworm.Poses.BOTTOM_LEFT_DOWN
-  lowerLeftHover = Inchworm.Poses.BOTTOM_LEFT_HOVER
-  lowerLeftLift = Inchworm.Poses.BOTTOM_LEFT_LIFT
-
-  leftDown = Inchworm.Poses.LEFT_DOWN
-  leftHover = Inchworm.Poses.LEFT_HOVER
-  leftLift = Inchworm.Poses.LEFT_LIFT
-
-  print("test new functions")
   print("right")
   iw.move(iw.Neighbors.RIGHT)
   print("upper left")
@@ -525,46 +502,12 @@ if __name__ == "__main__":
   print("upper left")
   iw.move(iw.Neighbors.UPPER_LEFT)
 
-  print("PAUSE")
+  #test things
+  print("straight")
+  iw.move(Inchworm.Neighbors.NONE)
 
-  rospy.sleep(20)
-  print("grab left")
-  iw.pickupShingle()
+  #print("grab left")
+  #iw.pickupShingle(6, iw.Neighbors.LEFT)
+  
 
-  rospy.sleep(10)
-
-  print("right")
-  iw.moveTo(rightLift, 5.0)
-  iw.moveTo(rightHover, 1.0)
-  iw.moveTo(rightDown, 1.0)
-  print("swap")
-  iw.swapFeet()
-  print("upper left")
-  iw.moveTo(leftHover, 1.0)
-  iw.moveTo(leftLift, 1.5)
-  rospy.sleep(1.0)
-  iw.moveTo(upperLeftLift, 6.0)
-  iw.moveTo(upperLeftHover, 1.5)
-  iw.moveTo(upperLeftDown, 1.0)
-  print("swap")
-  iw.swapFeet()
-  print("right")
-  iw.moveTo(lowerRightHover, 1.0)
-  iw.moveTo(lowerRightLift, 1.5)
-  rospy.sleep(1.0)
-  iw.moveTo(rightLift, 5.0)
-  iw.moveTo(rightHover, 1.0)
-  iw.moveTo(rightDown, 1.0)
-  print("swap")
-  iw.swapFeet()
-  print("lower left")
-  iw.moveTo(leftHover, 1.0)
-  iw.moveTo(leftLift, 1.5)
-  rospy.sleep(1.0)
-  iw.moveTo(lowerLeftLift, 6.0)
-  iw.moveTo(lowerLeftHover, 1.0)
-  iw.moveTo(lowerLeftDown, 1.0)
-  print("swap")
-  iw.swapFeet()
-  print("straighten")
-  iw.moveTo(straight, 10.0)
+ 
