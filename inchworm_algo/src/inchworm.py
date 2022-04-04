@@ -73,7 +73,7 @@ class Inchworm():
         self.top_foot_shingle_stat = top_foot_shingle_stat
         self.behavior = behavior
         self.roof_width = width
-        self.roof = [[ShingleStatus.UNINSTALLED] * height]* width
+        self.roof = [[ShingleStatus.UNINSTALLED for i in range(height)] for j in range(width)]
         for i in range(width):
             self.roof[i][0] = ShingleStatus.INSTALLED
         self.shingle_depot_pos = shingle_depot_pos
@@ -489,6 +489,19 @@ class Inchworm():
                         shingle_neighbors.append(n)
         return shingle_neighbors
 
+    def update_robot_roof(self, real_roof):
+
+        self.roof = [[None for i in range(len(real_roof.shingle_array))] for j in range(len(real_roof.shingle_array[0]))]
+
+        for ii, y in enumerate(real_roof.shingle_array):
+            for jj, x in enumerate(real_roof.shingle_array[ii]):
+                if x is not None:
+                    self.roof[jj][ii] = x.shingle_status
+                else:
+                    self.roof[jj][ii] = ShingleStatus.UNINSTALLED
+
+        pass
+
     def make_decision(self, real_roof):
         # rospy.loginfo(f"robot {self.id} has claimed tiles {self.claimed_pos}")
         # rospy.loginfo(f"robot {self.id} is in state {self.robot_state}")
@@ -504,18 +517,10 @@ class Inchworm():
             
 
             # TODO: change this, will require a working probing state and being able to read shingles
-            # Filip this is why you make the shingle map x then y, its not just used by the roof
             
             # rospy.loginfo(f"the roof before rebuild is {self.roof}")
 
-            self.roof = [[None for i in range(len(real_roof.shingle_array))] for j in range(len(real_roof.shingle_array[0]))]
-
-            for ii, y in enumerate(real_roof.shingle_array):
-                for jj, x in enumerate(real_roof.shingle_array[ii]):
-                    if x is not None:
-                        self.roof[jj][ii] = x.shingle_status
-                    else:
-                        self.roof[jj][ii] = ShingleStatus.UNINSTALLED
+            self.update_robot_roof(real_roof)
 
             # rospy.loginfo(f"the roof after rebuild is {self.roof}")
 
