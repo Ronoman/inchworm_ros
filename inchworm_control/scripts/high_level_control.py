@@ -19,5 +19,10 @@ def main():
 
     iws.append(iw)
 
+  iws[0].move(Inchworm.Neighbors.RIGHT)
+  iws[0].move(Inchworm.Neighbors.NONE)
+
+  rospy.spin()
+
 if __name__ == "__main__":
   main()

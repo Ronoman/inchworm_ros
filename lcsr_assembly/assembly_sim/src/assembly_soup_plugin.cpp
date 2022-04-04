@@ -620,8 +620,9 @@ namespace assembly_sim
       mate_msg.angular_error = mate->mate_error.rot.Norm();
 
       if(publish_active_mates_ and mate->state == Mate::MATED) {
-        mates_msg.female.push_back(mate->joint->GetParent()->GetScopedName());
-        mates_msg.male.push_back(mate->joint->GetChild()->GetScopedName());
+        // NEW: Mate point ID is included in the message
+        mates_msg.female.push_back((boost::format("%s::%d") %  mate->joint->GetParent()->GetScopedName() % mate->female_mate_point->id).str());
+        mates_msg.male.push_back((boost::format("%s::%d") % mate->joint->GetChild()->GetScopedName() % mate->male_mate_point->id).str());
         mates_msg.linear_error.push_back(mate_msg.linear_error);
         mates_msg.angular_error.push_back(mate_msg.angular_error);
 
