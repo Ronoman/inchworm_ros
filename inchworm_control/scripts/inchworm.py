@@ -233,22 +233,6 @@ class Inchworm:
     self.planner.run_quintic_traj(angles, time)
     #return when done?
 
-  def roofToShingleIndex(self, idx):
-    # grab the matelist
-    # we have the roof indexes we care about
-    # grab the roof indexes as the male end of the mate, shingle is the female end of mate
-    # return shingles
-
-
-    # what do I need to make this happen?
-    #     store the last mate message somewhere accessible
-
-    for i,mate in enumerate(msg.male):
-      # If my index is in the string, we're mated to a shingle
-      if f"roof0_{idx}" in mate:
-        shingle = int(msg.female[i][-1])
-    pass
-
   def swapMagnet(self, turnOff, turnOn):
     # Find all shingle indices adjacent to and including currently_on and going_to.
     adj_current = self.getAdjacentShingleIndexes(self.on_shingle) + [self.on_shingle] if self.on_shingle > -1 else []
