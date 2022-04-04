@@ -142,9 +142,9 @@ class Inchworm():
                 if in_bounds(next[0], next[1]):
                     shingle_index_order.append(next)
 
-        rospy.logwarn(f"length of shingle order {len(shingle_index_order)}")
-        print(shingle_index_order)
-        rospy.sleep(2)
+        # rospy.logwarn(f"length of shingle order {len(shingle_index_order)}")
+        # print(shingle_index_order)
+        
         return shingle_index_order
 
     def create_from_message(self, msg):
@@ -588,8 +588,15 @@ class Inchworm():
                     # Check if the top foot is next to the moving spot, if it is move the bottom foot otherwise move the top foot
                     if (self.is_neighbor(self.top_foot_position, shingel_moving_position)):
                         self.decide_on_movement_to_shingle(EE.BOTTOM_FOOT, self.valid_installed_foot_positions, real_roof)
-                    else:
+                    elif(self.is_neighbor(self.bottom_foot_position, shingel_moving_position)):
                          self.decide_on_movement_to_shingle(EE.TOP_FOOT, self.valid_installed_foot_positions, real_roof)
+
+                    # if neither foot is next to where it can move the shingle use the distance check (happens when the shingle needs to move to a row 2 rows above the inchworm)
+                    else:
+                        if Inchworm.dist(self.top_foot_position, shingel_moving_position) > Inchworm.dist(self.bottom_foot_position, shingel_moving_position):
+                            self.decide_on_movement_to_shingle(EE.TOP_FOOT, self.valid_installed_foot_positions, real_roof)
+                        else:
+                            self.decide_on_movement_to_shingle(EE.BOTTOM_FOOT, self.valid_installed_foot_positions, real_roof)
 
 
                     # if the inchworm is not installing a shingle, initate movement of the inchworm to the target
