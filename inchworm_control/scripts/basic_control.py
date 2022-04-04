@@ -22,11 +22,11 @@ def main():
 
       # Eli can have his radians, I can have degrees
       if (abs(pos) > 2.2):
-       pos = pos * pi / 180
+        pos = pos * pi / 180
 
       goals[i] = (pos)
 
-    planner.run_quintic_traj(goals, 5.0)
+    planner.run_quintic_traj(goals, 2.0)
 
 if __name__ == "__main__":
   main()

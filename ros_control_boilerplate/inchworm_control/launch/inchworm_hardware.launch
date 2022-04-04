@@ -29,7 +29,18 @@
     <remap from="joint_states" to="inchworm/joint_states" />
   </node>
 
+  <node pkg="tf" type="static_transform_publisher" name="world_to_iw" args="0 0 0 0 0 0 /world /iw_root 100"/> 
+
   <include file="$(find inchworm_moveit)/launch/move_group.launch" />
+
+  <node name="serial_interface" type="serial_node.py" pkg="rosserial_python">
+    <param name="port" value="/dev/ttyACM0" />
+    <param name="baud" value="115200" />
+  </node>
+
+  <!-- <node name="desired_pose_startup" type="desired_pose_startup.py" pkg="inchworm_hw_interface" /> -->
+
+  <node name="plotjuggler" type="plotjuggler" pkg="plotjuggler" />
 
   <node name="rviz" type="rviz" pkg="rviz" args="-d $(find inchworm_description)/rviz/inchworm_frames.rviz" />
 
