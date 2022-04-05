@@ -1,6 +1,7 @@
 from enum import Enum
 
 from inchworm_algo.msg import ShingleMsg
+import rospy
 # all x and y are in array coords currently
 
 
@@ -38,8 +39,6 @@ class Shingle():
     id = -1
     x_coord = -1
     y_coord = -1
-    neighbors_ids = [-1 * 6]
-    neighbors_status = [-1 * 6]
     on_frontier = False
     edge = EdgeStatus.NO_EDGE
     is_half_shingle = False
@@ -55,7 +54,7 @@ class Shingle():
         self.on_frontier = False
         self.is_half_shingle = is_half_shingle
         self.shingle_status = ShingleStatus.PLACED ## TODO: THIS IS MAGIC TO MAKE THE ALGO SIM WORK FOR NOW
-        self.neighbors_status = [0] * 6
+        self.neighbors_status = [ShingleStatus.UNINSTALLED] * 6
 
 
 
@@ -99,6 +98,10 @@ class Shingle():
     # n_location is a NeighborIndex
     # honestly not sure if we want to use this but it should only be used by the robot
     def update_neighbor(self, n_locatation, n_status):
+        if self.y_coord %2 == 0:
+            neighbor_location = (self.x_coord + self.EVEN_ROW_N_LOOKUP[n_locatation][0], self.y_coord + self.EVEN_ROW_N_LOOKUP[n_locatation][1])
+        else:
+            neighbor_location = (self.x_coord + self.ODD_ROW_N_LOOKUP[n_locatation][0], self.y_coord + self.ODD_ROW_N_LOOKUP[n_locatation][1])
         if self.neighbors_status[n_locatation] != ShingleStatus.INSTALLED:
             self.neighbors_status[n_locatation] = n_status
 
@@ -113,7 +116,15 @@ class Shingle():
         return location_status
 
     def convert_to_neighbor_index(self, coord):
-        return 1
+        for n in range(6):
+            if self.y_coord %2 == 0:
+                neighbor_location = (self.x_coord + self.EVEN_ROW_N_LOOKUP[n][0], self.y_coord + self.EVEN_ROW_N_LOOKUP[n][1])
+            else:
+                neighbor_location = (self.x_coord + self.ODD_ROW_N_LOOKUP[n][0], self.y_coord + self.ODD_ROW_N_LOOKUP[n][1])
+            if neighbor_location == coord:
+                return n
+
+
 
     def to_message(self):
         msg = ShingleMsg()

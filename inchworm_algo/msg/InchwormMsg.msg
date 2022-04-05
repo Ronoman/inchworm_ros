@@ -13,3 +13,4 @@ int8 roof_width
 int8[] shingle_depot_pos
 int8[] bottom_foot_valid_neighbors
 int8[] top_foot_valid_neighbors
+int8[] target

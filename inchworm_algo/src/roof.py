@@ -107,11 +107,11 @@ class Roof():
         return self.shingle_count
 
 
-    def update_shingle_neighbor(self, target_shingle_x, target_shingle_y, shingle_n_x, shingle_n_y, n_id, n_status):
-        # figure out what the neighbor is based on x, y 
-        target_shingle = self.shingle_array[target_shingle_y][target_shingle_x]
-        n_index = self.get_shingle_n_index(target_shingle_x, target_shingle_y, shingle_n_x, shingle_n_y)
-        target_shingle.update_neighbor(n_id, n_index, n_status)
+    # def update_shingle_neighbor(self, target_shingle_x, target_shingle_y, shingle_n_x, shingle_n_y, n_id, n_status):
+    #     # figure out what the neighbor is based on x, y 
+    #     target_shingle = self.shingle_array[target_shingle_y][target_shingle_x]
+    #     n_index = self.get_shingle_n_index(target_shingle_x, target_shingle_y, shingle_n_x, shingle_n_y)
+    #     target_shingle.update_neighbor(n_id, n_index, n_status)
         
 
     def spawn_depots(self, spawn_opposite_side):
