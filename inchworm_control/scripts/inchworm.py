@@ -90,6 +90,34 @@ class Inchworm:
       Neighbors.NONE: [Poses.STRAIGHT, Poses.STRAIGHT, Poses.STRAIGHT]
     }
 
+  POSE_JOINT_MAP = {
+    Poses.STRAIGHT: JointConstants.straight,
+
+    Poses.UPPER_LEFT_HOVER: JointConstants.upper_left,
+    Poses.UPPER_LEFT_DOWN: JointConstants.upper_left_down,
+    Poses.UPPER_LEFT_LIFT: JointConstants.upper_left_lift,
+
+    Poses.UPPER_RIGHT_HOVER: JointConstants.upper_right,
+    Poses.UPPER_RIGHT_DOWN: JointConstants.upper_right_down,
+    Poses.UPPER_RIGHT_LIFT: JointConstants.upper_right_lift,
+
+    Poses.RIGHT_HOVER: JointConstants.right,
+    Poses.RIGHT_DOWN: JointConstants.right_down,
+    Poses.RIGHT_LIFT: JointConstants.right_lift,
+
+    Poses.BOTTOM_RIGHT_HOVER: JointConstants.bottom_right,
+    Poses.BOTTOM_RIGHT_DOWN: JointConstants.bottom_right_down,
+    Poses.BOTTOM_RIGHT_LIFT: JointConstants.bottom_right_lift,
+
+    Poses.BOTTOM_LEFT_HOVER: JointConstants.bottom_left,
+    Poses.BOTTOM_LEFT_DOWN: JointConstants.bottom_left_down,
+    Poses.BOTTOM_LEFT_LIFT: JointConstants.bottom_left_lift,
+
+    Poses.LEFT_HOVER: JointConstants.left,
+    Poses.LEFT_DOWN: JointConstants.left_down,
+    Poses.LEFT_LIFT: JointConstants.left_lift
+  
+  }
 
   def __init__(self, idx=0):
     self.idx = idx
@@ -111,7 +139,7 @@ class Inchworm:
     #for higher abstraction, last neighbor sent
     self.lastNeighbor = self.Neighbors.NONE
     # The roof coordinate that the robot is currently on. Roof idx != shingle idx. Updated by mateCB
-    self.on_coord = self.idx_to_coord(self.idx, self.roof_width)
+    self.on_coord = self.idx_to_coord(self.idx)
 
     # Most recent mate callback. Used to inspect current shingle config
     self.last_mate_msg = None
@@ -134,25 +162,25 @@ class Inchworm:
 
     # This shouldn't disable any mates, and should enable mates adjacent to and including the starting shingle.
     rospy.loginfo("Enabling starting point mates...")
-    self.updateSuppressedMates(-9999999999, self.coord_to_idx(self.on_coord, self.roof_width))
+    self.updateSuppressedMates(-9999999999, self.coord_to_idx(self.on_coord))
 
     rospy.loginfo(f"Initialize inchworm class for inchworm {self.idx}.")
 
   ###################
   ###   HELPERS   ###
   ###################
-  def idx_to_coord(self, index, width):
-    return (index % width, math.floor(index / width))
+  def idx_to_coord(self, index):
+    return (index % self.width, math.floor(index / self.width))
 
-  def coord_to_idx(self, coord, width):
-    return width*coord[1] + coord[0]
+  def coord_to_idx(self, coord):
+    return self.width*coord[1] + coord[0]
 
   def getAdjacentShingleIndexes(self, roof_coord):
     '''
     Returns a list of shingle indexes that are adjacent to the robot. Used to determine which mates to disable
     This function uses self.on_coord, looks up adjacent roof indexes, then finds shingles that are attached to those roof mount points.
     '''
-    
+    #                    right   l right  l left   left    up left  up right
     EVEN_ROW_N_LOOKUP = [(1, 0), (1, -1), (0, -1), (-1, 0), (0, 1), (1, 1)]
     ODD_ROW_N_LOOKUP = [(1, 0), (0, -1), (-1, -1), (-1, 0), (-1, 1), (0, 1)]
 
@@ -175,7 +203,7 @@ class Inchworm:
         neighbor_coords.append(adj_coord)
 
     # Convert all adjacent coordinates into indexes, so that we can lookup into the mate message
-    roof_indexes = [self.coord_to_idx(coord, self.roof_width) for coord in neighbor_coords]
+    roof_indexes = [self.coord_to_idx(coord) for coord in neighbor_coords]
 
     # Shingle indexes attached to the roof_indexes above
     shingle_indexes = []
@@ -225,8 +253,8 @@ class Inchworm:
     '''
     
     # Find all shingle indices adjacent to and including currently_on and going_to.
-    adj_current = self.getAdjacentShingleIndexes(self.idx_to_coord(currently_on, self.roof_width)) + [currently_on] if currently_on > -1 else []
-    adj_going   = self.getAdjacentShingleIndexes(self.idx_to_coord(going_to, self.roof_width)) + [going_to]
+    adj_current = self.getAdjacentShingleIndexes(self.idx_to_coord(currently_on)) + [currently_on] if currently_on > -1 else []
+    adj_going   = self.getAdjacentShingleIndexes(self.idx_to_coord(going_to)) + [going_to]
 
     iw_bot = ["inchworm", f"inchworm_description_{self.idx}", f"iw_root_{self.idx}"]
     iw_top = ["inchworm", f"inchworm_description_{self.idx}", f"iw_foot_top_{self.idx}"]
@@ -266,9 +294,7 @@ class Inchworm:
 
   def swapMagnet(self, turnOff, turnOn):
     # Find all shingle indices adjacent to and including currently_on and going_to.
-    adj_current = self.getAdjacentShingleIndexes(self.idx_to_coord(self.on_shingle, self.roof_width)) + [self.on_shingle] if self.on_shingle > -1 else []
-
-   
+    adj_current = self.getAdjacentShingleIndexes(self.idx_to_coord(self.on_shingle)) + [self.on_shingle] if self.on_shingle > -1 else []
 
     req = SuppressMateRequest()
     req.suppress = True
@@ -325,7 +351,7 @@ class Inchworm:
                 self.on_shingle = on_shingle
                 roof_mate_idx = int(msg.male[j].split("::")[-1])
                 rospy.loginfo(f"Robot on roof index {roof_mate_idx}")
-                self.on_coord = self.idx_to_coord(roof_mate_idx, self.roof_width)
+                self.on_coord = self.idx_to_coord(roof_mate_idx)
                 rospy.loginfo(f"Robot on coord {self.on_coord}")
 
                 return
@@ -347,10 +373,11 @@ class Inchworm:
 
     self.planner.run_quintic_traj(angles, time)
 
-  def move(self, neighbor):
+  def move(self, neighbor, plantFoot=True):
     '''
     Moves the robot to an adjacent shingle. Will automatically swap feet, unless neighbor is NONE (robot stands straight up)
     '''
+    #if the inchworm is not straight up and down, move up from last position
     if (self.lastNeighbor != Inchworm.Neighbors.NONE):
       poses = Inchworm.NEIGHBOR_POSE_MAP.get(self.lastNeighbor)
       #hover above last place
@@ -369,10 +396,14 @@ class Inchworm:
     #plant foot
     self.moveTo(poses[2], 1.0)
 
-    if (neighbor != Inchworm.Neighbors.NONE):
-      self.swapFeet()
+    if (plantFoot):
+      if (neighbor != Inchworm.Neighbors.NONE):
+        self.swapFeet()
     
-    self.lastNeighbor = Inchworm.LAST_NEIGHBOR_MAP.get(neighbor)
+      self.lastNeighbor = Inchworm.LAST_NEIGHBOR_MAP.get(neighbor)
+    
+    else:
+      self.lastNeighbor = neighbor
 
   def swapFeet(self):
     '''
@@ -402,49 +433,102 @@ class Inchworm:
   ################
   ### SHINGLES ###
   ################
-  def popShingle(self, shingle_idx, roof_idx):
-    shingle = ["inchworm", f"shingle_description_{shingle_idx}", f"shingle_{shingle_idx}"]
-    roof = ["inchworm", f"roof_description_0", f"roof_0", f"male_{roof_idx}"]
+  def roofToShingle(self, roof_idx):
+    # Shingle indexes attached to the roof_indexes above
+    shingle_idx = []
 
-    # Find all shingle indices adjacent to and including currently_on and going_to.
-    adj_current = self.getAdjacentShingleIndexes(self.idx_to_coord(self.on_shingle, self.roof_width)) + [self.on_shingle] if self.on_shingle > -1 else []
-    
-    req = SuppressMateRequest()
-    req.suppress = True
+    while self.last_mate_msg is None:
+      rospy.sleep(0.1)
+
+    last_mate = self.last_mate_msg
+    for i,mate in enumerate(last_mate.male):
+      # If we find the corresponding roof mate point in the male list, lookup the shingle index and add it to the output list
+      if roof_idx == int(mate.split("::")[-1]):
+        shingle_idx = int(last_mate.female[i].split("::")[1].split("_")[-1])
+
+    return shingle_idx
+
+  def suppressShingle(self, shingle_idx):
+    shingle = ["inchworm", f"shingle_description_{shingle_idx}", f"shingle_{shingle_idx}"]
+    roof = ["inchworm", f"roof_description_0", f"roof_0"]
 
     
     rospy.loginfo(f"\tSuppressing shingle {shingle_idx}")
 
+    req = SuppressMateRequest()
+    req.suppress = True
     req.scoped_female = shingle
-
     req.scoped_male = roof
     self.mate_suppress_proxy(req)
 
-  def pickupShingle(self, shingle_idx, neighbor):
-    roof_idx = shingle_idx #will change later, Eli is doing the roof->shingle math
+  def unsupressShingle(self, shingle_idx, neighbor):
+    shingle = ["inchworm", f"shingle_description_{shingle_idx}", f"shingle_{shingle_idx}"]
+    roof = ["inchworm", f"roof_description_0", f"roof_0"]
 
-    #go to shingle
-    if (self.lastNeighbor != Inchworm.Neighbors.NONE):
-      poses = self.NEIGHBOR_POSE_MAP.get(self.lastNeighbor)
-      #hover above last place
-      self. moveTo(poses[0], 1.0)
-      #lift above last place
-      self.moveTo(poses[1], 1.0)
-      rospy.sleep(1.0)
-      #grab the last place
-      #lift above the last place
-    poses = self.NEIGHBOR_POSE_MAP.get(neighbor)
+    
+    rospy.loginfo(f"\tUnsuppressing shingle {shingle_idx}")
 
-    #go to lift above next place
-    self.moveTo(poses[1], 7.0)
-    #hover above next place
-    self.moveTo(poses[0], 1.0)
-    #plant foot on shingle
-    self.moveTo(poses[2], 1.0)
-    self.popShingle(self, shingle_idx, roof_idx)
-    #move foot up
-    self.moveTo(poses[0], 1.0)
-    self.moveTo(poses[1], 1.0)
+    req = SuppressMateRequest()
+    req.suppress = False
+    req.scoped_female = shingle
+    req.scoped_male = roof
+    self.mate_suppress_proxy(req)
+
+  def pickupShingle(self, neighbor):
+    #make sure robot doesn't grab a supporting shingle
+    if ((neighbor == Inchworm.Neighbors.BOTTOM_LEFT) or (neighbor == Inchworm.Neighbors.BOTTOM_RIGHT)):
+      print("Error: cannot grab shingle underneath the shingle foot is planted on")
+      return
+
+    #                    right   l right  l left   left    up left  up right
+    EVEN_ROW_N_LOOKUP = [(1, 0), (1, -1), (0, -1), (-1, 0), (0, 1), (1, 1)]
+    ODD_ROW_N_LOOKUP = [(1, 0), (0, -1), (-1, -1), (-1, 0), (-1, 1), (0, 1)]
+    
+
+    pair_offsets = []
+
+    # Determine which list to lookup from, based on whether this inchworm is on an even or odd row
+    if self.on_coord[1] % 2 == 0:
+      pair_offsets = EVEN_ROW_N_LOOKUP
+    else:
+      pair_offsets = ODD_ROW_N_LOOKUP
+    
+    pair = []
+    
+    if (neighbor == Inchworm.Neighbors.LEFT):
+      pair = pair_offsets[3]
+    elif (neighbor == Inchworm.Neighbors.UPPER_LEFT):
+      pair = pair_offsets[4]
+    elif (neighbor == Inchworm.Neighbors.UPPER_RIGHT):
+      pair = pair_offsets[5] 
+    elif (neighbor == Inchworm.Neighbors.RIGHT):
+      pair = pair_offsets[0]
+      
+    #grab the coord of the shingle you're going to grab
+    roof_coord = [self.on_coord[0] + pair[0], self.on_coord[1] + pair[1]]
+    roof_idx = self.coord_to_idx(roof_coord)
+    shingle_idx = self.roofToShingle(roof_idx)
+
+    # return if there's no shingle there
+    #move to that shingle
+    self.move(neighbor, False)
+    #pop that shingle off the roof
+    self.suppressShingle(shingle_idx)
+    #pull up & straighten bc ahhh (TODO: figure out a better thing to do)
+    self.move(Inchworm.Neighbors.NONE)
+
+  def placeShingle(self, neighbor):
+    #make sure robot doesn't try to place in supporting shingle place
+    if ((neighbor == Inchworm.Neighbors.BOTTOM_LEFT) or (neighbor == Inchworm.Neighbors.BOTTOM_RIGHT)):
+      print("Error: cannot place shingle underneath the shingle foot is planted on")
+      return
+    
+    #grab the coord of where you're trying to place
+    #  return if there's a shingle there
+    #move shingle to place point
+    #magnetize shingle to roof
+    #pull away
+    
 
 
 if __name__ == "__main__":
@@ -455,16 +539,12 @@ if __name__ == "__main__":
   iw = Inchworm(idx=0)
   rospy.sleep(1)
 
-  rospy.loginfo(iw.getAdjacentShingleIndexes(iw.idx_to_coord(12, iw.roof_width)))
+  rospy.loginfo(iw.getAdjacentShingleIndexes(iw.idx_to_coord(12)))
 
-  rospy.loginfo("right")
-  iw.move(iw.Neighbors.RIGHT)
-  rospy.loginfo("upper left")
-  iw.move(iw.Neighbors.UPPER_LEFT)
-  rospy.loginfo("right")
-  iw.move(iw.Neighbors.RIGHT)
-  rospy.loginfo("upper left")
-  iw.move(iw.Neighbors.UPPER_LEFT)
+  rospy.loginfo("upper right")
+  iw.move(iw.Neighbors.UPPER_RIGHT)
+  rospy.loginfo("pick up upper left")
+  iw.pickupShingle(iw.Neighbors.UPPER_LEFT)
 
   #test things
   rospy.loginfo("straight")
