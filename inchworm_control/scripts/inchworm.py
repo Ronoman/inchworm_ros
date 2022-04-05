@@ -170,10 +170,10 @@ class Inchworm:
   ###   HELPERS   ###
   ###################
   def idx_to_coord(self, index):
-    return (index % self.width, math.floor(index / self.width))
+    return (index % self.roof_width, math.floor(index / self.roof_width))
 
   def coord_to_idx(self, coord):
-    return self.width*coord[1] + coord[0]
+    return self.roof_width*coord[1] + coord[0]
 
   def getAdjacentShingleIndexes(self, roof_coord):
     '''
@@ -396,14 +396,14 @@ class Inchworm:
     #plant foot
     self.moveTo(poses[2], 1.0)
 
-    if (plantFoot):
-      if (neighbor != Inchworm.Neighbors.NONE):
-        self.swapFeet()
-    
+    if ((plantFoot) and (neighbor != Inchworm.Neighbors.NONE)):
+      self.swapFeet()
       self.lastNeighbor = Inchworm.LAST_NEIGHBOR_MAP.get(neighbor)
     
     else:
       self.lastNeighbor = neighbor
+    
+    rospy.sleep(.1)
 
   def swapFeet(self):
     '''
@@ -451,39 +451,66 @@ class Inchworm:
   def suppressShingle(self, shingle_idx):
     shingle = ["inchworm", f"shingle_description_{shingle_idx}", f"shingle_{shingle_idx}"]
     roof = ["inchworm", f"roof_description_0", f"roof_0"]
-
+    iw_bot = ["inchworm", f"inchworm_description_{self.idx}", f"iw_root_{self.idx}"]
+    iw_top = ["inchworm", f"inchworm_description_{self.idx}", f"iw_foot_top_{self.idx}"]
+    inchworm = []
+    if (self.foot_down == 0):
+      inchworm = iw_top
+    else:
+      inchworm = iw_bot
     
     rospy.loginfo(f"\tSuppressing shingle {shingle_idx}")
 
+    #suppress shingle to roof
     req = SuppressMateRequest()
     req.suppress = True
     req.scoped_female = shingle
     req.scoped_male = roof
     self.mate_suppress_proxy(req)
 
-  def unsupressShingle(self, shingle_idx, neighbor):
+    #unsupress shingle to inchworm
+    req.suppress = False
+    req.scoped_female = shingle
+    req.scoped_male = inchworm
+    rospy.loginfo(f"\tUnsuppressing shingle {shingle_idx}")
+    self.mate_suppress_proxy(req)
+
+
+
+  def unsupressShingle(self, shingle_idx):
     shingle = ["inchworm", f"shingle_description_{shingle_idx}", f"shingle_{shingle_idx}"]
     roof = ["inchworm", f"roof_description_0", f"roof_0"]
+    iw_bot = ["inchworm", f"inchworm_description_{self.idx}", f"iw_root_{self.idx}"]
+    iw_top = ["inchworm", f"inchworm_description_{self.idx}", f"iw_foot_top_{self.idx}"]
+    inchworm = []
+    if (self.foot_down == 0):
+      inchworm = iw_top
+    else:
+      inchworm = iw_bot
+    
+    rospy.loginfo(f"\tSuppressing shingle {shingle_idx}")
 
     
-    rospy.loginfo(f"\tUnsuppressing shingle {shingle_idx}")
-
     req = SuppressMateRequest()
+    req.suppress = True
+    
+
+    #supress shingle to inchworm
+    req.scoped_female = shingle
+    req.scoped_male = inchworm
+    self.mate_suppress_proxy(req)
+
+    #unsuppress shingle to roof
     req.suppress = False
     req.scoped_female = shingle
     req.scoped_male = roof
+    rospy.loginfo(f"\tUnsuppressing shingle {shingle_idx}")
     self.mate_suppress_proxy(req)
 
-  def pickupShingle(self, neighbor):
-    #make sure robot doesn't grab a supporting shingle
-    if ((neighbor == Inchworm.Neighbors.BOTTOM_LEFT) or (neighbor == Inchworm.Neighbors.BOTTOM_RIGHT)):
-      print("Error: cannot grab shingle underneath the shingle foot is planted on")
-      return
-
+  def getNeighborCoord(self, neighbor):
     #                    right   l right  l left   left    up left  up right
     EVEN_ROW_N_LOOKUP = [(1, 0), (1, -1), (0, -1), (-1, 0), (0, 1), (1, 1)]
     ODD_ROW_N_LOOKUP = [(1, 0), (0, -1), (-1, -1), (-1, 0), (-1, 1), (0, 1)]
-    
 
     pair_offsets = []
 
@@ -503,6 +530,17 @@ class Inchworm:
       pair = pair_offsets[5] 
     elif (neighbor == Inchworm.Neighbors.RIGHT):
       pair = pair_offsets[0]
+
+    return pair
+
+  def pickupShingle(self, neighbor):
+    rospy.sleep(1)
+    #make sure robot doesn't grab a supporting shingle
+    if ((neighbor == Inchworm.Neighbors.BOTTOM_LEFT) or (neighbor == Inchworm.Neighbors.BOTTOM_RIGHT)):
+      print("Error: cannot grab shingle underneath the shingle foot is planted on")
+      return
+
+    pair = self.getNeighborCoord(neighbor)
       
     #grab the coord of the shingle you're going to grab
     roof_coord = [self.on_coord[0] + pair[0], self.on_coord[1] + pair[1]]
@@ -514,8 +552,12 @@ class Inchworm:
     self.move(neighbor, False)
     #pop that shingle off the roof
     self.suppressShingle(shingle_idx)
-    #pull up & straighten bc ahhh (TODO: figure out a better thing to do)
-    self.move(Inchworm.Neighbors.NONE)
+    #pull up a bit
+    poses = Inchworm.NEIGHBOR_POSE_MAP.get(neighbor)
+    #go to hover
+    self.moveTo(poses[0], 1.0)
+    #go to lift
+    self.moveTo(poses[1], 1.0)
 
   def placeShingle(self, neighbor):
     #make sure robot doesn't try to place in supporting shingle place
@@ -523,12 +565,25 @@ class Inchworm:
       print("Error: cannot place shingle underneath the shingle foot is planted on")
       return
     
-    #grab the coord of where you're trying to place
-    #  return if there's a shingle there
+    pair = self.getNeighborCoord(neighbor)
+    print(f"unsupress pair: {pair}")  
+    #grab the coord of the shingle you're going to grab
+    roof_coord = [self.on_coord[0] + pair[0], self.on_coord[1] + pair[1]]
+    roof_idx = self.coord_to_idx(roof_coord)
+    shingle_idx = self.roofToShingle(roof_idx)
+
+    print(f"last neighbor: {self.lastNeighbor}, currNeighbor: {neighbor}")
     #move shingle to place point
+    self.move(neighbor, False)
+    print("get here")
     #magnetize shingle to roof
-    #pull away
-    
+    self.unsupressShingle(shingle_idx)
+    #pull up a bit
+    poses = Inchworm.NEIGHBOR_POSE_MAP.get(neighbor)
+    #go to hover
+    self.moveTo(poses[0], 1.0)
+    #go to lift
+    self.moveTo(poses[1], 1.0)
 
 
 if __name__ == "__main__":
@@ -542,13 +597,10 @@ if __name__ == "__main__":
   rospy.loginfo(iw.getAdjacentShingleIndexes(iw.idx_to_coord(12)))
 
   rospy.loginfo("upper right")
-  iw.move(iw.Neighbors.UPPER_RIGHT)
+  iw.move(Inchworm.Neighbors.UPPER_RIGHT)
   rospy.loginfo("pick up upper left")
-  iw.pickupShingle(iw.Neighbors.UPPER_LEFT)
-
-  #test things
-  rospy.loginfo("straight")
-  iw.move(Inchworm.Neighbors.NONE)
+  iw.pickupShingle(Inchworm.Neighbors.UPPER_LEFT)
+  iw.placeShingle(Inchworm.Neighbors.UPPER_LEFT)
 
   #rospy.loginfo("grab left")
   #iw.pickupShingle(6, iw.Neighbors.LEFT)
