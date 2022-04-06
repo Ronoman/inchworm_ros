@@ -1,0 +1,17 @@
+# Which inchworm to perform an action on
+uint16 inchworm_idx
+
+# Action type. Options:
+# 0: Move to absolute coordinate.
+uint8 action_type
+
+# X,Y coordinates in even-r that the action is relative to
+uint8 coord_x
+uint8 coord_y
+
+# True if bottom end effector, False if top
+bool end_effector
+---
+bool success
+---
+bool done

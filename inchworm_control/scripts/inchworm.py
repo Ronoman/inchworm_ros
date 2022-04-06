@@ -148,6 +148,28 @@ class Inchworm:
   
   }
 
+  # Maps relative even-r coords to a neighbors
+  EVEN_ROW_LOOKUP_NEIGHBOR_MAP = {
+    (1, 0): Neighbors.RIGHT,
+    (1, -1): Neighbors.BOTTOM_RIGHT,
+    (0, -1): Neighbors.BOTTOM_LEFT,
+    (-1, 0): Neighbors.LEFT,
+    (0, 1): Neighbors.UPPER_LEFT,
+    (1, 1): Neighbors.UPPER_RIGHT
+  }
+  ODD_ROW_LOOKUP_NEIGHBOR_MAP = {
+    (1, 0): Neighbors.RIGHT,
+    (0, -1): Neighbors.BOTTOM_RIGHT,
+    (-1, -1): Neighbors.BOTTOM_LEFT,
+    (-1, 0): Neighbors.LEFT,
+    (-1, 1): Neighbors.UPPER_LEFT,
+    (0, 1): Neighbors.UPPER_RIGHT
+  }
+
+  #                    right   l right  l left   left    up left  up right
+  EVEN_ROW_N_LOOKUP = [(1, 0), (1, -1), (0, -1), (-1, 0), (0, 1), (1, 1)]
+  ODD_ROW_N_LOOKUP = [(1, 0), (0, -1), (-1, -1), (-1, 0), (-1, 1), (0, 1)]
+
   def __init__(self, idx=0):
     self.idx = idx
 
@@ -410,9 +432,9 @@ class Inchworm:
     if (self.lastNeighbor != Inchworm.Neighbors.NONE):
       poses = Inchworm.NEIGHBOR_POSE_MAP.get(self.lastNeighbor)
       #hover above last place
-      self. moveTo(poses[0], 1.0)
+      self. moveTo(poses[0], 3.0)
       #lift above last place
-      self.moveTo(poses[1], 1.0)
+      self.moveTo(poses[1], 3.0)
       rospy.sleep(1.0)
       #grab the last place
       #lift above the last place
@@ -421,9 +443,9 @@ class Inchworm:
     #go to lift above next place
     self.moveTo(poses[1], 7.0)
     #hover above next place
-    self.moveTo(poses[0], 1.0)
+    self.moveTo(poses[0], 3.0)
     #plant foot
-    self.moveTo(poses[2], 1.0)
+    self.moveTo(poses[2], 3.0)
 
     if ((plantFoot) and (neighbor != Inchworm.Neighbors.NONE)):
       self.swapFeet()
@@ -462,9 +484,31 @@ class Inchworm:
   ################
   ### SHINGLES ###
   ################
+  def getAttachedShingle(self, end_effector):
+    '''
+    Returns the shingle index attached to end_effector (bottom if 0, top if 1), or -1 if that EE has no shingle attached.
+    '''
+
+    ee_string = "iw_foot_top" if end_effector else "iw_root"
+
+    last_mate = self.last_mate_msg
+    print(last_mate)
+
+    print(f"inchworm_description_{self.idx}::{ee_string}_{self.idx}")
+
+    for i,mate in enumerate(last_mate.male):
+      if f"inchworm_description_{self.idx}::{ee_string}" in mate:
+        return int(last_mate.female[i].split("::")[-2].split("_")[-1])
+
+    return -1
+
   def roofToShingle(self, roof_idx):
+    '''
+    Finds the shingle attached to a roof index.
+    '''
+
     # Shingle indexes attached to the roof_indexes above
-    shingle_idx = []
+    shingle_idx = None
 
     while self.last_mate_msg is None:
       rospy.sleep(0.1)
@@ -504,8 +548,6 @@ class Inchworm:
     rospy.loginfo(f"\tUnsuppressing shingle {shingle_idx}")
     self.mate_suppress_proxy(req)
 
-
-
   def unsupressShingle(self, shingle_idx):
     shingle = ["inchworm", f"shingle_description_{shingle_idx}", f"shingle_{shingle_idx}"]
     roof = ["inchworm", f"roof_description_0", f"roof_0"]
@@ -537,19 +579,15 @@ class Inchworm:
     self.mate_suppress_proxy(req)
 
   def getNeighborCoord(self, neighbor):
-    #                    right   l right  l left   left    up left  up right
-    EVEN_ROW_N_LOOKUP = [(1, 0), (1, -1), (0, -1), (-1, 0), (0, 1), (1, 1)]
-    ODD_ROW_N_LOOKUP = [(1, 0), (0, -1), (-1, -1), (-1, 0), (-1, 1), (0, 1)]
-
     pair_offsets = []
 
     # Determine which list to lookup from, based on whether this inchworm is on an even or odd row
     if self.on_coord[1] % 2 == 0:
-      pair_offsets = EVEN_ROW_N_LOOKUP
+      pair_offsets = Inchworm.EVEN_ROW_N_LOOKUP
     else:
-      pair_offsets = ODD_ROW_N_LOOKUP
+      pair_offsets = Inchworm.ODD_ROW_N_LOOKUP
     
-    pair = []
+    pair = None
     
     if (neighbor == Inchworm.Neighbors.LEFT):
       pair = pair_offsets[3]
@@ -559,6 +597,8 @@ class Inchworm:
       pair = pair_offsets[5] 
     elif (neighbor == Inchworm.Neighbors.RIGHT):
       pair = pair_offsets[0]
+    else:
+      rospy.logerr(f"Unsuppored neighbor ({neighbor}) to get relative coord for")
 
     return pair
 
@@ -578,15 +618,15 @@ class Inchworm:
 
     # return if there's no shingle there
     #move to that shingle
-    self.move(neighbor, False)
+    #self.move(neighbor, False)
     #pop that shingle off the roof
     self.suppressShingle(shingle_idx)
     #pull up a bit
     poses = Inchworm.NEIGHBOR_POSE_MAP.get(neighbor)
     #go to hover
-    self.moveTo(poses[0], 1.0)
+    #self.moveTo(poses[0], 3.0)
     #go to lift
-    self.moveTo(poses[1], 1.0)
+    #self.moveTo(poses[1], 3.0)
 
   def placeShingle(self, neighbor):
     #make sure robot doesn't try to place in supporting shingle place
@@ -595,24 +635,25 @@ class Inchworm:
       return
     
     pair = self.getNeighborCoord(neighbor)
-    print(f"unsupress pair: {pair}")  
-    #grab the coord of the shingle you're going to grab
+    print(f"unsupress pair: {pair}")
+    #grab the coord of the roof index you're going to place on
     roof_coord = [self.on_coord[0] + pair[0], self.on_coord[1] + pair[1]]
     roof_idx = self.coord_to_idx(roof_coord)
-    shingle_idx = self.roofToShingle(roof_idx)
 
     print(f"last neighbor: {self.lastNeighbor}, currNeighbor: {neighbor}")
     #move shingle to place point
-    self.move(neighbor, False)
+    #self.move(neighbor, False)
     print("get here")
-    #magnetize shingle to roof
-    self.unsupressShingle(shingle_idx)
+
     #pull up a bit
     poses = Inchworm.NEIGHBOR_POSE_MAP.get(neighbor)
     #go to hover
-    self.moveTo(poses[0], 1.0)
+    #self.moveTo(poses[0], 3.0)
     #go to lift
-    self.moveTo(poses[1], 1.0)
+    #self.moveTo(poses[1], 3.0)
+
+    # magnetize shingle on the end effector not currently on the roof and disconnect from robot
+    self.unsupressShingle(self.getAttachedShingle((self.foot_down + 1) % 2))
 
 
 if __name__ == "__main__":
@@ -623,13 +664,16 @@ if __name__ == "__main__":
   iw = Inchworm(idx=0)
   rospy.sleep(1)
 
-  rospy.loginfo(iw.getAdjacentShingleIndexes(iw.idx_to_coord(12)))
-
   rospy.loginfo("upper right")
   iw.move(Inchworm.Neighbors.UPPER_RIGHT)
   rospy.loginfo("pick up upper left")
+  iw.move(Inchworm.Neighbors.UPPER_LEFT, plantFoot=False)
   iw.pickupShingle(Inchworm.Neighbors.UPPER_LEFT)
+  rospy.sleep(2.0)
+  rospy.loginfo("place upper left")
   iw.placeShingle(Inchworm.Neighbors.UPPER_LEFT)
+
+  iw.move(Inchworm.Neighbors.NONE)
 
   #rospy.loginfo("grab left")
   #iw.pickupShingle(6, iw.Neighbors.LEFT)

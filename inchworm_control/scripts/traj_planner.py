@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 
 import numpy as np
-import rospy
+import rospy, actionlib
 
 from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
+from control_msgs.msg import FollowJointTrajectoryAction, FollowJointTrajectoryGoal
 from sensor_msgs.msg import JointState
 
 # This is a library of trajectory generation functions.
@@ -12,10 +13,13 @@ class TrajectoryPlanner:
   def __init__(self, idx=0):
     self.idx = idx
 
-    traj_topic = f"/inchworm_{idx}/position_trajectory_controller/command"
+    # traj_topic = f"/inchworm_{idx}/position_trajectory_controller/command"
     joint_topic = f"/inchworm_{idx}/joint_states"
 
-    self.traj_pub = rospy.Publisher(traj_topic, JointTrajectory, queue_size=1)
+    # self.traj_pub = rospy.Publisher(traj_topic, JointTrajectory, queue_size=1)
+    self.traj_client = actionlib.SimpleActionClient(f"/inchworm_{self.idx}/position_trajectory_controller/follow_joint_trajectory", FollowJointTrajectoryAction)
+    self.traj_client.wait_for_server()
+
     self.joint_sub = rospy.Subscriber(joint_topic, JointState, self.jointCB)
 
     self.current_joint_state = None
@@ -159,10 +163,16 @@ class TrajectoryPlanner:
     trajectory.header.stamp = rospy.Time.now()
     trajectory.header.frame_id = "world"
 
-    self.traj_pub.publish(trajectory)
+    # self.traj_pub.publish(trajectory)
+
+    goal = FollowJointTrajectoryGoal()
+    goal.trajectory = trajectory
+    
+    self.traj_client.send_goal(goal)
 
     if wait:
       rospy.sleep(duration)
+      self.traj_client.wait_for_result()
 
 if __name__ == "__main__":
   # No need to import if this is run as a library

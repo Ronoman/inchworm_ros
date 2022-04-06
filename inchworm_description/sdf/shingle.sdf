@@ -2,7 +2,7 @@
     <xacro:if value="${fixed}"><joint name="fixed_to_world" type="fixed"><parent>world</parent><child>shingle_${idx}</child></joint></xacro:if><pose>${x} ${y} ${z} ${rx} ${ry} ${rz}</pose><link name="shingle_${idx}">
       <inertial>
         <pose>0 0 0 0 -0 0</pose>
-        <mass>0.151</mass>
+        <mass>0.0551</mass>
         <inertia>
           <ixx>0.0038554</ixx>
           <ixy>0.0094075</ixy>

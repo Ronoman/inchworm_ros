@@ -1,7 +1,8 @@
 <launch>
   <arg name="model" default="inchworm"/>
   <arg name="gui" default="true"/>
-  <arg name="paused" default="true"/>
+  <arg name="rviz" default="false"/>
+  <arg name="paused" default="false"/>
 
   <arg name="real_robot" default="false" />
 
@@ -10,10 +11,10 @@
   <arg name="robot_count" default="1" />
   <param name="robot_count" value="$(arg robot_count)" />
 
-  <arg name="roof_width" default="2" />
+  <arg name="roof_width" default="3" />
   <param name="roof_width" value="$(arg roof_width)" />
 
-  <arg name="roof_height" default="15" />
+  <arg name="roof_height" default="3" />
   <param name="roof_height" value="$(arg roof_height)" />
 
   <!-- Launch Gazebo, only if we're not running on the real robot-->
@@ -28,9 +29,9 @@
     <param name="robot_count" value="$(arg robot_count)" />
   </node>
 
-  <node name="high_level_control" pkg="inchworm_control" type="high_level_control.py" output="screen">
+  <!-- <node name="high_level_control" pkg="inchworm_control" type="high_level_control.py" output="screen">
     <param name="robot_count" value="$(arg robot_count)" />
-  </node>
+  </node> -->
 
 
   <!-- Load parameters for ros_control, per-robot -->
@@ -82,7 +83,7 @@
   <node name="magnet_state_observer" pkg="inchworm_description" type="magnet_state_observer.py" output="screen" />
 
   <!-- Startup RViz-->
-  <node name="rviz" pkg="rviz" type="rviz" args="-d $(find inchworm_description)/rviz/inchworm_frames.rviz" />
+  <node name="rviz" pkg="rviz" type="rviz" args="-d $(find inchworm_description)/rviz/inchworm_frames.rviz" if="$(arg rviz)"/>
 
   <!-- Start the MoveGroup that will control the robot. -->
   <include file="$(find inchworm_moveit)/launch/move_group.launch" if="$(arg use_moveit)" />
