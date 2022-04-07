@@ -416,11 +416,18 @@ class Inchworm:
     neighbor: One of the `Neighbors` enum. This gets mapped to a JointConstants set of joint angles
     '''
 
+    print(f"going to: {pose}")
     newPose = pose # if foot down is 0
     if self.foot_down == 1: #if foot down is 1, do the mapping
       newPose = Inchworm.EE_POSE_MAP.get(pose)
+      #print(f"treated as {newPose}")
 
     angles = Inchworm.POSE_JOINT_MAP.get(newPose)
+
+    #if self.foot_down == 1:
+    #  print(angles)
+    #  angles = list(reversed(angles))
+    #  print(angles)
 
     self.planner.run_quintic_traj(angles, time)
 
@@ -439,6 +446,7 @@ class Inchworm:
       #grab the last place
       #lift above the last place
 
+    
     poses = Inchworm.NEIGHBOR_POSE_MAP.get(neighbor)
     #go to lift above next place
     self.moveTo(poses[1], 7.0)
@@ -450,6 +458,7 @@ class Inchworm:
     if ((plantFoot) and (neighbor != Inchworm.Neighbors.NONE)):
       self.swapFeet()
       self.lastNeighbor = Inchworm.LAST_NEIGHBOR_MAP.get(neighbor)
+      #self.lastNeighbor = neighbor
     
     else:
       self.lastNeighbor = neighbor
@@ -655,6 +664,13 @@ class Inchworm:
     # magnetize shingle on the end effector not currently on the roof and disconnect from robot
     self.unsupressShingle(self.getAttachedShingle((self.foot_down + 1) % 2))
 
+def difference(list1, list2):
+  diff = [(list1[0] - list2[0]), (list1[1] - list2[1]), (list1[2] - list2[2]), (list1[3] - list2[3]), (list1[4] - list2[4])]
+  return diff
+
+def add(list1, list2):
+  diff = [(list1[0] + list2[0]), (list1[1] + list2[1]), (list1[2] + list2[2]), (list1[3] + list2[3]), (list1[4] + list2[4])]
+  return diff
 
 if __name__ == "__main__":
   # This only exists to test the class.
@@ -664,16 +680,29 @@ if __name__ == "__main__":
   iw = Inchworm(idx=0)
   rospy.sleep(1)
 
+ 
+  
   rospy.loginfo("upper right")
   iw.move(Inchworm.Neighbors.UPPER_RIGHT)
-  rospy.loginfo("pick up upper left")
-  iw.move(Inchworm.Neighbors.UPPER_LEFT, plantFoot=False)
-  iw.pickupShingle(Inchworm.Neighbors.UPPER_LEFT)
-  rospy.sleep(2.0)
-  rospy.loginfo("place upper left")
-  iw.placeShingle(Inchworm.Neighbors.UPPER_LEFT)
 
-  iw.move(Inchworm.Neighbors.NONE)
+  rospy.loginfo("left")
+  iw.move(Inchworm.Neighbors.LEFT, plantFoot=False)
+  rospy.loginfo("upper left")
+  iw.move(Inchworm.Neighbors.UPPER_LEFT, plantFoot=False)
+  rospy.loginfo("upper right")
+  iw.move(Inchworm.Neighbors.UPPER_RIGHT, plantFoot=False)
+  rospy.loginfo("right")
+  iw.move(Inchworm.Neighbors.RIGHT, plantFoot=False)
+  rospy.loginfo("lower right")
+  iw.move(Inchworm.Neighbors.BOTTOM_RIGHT, plantFoot=False)
+  rospy.loginfo("lower left")
+  iw.move(Inchworm.Neighbors.BOTTOM_LEFT, plantFoot=False)
+
+  
+  
+  
+
+  
 
   #rospy.loginfo("grab left")
   #iw.pickupShingle(6, iw.Neighbors.LEFT)
