@@ -3,16 +3,18 @@
 import rospy, roslaunch
 from rospkg import RosPack
 from matplotlib import pyplot as plt
+from inchworm import Pattern
 
 from std_msgs.msg import Int32
 
 
-WIDTH = 20
-HEIGHT = 20
+WIDTH = 10
+HEIGHT = 10
 RATE = 500
 
 INCHWORM_COUNTS = [i+1 for i in range(int(WIDTH/2))]
 
+PATTERN = Pattern.OXEN_TURN.value
 
 durations = []
 
@@ -37,7 +39,7 @@ def main():
 
   for count in INCHWORM_COUNTS:
     print(f"Running test for inchworm count of {count}")
-    cli_args = [f"roof_width:={WIDTH}", f"roof_height:={HEIGHT}", f"rate:={RATE}", f"use_gui:=False", f"inchworm_count:={count}"]
+    cli_args = [f"roof_width:={WIDTH}", f"roof_height:={HEIGHT}", f"rate:={RATE}", f"pattern:={PATTERN}", f"use_gui:=False", f"inchworm_count:={count}"]
 
     launch_file = [(roslaunch.rlutil.resolve_launch_arguments(launch_path + cli_args)[0], cli_args)]
     launch = roslaunch.parent.ROSLaunchParent(uuid, launch_file)
