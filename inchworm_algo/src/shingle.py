@@ -55,6 +55,7 @@ class Shingle():
         self.is_half_shingle = is_half_shingle
         self.shingle_status = ShingleStatus.PLACED ## TODO: THIS IS MAGIC TO MAKE THE ALGO SIM WORK FOR NOW
         self.neighbors_status = [ShingleStatus.UNINSTALLED] * 6
+        self.neighbors_update_times = [0] * 6
 
 
 
@@ -102,8 +103,10 @@ class Shingle():
             neighbor_location = (self.x_coord + self.EVEN_ROW_N_LOOKUP[n_locatation][0], self.y_coord + self.EVEN_ROW_N_LOOKUP[n_locatation][1])
         else:
             neighbor_location = (self.x_coord + self.ODD_ROW_N_LOOKUP[n_locatation][0], self.y_coord + self.ODD_ROW_N_LOOKUP[n_locatation][1])
+        
         if self.neighbors_status[n_locatation] != ShingleStatus.INSTALLED:
             self.neighbors_status[n_locatation] = n_status
+        
 
     def get_neighbor_locations_and_status(self):
         location_status = {}
