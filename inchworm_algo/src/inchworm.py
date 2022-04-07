@@ -85,8 +85,7 @@ class Inchworm():
         self.ee_shingle_neighbors = []
         self.installing_status = 0
         self.path_for_shingle = []
-
-        self.shingle_order = self.create_diagonal_order(width, height)
+        self.shingle_order = self.create_shingle_order(width, height)
         self.claimed_pos = set()
 
     # this is used to create ox-plow order in shingling
@@ -560,8 +559,8 @@ class Inchworm():
                 rospy.loginfo(
                     f"inchworm {self.id} set target at {self.target}")
 
-                shingel_moving_position = self.inchworm_spot_to_move_shingle(self.path_for_shingle[0], self.target)
-                rospy.loginfo(f"the spot to move a shingle is {shingel_moving_position}")
+                shingle_moving_position = self.inchworm_spot_to_move_shingle(self.path_for_shingle[0], self.target)
+                rospy.loginfo(f"the spot to move a shingle is {shingle_moving_position}")
 
                 # check if placed shingle is in the target position and should be installed
                 if len(self.path_for_shingle) == 1:
@@ -579,21 +578,21 @@ class Inchworm():
 
 
                 # Check if either of the feet are on the installed neighbor of both the shingle and the next point in the path, if they are not, move there
-                elif not(self.top_foot_position[0] == shingel_moving_position[0] and self.top_foot_position[1] == shingel_moving_position[1]) and not(
-                    self.bottom_foot_position[0] == shingel_moving_position[0] and self.bottom_foot_position[1] == shingel_moving_position[1]):
+                elif not(self.top_foot_position[0] == shingle_moving_position[0] and self.top_foot_position[1] == shingle_moving_position[1]) and not(
+                    self.bottom_foot_position[0] == shingle_moving_position[0] and self.bottom_foot_position[1] == shingle_moving_position[1]):
                     # when you are in here, the inchworm is moving along installed shingles, or installing a shingle
 
-                    rospy.loginfo(f"incworm {self.id} wants to move, bottom foot at {self.bottom_foot_position}, top foot at {self.top_foot_position}, moving space is {shingel_moving_position}")
+                    rospy.loginfo(f"incworm {self.id} wants to move, bottom foot at {self.bottom_foot_position}, top foot at {self.top_foot_position}, moving space is {shingle_moving_position}")
                    
                     # Check if the top foot is next to the moving spot, if it is move the bottom foot otherwise move the top foot
-                    if (self.is_neighbor(self.top_foot_position, shingel_moving_position)):
+                    if (self.is_neighbor(self.top_foot_position, shingle_moving_position)):
                         self.decide_on_movement_to_shingle(EE.BOTTOM_FOOT, self.valid_installed_foot_positions, real_roof)
-                    elif(self.is_neighbor(self.bottom_foot_position, shingel_moving_position)):
+                    elif(self.is_neighbor(self.bottom_foot_position, shingle_moving_position)):
                          self.decide_on_movement_to_shingle(EE.TOP_FOOT, self.valid_installed_foot_positions, real_roof)
 
                     # if neither foot is next to where it can move the shingle use the distance check (happens when the shingle needs to move to a row 2 rows above the inchworm)
                     else:
-                        if Inchworm.dist(self.top_foot_position, shingel_moving_position) > Inchworm.dist(self.bottom_foot_position, shingel_moving_position):
+                        if Inchworm.dist(self.top_foot_position, shingle_moving_position) > Inchworm.dist(self.bottom_foot_position, shingle_moving_position):
                             self.decide_on_movement_to_shingle(EE.TOP_FOOT, self.valid_installed_foot_positions, real_roof)
                         else:
                             self.decide_on_movement_to_shingle(EE.BOTTOM_FOOT, self.valid_installed_foot_positions, real_roof)

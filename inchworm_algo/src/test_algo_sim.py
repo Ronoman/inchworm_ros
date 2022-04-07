@@ -7,12 +7,12 @@ from matplotlib import pyplot as plt
 from std_msgs.msg import Int32
 
 
-# Inchworm counts to test. Currently the roof is [20, 20]
-INCHWORM_COUNTS = [i+1 for i in range(8)]
-
-WIDTH = 16
-HEIGHT = 16
+WIDTH = 20
+HEIGHT = 20
 RATE = 500
+
+INCHWORM_COUNTS = [i+1 for i in range(int(WIDTH/2))]
+
 
 durations = []
 
@@ -53,7 +53,11 @@ def main():
   plt.scatter(INCHWORM_COUNTS, durations)
   plt.xlabel("Inchworm count")
   plt.ylabel("Total ticks elapsed")
-  plt.title("Time to shingle a 10x10 roof")
+  plt.title(f"Time to shingle a {WIDTH}x{HEIGHT} roof")
+  plt.yscale("log")
+  # Uncomment if you want to add a limit, Need to know a good top value 
+  # ax = plt.gca()
+  # ax.set_ylim(1,45000)
 
   plt.show()
 
