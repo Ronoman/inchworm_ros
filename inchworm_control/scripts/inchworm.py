@@ -276,6 +276,20 @@ class Inchworm:
 
     return shingle_indexes
 
+  def absoluteToRelative(self, roof_coord):
+    # Offset to get from where inchworm is to the desired position
+    coord_offset = (roof_coord[0] - self.on_coord[0], roof_coord[1] - self.on_coord[1])
+
+    neighbor = None
+
+    # Determine the neighbor to move to
+    if self.on_coord[1] % 2 == 0:
+      neighbor = Inchworm.EVEN_ROW_LOOKUP_NEIGHBOR_MAP[coord_offset]
+    else:
+      neighbor = Inchworm.ODD_ROW_LOOKUP_NEIGHBOR_MAP[coord_offset]
+
+    return neighbor
+
   #########################
   ### MAGNET MANAGEMENT ###
   #########################
@@ -730,6 +744,3 @@ if __name__ == "__main__":
 
   #rospy.loginfo("grab left")
   #iw.pickupShingle(6, iw.Neighbors.LEFT)
-  
-
- 

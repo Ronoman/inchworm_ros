@@ -1,11 +1,10 @@
-# Which inchworm to perform an action on
-uint16 inchworm_idx
-
 # Action type. Options:
 # 0: Move to absolute coordinate.
+# 1: Pickup shingle. Must be preceded by a move command to place the floating EE over that shingle.
+# 2. Place shingle. Must be preceded by a move command to place the EE over the shingle's install location
 uint8 action_type
 
-# X,Y coordinates in even-r that the action is relative to
+# X,Y absolute coordinates in even-r that the action is relative to
 uint8 coord_x
 uint8 coord_y
 
