@@ -51,6 +51,7 @@ def main():
   client_0.wait_for_result()
   client_1.wait_for_result()
 
+  goal.coord_x = 0
   goal.action_type = 1
   client_0.send_goal(goal)
   client_0.wait_for_result()

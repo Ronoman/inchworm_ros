@@ -171,6 +171,7 @@ class TrajectoryPlanner:
     self.traj_client.send_goal(goal)
 
     if wait:
+      print(f"Duration: {duration}")
       rospy.sleep(duration)
       self.traj_client.wait_for_result()
 
