@@ -2,7 +2,7 @@
     <arg name="roof_width"/>
     <arg name="roof_height"/>
     <arg name="inchworm_count"/>
-    <arg name="pattern" default="0">
+    <arg name="pattern" default="0"/>
     <arg name="rate" default="10"/>
     <arg name="use_gui" default="true"/>
     <arg name="name_space" default="algo"/>
