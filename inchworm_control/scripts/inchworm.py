@@ -690,6 +690,31 @@ def add(list1, list2):
   diff = [(list1[0] + list2[0]), (list1[1] + list2[1]), (list1[2] + list2[2]), (list1[3] + list2[3]), (list1[4] + list2[4])]
   return diff
 
+def unitTest(self):
+  rospy.loginfo("check right")
+  self.move(Inchworm.Neighbors.RIGHT, plantFoot=False)
+  rospy.sleep(5)
+  rospy.loginfo("check upper right")
+  self.move(Inchworm.Neighbors.UPPER_RIGHT, plantFoot=False)
+  rospy.loginfo("check")
+  rospy.sleep(5)
+  rospy.loginfo("check upper left")
+  self.move(Inchworm.Neighbors.UPPER_LEFT, plantFoot=False)
+  rospy.loginfo("check")
+  rospy.sleep(5)
+  rospy.loginfo("check leftt")
+  self.move(Inchworm.Neighbors.LEFT, plantFoot=False)
+  rospy.sleep(5)
+  rospy.loginfo("check lower left")
+  self.move(Inchworm.Neighbors.BOTTOM_LEFT, plantFoot=False)
+  rospy.loginfo("check")
+  rospy.sleep(5)
+  rospy.loginfo("check lower right")
+  self.move(Inchworm.Neighbors.BOTTOM_RIGHT, plantFoot=False)
+  rospy.loginfo("check")
+  rospy.sleep(5)
+
+
 if __name__ == "__main__":
   # This only exists to test the class.
 
@@ -698,28 +723,14 @@ if __name__ == "__main__":
   iw = Inchworm(idx=0)
   rospy.sleep(1)
 
-  rospy.loginfo("check right")
-  iw.move(Inchworm.Neighbors.RIGHT, plantFoot=False)
-  rospy.sleep(5)
-  rospy.loginfo("check upper right")
-  iw.move(Inchworm.Neighbors.UPPER_RIGHT, plantFoot=False)
-  rospy.loginfo("check")
-  rospy.sleep(5)
-  rospy.loginfo("check upper left")
-  iw.move(Inchworm.Neighbors.UPPER_LEFT, plantFoot=False)
-  rospy.loginfo("check")
-  rospy.sleep(5)
-  rospy.loginfo("check leftt")
-  iw.move(Inchworm.Neighbors.LEFT, plantFoot=False)
-  rospy.sleep(5)
-  rospy.loginfo("check lower left")
-  iw.move(Inchworm.Neighbors.BOTTOM_LEFT, plantFoot=False)
-  rospy.loginfo("check")
-  rospy.sleep(5)
-  rospy.loginfo("check lower right")
-  iw.move(Inchworm.Neighbors.BOTTOM_RIGHT, plantFoot=False)
-  rospy.loginfo("check")
-  rospy.sleep(5)
+  
+
+  rospy.loginfo("go right")
+  iw.move(Inchworm.Neighbors.RIGHT)
+  rospy.sleep(1)
+  iw.unitTest()
+
+  
   
 #  rospy.loginfo("grab right")
 #  iw.move(Inchworm.Neighbors.RIGHT, plantFoot=False)
