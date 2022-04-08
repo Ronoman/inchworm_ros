@@ -564,11 +564,10 @@ class Inchworm():
                 if len(self.path_for_shingle) > 1:
                     self.target = self.path_for_shingle[1]
 
-                rospy.loginfo(
-                    f"inchworm {self.id} set target at {self.target}")
+                # rospy.loginfo(f"inchworm {self.id} set target at {self.target}")
 
                 shingle_moving_position = self.inchworm_spot_to_move_shingle(self.path_for_shingle[0], self.target)
-                rospy.loginfo(f"the spot to move a shingle is {shingle_moving_position}")
+                # rospy.loginfo(f"the spot to move a shingle is {shingle_moving_position}")
 
                 # check if placed shingle is in the target position and should be installed
                 if len(self.path_for_shingle) == 1:
@@ -590,7 +589,7 @@ class Inchworm():
                     self.bottom_foot_position[0] == shingle_moving_position[0] and self.bottom_foot_position[1] == shingle_moving_position[1]):
                     # when you are in here, the inchworm is moving along installed shingles, or installing a shingle
 
-                    rospy.loginfo(f"incworm {self.id} wants to move, bottom foot at {self.bottom_foot_position}, top foot at {self.top_foot_position}, moving space is {shingle_moving_position}")
+                    # rospy.loginfo(f"incworm {self.id} wants to move, bottom foot at {self.bottom_foot_position}, top foot at {self.top_foot_position}, moving space is {shingle_moving_position}")
                    
                     # Check if the top foot is next to the moving spot, if it is move the bottom foot otherwise move the top foot
                     if (self.is_neighbor(self.top_foot_position, shingle_moving_position)):
@@ -616,7 +615,7 @@ class Inchworm():
                             self.robot_state = RobotState.MOVE_TO_TARGET
                 else:  # The inchworm needs to move a shingle
                     # move a shingle closer to the target
-                    rospy.loginfo(f"inchworm {self.id} wants to move a shingle closer to the target")
+                    # rospy.loginfo(f"inchworm {self.id} wants to move a shingle closer to the target")
                     self.shingle_to_move = placed_shingle
                     placed_shingle_location = [
                         placed_shingle.x_coord, placed_shingle.y_coord]
@@ -710,10 +709,10 @@ class Inchworm():
             else:
                 # if the inchworm is not next to the shingle depot, move toward it, otherwise pick up a new shingle
                 if not self.next_to_shingle_depot(real_roof.get_shingle_depot_location(False)):
-                    rospy.loginfo(f"inchworm {self.id} moving towards depot")
+                    # rospy.loginfo(f"inchworm {self.id} moving towards depot")
                     self.make_state_move_to_depot(real_roof)
                 else:
-                    rospy.loginfo(f"inchworm {self.id} is picking up a new shingle from the depot")
+                    # rospy.loginfo(f"inchworm {self.id} is picking up a new shingle from the depot")
                     self.robot_state = RobotState.PICKUP_SHINGLE_FROM_DEPOT
 
         return real_roof
@@ -730,7 +729,7 @@ class Inchworm():
             if real_roof.spawn_shingle(): # TODO: depot currently spawns the shingle in the new location, this will need to change
                 self.robot_state = RobotState.MAKE_DECISION
             elif self.next_to_placed_shingle(self.bottom_foot_position, real_roof.shingle_array) or self.next_to_placed_shingle(self.top_foot_position, real_roof.shingle_array):
-                rospy.loginfo(f"inchworm {self.id} failed to spawn shingle, but is next to a spawned shingle")
+                # rospy.loginfo(f"inchworm {self.id} failed to spawn shingle, but is next to a spawned shingle")
                 self.robot_state = RobotState.MAKE_DECISION
             
         elif self.robot_state == RobotState.MOVE_TO_TARGET:
@@ -993,7 +992,7 @@ class Inchworm():
                 path_to_goal.append(next_best_tile)
             else:
                 rospy.logwarn(f"PATH STUCK IN A DEAD END, CHECK NEIGHBORS")
-                rospy.loginfo(f"start is {start}, goal is {goal}, path is {path_to_goal}")
+                # rospy.loginfo(f"start is {start}, goal is {goal}, path is {path_to_goal}")
                 oh_no = []
                 oh_no.append(start)
                 return oh_no
@@ -1004,7 +1003,7 @@ class Inchworm():
         for step in path_to_goal:
             shingle_coord_path.append([step[0], step[1]]);
         
-        rospy.loginfo(f"path to get to the goal along the frontier is {shingle_coord_path}")
+        # rospy.loginfo(f"path to get to the goal along the frontier is {shingle_coord_path}")
 
         return shingle_coord_path
 

@@ -66,6 +66,8 @@ def main():
   while len(durations) != int(int(WIDTH)/2):
     rospy.sleep(1)
     rospy.loginfo(len(durations))
+
+  durations.sort(key=lambda x: x[0])
   file = open(f"{algo_path}/data/{WIDTH}x{HEIGHT}_pattern{pattern}.csv", "w+")
   writer = csv.writer(file)
   writer.writerows(durations)
@@ -74,8 +76,9 @@ def main():
   for element in durations:
     x.append(element[0])
     y.append(element[1])
-
-  plt.scatter(x, y)
+  durations = y.copy()
+  INCHWORM_COUNTS = x.copy()
+  plt.scatter(x, durations)
 
   plt.xlabel("Inchworm count")
   plt.ylabel("Total ticks elapsed")
