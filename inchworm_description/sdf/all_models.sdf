@@ -72,6 +72,6 @@
             </xacro:if>
         </xacro:macro>
 
-        <xacro:gen_grid row_num="${NUM_ROWS - 1}" col_num="${NUM_COLS}" />
+        <xacro:gen_grid row_num="${NUM_ROWS}" col_num="${NUM_COLS}" />
     </model>
 </sdf>

@@ -8,7 +8,7 @@
 
   <arg name="use_moveit" default="false" />
 
-  <arg name="robot_count" default="1" />
+  <arg name="robot_count" default="2" />
   <param name="robot_count" value="$(arg robot_count)" />
 
   <arg name="roof_width" default="3" />

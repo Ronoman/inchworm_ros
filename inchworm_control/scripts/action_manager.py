@@ -2,7 +2,7 @@
 
 import rospy, actionlib
 
-from inchworm_control.msg import InchwormAction
+from inchworm_control.msg import InchwormAction, InchwormResult
 
 from inchworm import Inchworm
 
@@ -20,13 +20,19 @@ class InchwormActionServer:
     '''
     rospy.loginfo(f"IW Action Server {self.inchworm.idx} received goal:")
     print(goal)
+
+    success = False
     
     if goal.action_type == 0:
-      self.handleMove(goal)
+      success = self.handleMove(goal)
+    elif goal.action_type == 1:
+      success = self.handlePick(goal)
+    elif goal.action_type == 2:
+      success = self.handlePlace(goal)
     else:
       rospy.logerr(f"Action type {goal.action_type} not yet implemented.")
 
-    self.server.set_succeeded()
+    self.server.set_succeeded(result=InchwormResult(success=success))
 
   def handleMove(self, goal):
     '''
@@ -38,25 +44,36 @@ class InchwormActionServer:
     # End effector is currently on the roof, so we need to swap it
     if (self.inchworm.foot_down == 0 and goal.end_effector == 0) or (self.inchworm.foot_down == 1 and goal.end_effector == 1):
       self.inchworm.swapFeet()
-      rospy.sleep(0.25)
+      rospy.sleep(2)
 
-    # Offset to get from where inchworm is to the desired position
-    coord_offset = (goal.coord_x - self.inchworm.on_coord[0], goal.coord_y - self.inchworm.on_coord[1])
-
-    neighbor = None
-
-    # Determine the neighbor to move to
-    if self.inchworm.on_coord[1] % 2 == 0:
-      neighbor = Inchworm.EVEN_ROW_LOOKUP_NEIGHBOR_MAP[coord_offset]
-    else:
-      neighbor = Inchworm.ODD_ROW_LOOKUP_NEIGHBOR_MAP[coord_offset]
+    neighbor = self.inchworm.absoluteToRelative((goal.coord_x, goal.coord_y))
 
     # Move to that neighbor
-    self.inchworm.move(neighbor)
+    self.inchworm.move(neighbor, plantFoot=False)
 
     rospy.sleep(0.5)
 
-    self.server.set_succeeded()
+    return True
+
+  def handlePick(self, goal):
+    '''
+    Picks up a shingle. End effector must be over the desired shingle.
+    '''
+
+    neighbor = self.inchworm.absoluteToRelative((goal.coord_x, goal.coord_y))
+    self.inchworm.pickupShingle(neighbor)
+
+    return True
+
+  def handlePlace(self, goal):
+    '''
+    Places a shingle. End effector must be over the desired roof mount point.
+    '''
+
+    neighbor = self.inchworm.absoluteToRelative((goal.coord_x, goal.coord_y))
+    self.inchworm.placeShingle(neighbor)
+
+    return True
 
 def main():
   rospy.init_node("action_manager")
