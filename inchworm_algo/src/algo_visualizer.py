@@ -87,8 +87,8 @@ if __name__ == '__main__':
     
 
 
-    rospy.Subscriber('/algo/roof_state', RoofState, lambda x: handle_new_roof_state(x, screen, roof_state, shingle_depot_pos, inchworms))
-    rospy.Subscriber('/algo/inchworms', InchwormsMsg, lambda x: handle_new_inchworms(x, inchworms))
+    rospy.Subscriber('algo/roof_state', RoofState, lambda x: handle_new_roof_state(x, screen, roof_state, shingle_depot_pos, inchworms))
+    rospy.Subscriber('algo/inchworms', InchwormsMsg, lambda x: handle_new_inchworms(x, inchworms))
     rospy.loginfo(f" roof size {len(roof_state)}")
     running = True
     while not rospy.is_shutdown() and running:
