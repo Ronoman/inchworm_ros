@@ -38,7 +38,7 @@
 
         <xacro:macro name="spawn_robots" params="count">
             <xacro:if value="${count}">
-                <xacro:inchworm_description x="${(shingle_width + horiz_offset)*(count)}" y="0" z="0.15" rx="0" ry="0" rz="0" fixed="0" idx="${count - 1}" />
+                <xacro:inchworm_description x="${shingle_width/2 +(shingle_width + horiz_offset)*(count)}" y="${(shingle_height - overhang)}" z="0.15" rx="0" ry="0" rz="0" fixed="0" idx="${count - 1}" />
                 
                 <xacro:spawn_robots count="${count - 1}" />
             </xacro:if>
