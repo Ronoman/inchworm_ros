@@ -417,16 +417,20 @@ class Inchworm:
     '''
 
     print(f"going to: {pose}")
-    newPose = pose # if foot down is 0
-    if self.foot_down == 1: #if foot down is 1, do the mapping
-      newPose = Inchworm.EE_POSE_MAP.get(pose)
-      #print(f"treated as {newPose}")
+    #newPose = pose # if foot down is 0
+    #if self.foot_down == 1: #if foot down is 1, do the mapping
+    #  newPose = Inchworm.EE_POSE_MAP.get(pose)
+    #  print(f"treated as {newPose}")
 
-    angles = Inchworm.POSE_JOINT_MAP.get(newPose)
+    angles = Inchworm.POSE_JOINT_MAP.get(pose)
 
-    #if self.foot_down == 1:
+    if self.foot_down == 1:
     #  print(angles)
-    #  angles = list(reversed(angles))
+      angles[1],angles[3] = angles[3],angles[1]
+      #angles[0] = anglesOld[4] #grab the orientation from the old pose
+      #angles[4] = anglesOld[0]
+      #angles[0] = -angles[0]
+      #angles[4] = -angles[4]
     #  print(angles)
 
     self.planner.run_quintic_traj(angles, time)
@@ -439,9 +443,9 @@ class Inchworm:
     if (self.lastNeighbor != Inchworm.Neighbors.NONE):
       poses = Inchworm.NEIGHBOR_POSE_MAP.get(self.lastNeighbor)
       #hover above last place
-      self. moveTo(poses[0], 3.0)
+      self. moveTo(poses[0], 2.0)
       #lift above last place
-      self.moveTo(poses[1], 3.0)
+      self.moveTo(poses[1], 2.0)
       rospy.sleep(1.0)
       #grab the last place
       #lift above the last place
@@ -449,16 +453,16 @@ class Inchworm:
     
     poses = Inchworm.NEIGHBOR_POSE_MAP.get(neighbor)
     #go to lift above next place
-    self.moveTo(poses[1], 7.0)
+    self.moveTo(poses[1], 10.0)
     #hover above next place
-    self.moveTo(poses[0], 3.0)
+    self.moveTo(poses[0], 2.0)
     #plant foot
-    self.moveTo(poses[2], 3.0)
+    self.moveTo(poses[2], 2.0)
 
     if ((plantFoot) and (neighbor != Inchworm.Neighbors.NONE)):
       self.swapFeet()
-      self.lastNeighbor = Inchworm.LAST_NEIGHBOR_MAP.get(neighbor)
-      #self.lastNeighbor = neighbor
+      #self.lastNeighbor = Inchworm.LAST_NEIGHBOR_MAP.get(neighbor)
+      self.lastNeighbor = neighbor
     
     else:
       self.lastNeighbor = neighbor
@@ -680,23 +684,43 @@ if __name__ == "__main__":
   iw = Inchworm(idx=0)
   rospy.sleep(1)
 
- 
-  
-  rospy.loginfo("upper right")
-  iw.move(Inchworm.Neighbors.UPPER_RIGHT)
-
-  rospy.loginfo("left")
-  iw.move(Inchworm.Neighbors.LEFT, plantFoot=False)
-  rospy.loginfo("upper left")
-  iw.move(Inchworm.Neighbors.UPPER_LEFT, plantFoot=False)
-  rospy.loginfo("upper right")
-  iw.move(Inchworm.Neighbors.UPPER_RIGHT, plantFoot=False)
-  rospy.loginfo("right")
+  rospy.loginfo("check right")
   iw.move(Inchworm.Neighbors.RIGHT, plantFoot=False)
-  rospy.loginfo("lower right")
-  iw.move(Inchworm.Neighbors.BOTTOM_RIGHT, plantFoot=False)
-  rospy.loginfo("lower left")
+  rospy.sleep(5)
+  rospy.loginfo("check upper right")
+  iw.move(Inchworm.Neighbors.UPPER_RIGHT, plantFoot=False)
+  rospy.loginfo("check")
+  rospy.sleep(5)
+  rospy.loginfo("check upper left")
+  iw.move(Inchworm.Neighbors.UPPER_LEFT, plantFoot=False)
+  rospy.loginfo("check")
+  rospy.sleep(5)
+  rospy.loginfo("check leftt")
+  iw.move(Inchworm.Neighbors.LEFT, plantFoot=False)
+  rospy.sleep(5)
+  rospy.loginfo("check lower left")
   iw.move(Inchworm.Neighbors.BOTTOM_LEFT, plantFoot=False)
+  rospy.loginfo("check")
+  rospy.sleep(5)
+  rospy.loginfo("check lower right")
+  iw.move(Inchworm.Neighbors.BOTTOM_RIGHT, plantFoot=False)
+  rospy.loginfo("check")
+  rospy.sleep(5)
+  
+#  rospy.loginfo("grab right")
+#  iw.move(Inchworm.Neighbors.RIGHT, plantFoot=False)
+#  iw.pickupShingle(Inchworm.Neighbors.RIGHT)
+#  rospy.sleep(1)
+#  rospy.loginfo("place upper left")
+#  iw.move(Inchworm.Neighbors.UPPER_LEFT, plantFoot=False)
+#  iw.placeShingle(Inchworm.Neighbors.UPPER_LEFT)
+#  rospy.sleep(1)
+#  rospy.loginfo("go left")
+#  iw.move(Inchworm.Neighbors.LEFT)
+#  rospy.loginfo("go upper right")
+#  iw.move(Inchworm.Neighbors.UPPER_RIGHT)
+#  rospy.loginfo("straighten")
+#  iw.move(Inchworm.Neighbors.NONE)
 
   
   
