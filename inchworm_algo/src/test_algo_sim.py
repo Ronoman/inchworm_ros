@@ -1,17 +1,20 @@
 #!/usr/bin/env python3
 
-from operator import delitem
-import rospy, roslaunch
+import rospy, roslaunch, math
 from rospkg import RosPack
 from matplotlib import pyplot as plt
 import sys
 import csv
+
+import numpy as np
+from inchworm import Pattern
 
 from std_msgs.msg import Int32MultiArray
 
 
 
 
+PATTERN = Pattern.OXEN_TURN.value
 
 durations = []
 
@@ -48,7 +51,9 @@ def main():
 
   for count in INCHWORM_COUNTS:
     print(f"Running test for inchworm count of {count}")
-    cli_args = [f"roof_width:={WIDTH}", f"roof_height:={HEIGHT}", f"rate:={RATE}", f"use_gui:=False", f"inchworm_count:={count}", f"name_space:={WIDTH}x{HEIGHT}_{pattern}_{count}"]
+
+    cli_args = [f"roof_width:={WIDTH}", f"roof_height:={HEIGHT}", f"rate:={RATE}", f"pattern:={PATTERN}", f"use_gui:=False", f"inchworm_count:={count}", f"name_space:={WIDTH}x{HEIGHT}_{pattern}_{count}"]
+
 
     launch_file = [(roslaunch.rlutil.resolve_launch_arguments(launch_path + cli_args)[0], cli_args)]
     launch = roslaunch.parent.ROSLaunchParent(uuid, launch_file)
@@ -71,10 +76,65 @@ def main():
     y.append(element[1])
 
   plt.scatter(x, y)
+
   plt.xlabel("Inchworm count")
   plt.ylabel("Total ticks elapsed")
   plt.title(f"Time to shingle a {WIDTH}x{HEIGHT} roof")
-  plt.yscale("log")
+
+  # ATTEMPTING A POWER REGRESSION TO GET A BEST FIT LINE
+  log_of_inchworms = []
+  log_of_duration = []
+  duration_times_inchworms = []
+  inchworms_squared = []
+  durations_squared = []
+
+  for i, inch in enumerate(INCHWORM_COUNTS):
+    log_of_inchworms.append(math.log(inch)) # x
+    log_of_duration.append(math.log(durations[i])) # y
+    duration_times_inchworms.append(log_of_inchworms[i]*log_of_duration[i])
+    inchworms_squared.append(log_of_inchworms[i]*log_of_inchworms[i])
+    durations_squared.append(log_of_duration[i]*log_of_duration[i])
+
+  n = len(INCHWORM_COUNTS)
+  numerator = n*sum(duration_times_inchworms) - (sum(log_of_duration)*sum(log_of_inchworms))
+  denominator = n*sum(inchworms_squared) - (sum(log_of_inchworms) * sum(log_of_inchworms))
+  
+  B = numerator/denominator
+
+  avg_log_duration = sum(log_of_duration)/len(log_of_duration)
+  avg_log_inchworm = sum(log_of_inchworms)/len(log_of_inchworms)
+
+  A_not = avg_log_duration - B*(avg_log_inchworm)
+  A = math.exp(A_not)
+
+  print(f"best fit line is y = {round(A, 5)}x^{round(B, 5)}")
+
+  # calculating the r^2 value using Pearsons correlation formula
+
+  std_dev_duration = []
+  std_dev_inchworm = []
+  mutliplied_std = []
+  for i, none in enumerate(log_of_inchworms):
+    std_dev_duration.append(log_of_duration[i]- avg_log_duration)
+    std_dev_inchworm.append(log_of_inchworms[i] - avg_log_inchworm)
+    mutliplied_std.append(std_dev_duration[i]*std_dev_inchworm[i])
+
+  x_denom = denominator
+  y_denom = n*sum(durations_squared) - (sum(log_of_duration) * sum(log_of_duration))
+  r = numerator/math.sqrt(x_denom*y_denom)
+
+  r_squared = r**2
+  print(f"r is {r} r^2 is equal to {r_squared}")
+
+  # graphing the best fit curve 
+  x = np.linspace(INCHWORM_COUNTS[0], INCHWORM_COUNTS[-1], 100)
+  y = A*x**B
+
+  plt.plot(x, y, label=f"y = {round(A, 3)}x^{round(B, 3)}, \n r^2 = {round(r_squared, 5)}", color='m')
+  plt.legend()
+
+  # plt.yscale("log")
+  # plt.xscale("log")
   # Uncomment if you want to add a limit, Need to know a good top value 
   # ax = plt.gca()
   # ax.set_ylim(1,45000)

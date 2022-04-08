@@ -26,11 +26,11 @@ def pauseCB(msg):
 def handle_get_inchworm_state(req):
     return GetInchwormStateResponse(state=inchworms[req.inchworm_idx].to_message())
 
-def spawn_inchworms(roof, inchworm_count):
+def spawn_inchworms(roof, inchworm_count, pat):
         inchworm_count = min(int(roof.width/2), inchworm_count)
         inchworms = []
         for inchworm_id in range(inchworm_count):
-            inchworms.append(Inchworm(id=inchworm_id, bottom_foot_pos=[inchworm_id * 2, 0], top_foot_pos=[(inchworm_id*2) + 1, 0], width=roof.width, height=roof.height, top_foot_stat=EEStatus.PLANTED))
+            inchworms.append(Inchworm(id=inchworm_id, bottom_foot_pos=[inchworm_id * 2, 0], top_foot_pos=[(inchworm_id*2) + 1, 0], width=roof.width, height=roof.height, top_foot_stat=EEStatus.PLANTED, pattern=pat))
             roof.inchworm_occ[0][inchworm_id * 2] = 1
             roof.inchworm_occ[0][(inchworm_id*2) + 1] = 1
         return inchworms
@@ -73,8 +73,9 @@ if __name__ == "__main__":
         hz = int(sys.argv[4])
 
     roof = Roof(roof_width, roof_height, False)
-    
-    inchworms = spawn_inchworms(roof, inchworm_count)
+
+    pattern = int(sys.argv[5])
+    inchworms = spawn_inchworms(roof, inchworm_count, pattern)
 
     roof_pub = rospy.Publisher("algo/roof_state", RoofState, queue_size=1)
     algo_finished_pub = rospy.Publisher("/algo/ticks_elapsed", Int32MultiArray, queue_size=1)

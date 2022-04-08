@@ -48,6 +48,10 @@ class RobotState(Enum):
     PROBE_SHINGLE = 5
     MAKE_DECISION = 6
 
+class Pattern(Enum):
+    OXEN_TURN = 0
+    DIAGONAL = 1
+
 
 # TODO: WE ARE CURRENTLY IGNORRING HALF SHINGLES
 class Inchworm():
@@ -63,7 +67,7 @@ class Inchworm():
 
     def __init__(self, id=-1, bottom_foot_pos=[-1, -1], top_foot_pos=[-1, -1],
                  bottom_foot_stat=EEStatus.PLANTED, top_foot_stat=EEStatus.PLANTED, bottom_foot_shingle_stat=EEShingleStatus.NO_SHINGLE,
-                 top_foot_shingle_stat=EEShingleStatus.NO_SHINGLE, behavior=Behavior.SKELETON, width=1, height=1, shingle_depot_pos=[0]):
+                 top_foot_shingle_stat=EEShingleStatus.NO_SHINGLE, behavior=Behavior.SKELETON, width=1, height=1, shingle_depot_pos=[0], pattern=Pattern.OXEN_TURN):
         self.id = id  # this value should not change once it is assigned
         self.bottom_foot_position = bottom_foot_pos
         self.top_foot_position = top_foot_pos
@@ -85,7 +89,11 @@ class Inchworm():
         self.ee_shingle_neighbors = []
         self.installing_status = 0
         self.path_for_shingle = []
-        self.shingle_order = self.create_shingle_order(width, height)
+        if pattern == Pattern.OXEN_TURN.value:
+            self.shingle_order = self.create_shingle_order(width, height)
+        elif pattern == Pattern.DIAGONAL.value:
+            self.shingle_order = self.create_diagonal_order(width, height)
+
         self.claimed_pos = set()
 
     # this is used to create ox-plow order in shingling
