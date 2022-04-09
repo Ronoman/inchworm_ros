@@ -1,4 +1,5 @@
 class JointConstants():
+	
 	class BottomEE():
 		straight = [0,0,0,0,0]
 

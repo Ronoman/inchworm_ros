@@ -2,7 +2,7 @@
   <arg name="model" default="inchworm"/>
   <arg name="gui" default="true"/>
   <arg name="rviz" default="false"/>
-  <arg name="paused" default="false"/>
+  <arg name="paused" default="true"/>
 
   <arg name="real_robot" default="false" />
 
@@ -11,10 +11,10 @@
   <arg name="robot_count" default="1" />
   <param name="robot_count" value="$(arg robot_count)" />
 
-  <arg name="roof_width" default="4" />
+  <arg name="roof_width" default="5" />
   <param name="roof_width" value="$(arg roof_width)" />
 
-  <arg name="roof_height" default="3" />
+  <arg name="roof_height" default="5" />
   <param name="roof_height" value="$(arg roof_height)" />
 
   <!-- Launch Gazebo, only if we're not running on the real robot-->
@@ -28,31 +28,6 @@
   <node name="node_loader" pkg="inchworm_description" type="load_nodes.py" output="screen">
     <param name="robot_count" value="$(arg robot_count)" />
   </node>
-
-  <!-- <node name="high_level_control" pkg="inchworm_control" type="high_level_control.py" output="screen">
-    <param name="robot_count" value="$(arg robot_count)" />
-  </node> -->
-
-
-  <!-- Load parameters for ros_control, per-robot -->
-<!--  <node name="controller_param_loader" pkg="inchworm_description" type="load_control_params.py" output="screen">
-    <param name="robot_count" value="$(arg robot_count)" />
-  </node> -->
-
-  <!-- Load URDFs per-robot into /inchworm_n -->
-  <!--
-  <node name="urdf_loader" pkg="inchworm_description" type="load_robot_urdf.py" output="screen">
-    <param name="robot_count" value="$(arg robot_count)" />
-  </node>
-
-  <node name="controller_loader" pkg="inchworm_description" type="load_controller_spawners.py" output="screen">
-    <param name="robot_count" value="$(arg robot_count)" />
-  </node>
-
-  <node name="state_pub_loader" pkg="inchworm_description" type="load_state_publishers.py" output="screen">
-    <param name="robot_count" value="$(arg robot_count)" />
-  </node>
--->
   <!-- Everything to be launched in the robot namespace. Robot description, robot state publisher -->
   <group ns="$(arg model)_0">
 

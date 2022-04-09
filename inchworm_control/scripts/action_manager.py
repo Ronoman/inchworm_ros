@@ -46,7 +46,7 @@ class InchwormActionServer:
       self.inchworm.swapFeet()
       rospy.sleep(2)
 
-    neighbor = self.inchworm.absoluteToRelative((goal.coord_x, goal.coord_y))
+    neighbor = self.inchworm.absoluteToNeighbor((goal.coord_x, goal.coord_y))
 
     # Move to that neighbor
     self.inchworm.move(neighbor, plantFoot=False)
@@ -60,7 +60,7 @@ class InchwormActionServer:
     Picks up a shingle. End effector must be over the desired shingle.
     '''
 
-    neighbor = self.inchworm.absoluteToRelative((goal.coord_x, goal.coord_y))
+    neighbor = self.inchworm.absoluteToNeighbor((goal.coord_x, goal.coord_y))
     self.inchworm.pickupShingle(neighbor)
 
     return True
@@ -70,7 +70,7 @@ class InchwormActionServer:
     Places a shingle. End effector must be over the desired roof mount point.
     '''
 
-    neighbor = self.inchworm.absoluteToRelative((goal.coord_x, goal.coord_y))
+    neighbor = self.inchworm.absoluteToNeighbor((goal.coord_x, goal.coord_y))
     self.inchworm.placeShingle(neighbor)
 
     return True

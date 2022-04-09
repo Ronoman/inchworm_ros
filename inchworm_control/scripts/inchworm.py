@@ -276,7 +276,7 @@ class Inchworm:
 
     return shingle_indexes
 
-  def absoluteToRelative(self, roof_coord):
+  def absoluteToNeighbor(self, roof_coord):
     # Offset to get from where inchworm is to the desired position
     coord_offset = (roof_coord[0] - self.on_coord[0], roof_coord[1] - self.on_coord[1])
 
@@ -410,7 +410,7 @@ class Inchworm:
           for j,mate in enumerate(msg.female):
             if f"shingle_description_{on_shingle}" in mate:
               male_mate = msg.male[j]
-              if f"roof_description" in male_mate:
+              if f"roof_description_0" in male_mate:
                 # Shingle is on the roof. Update on_shingle and on_coord
                 rospy.loginfo(f"before: {self.on_shingle} after: {on_shingle}")
                 self.on_shingle = on_shingle
@@ -436,7 +436,7 @@ class Inchworm:
     #  newPose = Inchworm.EE_POSE_MAP.get(pose)
     #  print(f"treated as {newPose}")
 
-    angles = Inchworm.POSE_JOINT_MAP.get(pose)
+    angles = Inchworm.POSE_JOINT_MAP.get(pose)[:]
 
     if self.foot_down == 1:
     #  print(angles)
@@ -732,29 +732,3 @@ if __name__ == "__main__":
   iw.move(Inchworm.Neighbors.RIGHT)
   rospy.sleep(1)
   iw.unitTest()
-
-  
-  
-#  rospy.loginfo("grab right")
-#  iw.move(Inchworm.Neighbors.RIGHT, plantFoot=False)
-#  iw.pickupShingle(Inchworm.Neighbors.RIGHT)
-#  rospy.sleep(1)
-#  rospy.loginfo("place upper left")
-#  iw.move(Inchworm.Neighbors.UPPER_LEFT, plantFoot=False)
-#  iw.placeShingle(Inchworm.Neighbors.UPPER_LEFT)
-#  rospy.sleep(1)
-#  rospy.loginfo("go left")
-#  iw.move(Inchworm.Neighbors.LEFT)
-#  rospy.loginfo("go upper right")
-#  iw.move(Inchworm.Neighbors.UPPER_RIGHT)
-#  rospy.loginfo("straighten")
-#  iw.move(Inchworm.Neighbors.NONE)
-
-  
-  
-  
-
-  
-
-  #rospy.loginfo("grab left")
-  #iw.pickupShingle(6, iw.Neighbors.LEFT)
