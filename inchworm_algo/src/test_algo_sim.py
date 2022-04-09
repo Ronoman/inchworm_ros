@@ -17,13 +17,23 @@ from std_msgs.msg import Int32MultiArray
 PATTERN = Pattern.OXEN_TURN.value
 
 durations = []
+running = 0
+
+
+def chunks(lst, n):
+    """Yield successive n-sized chunks from lst."""
+    for i in range(0, len(lst), n):
+        yield lst[i:i + n]
+
 
 def tickCB(msg):
+  global running
   global durations
-
+  running -= 1
   durations.append(msg.data)
 
 def main():
+  global running
   global durations
   rospy.init_node("test_algo_sim")
 
@@ -49,23 +59,31 @@ def main():
 
   launch_path = [algo_path + "/launch/algo_sim.launch"]
 
-  for count in INCHWORM_COUNTS:
-    print(f"Running test for inchworm count of {count}")
 
-    cli_args = [f"roof_width:={WIDTH}", f"roof_height:={HEIGHT}", f"rate:={RATE}", f"pattern:={PATTERN}", f"use_gui:=False", f"inchworm_count:={count}", f"name_space:={WIDTH}x{HEIGHT}_{pattern}_{count}"]
+  batch_size = 9
 
 
-    launch_file = [(roslaunch.rlutil.resolve_launch_arguments(launch_path + cli_args)[0], cli_args)]
-    launch = roslaunch.parent.ROSLaunchParent(uuid, launch_file)
-
-    launch.start()
-    
-
-    # Wait an excessive amount of time to ensure we receive ticks_elapsed
-
+  count = 1
   while len(durations) != int(int(WIDTH)/2):
+
+    if running < batch_size:
+      print(f"Running test for inchworm count of {count}")
+
+      cli_args = [f"roof_width:={WIDTH}", f"roof_height:={HEIGHT}", f"rate:={RATE}", f"pattern:={PATTERN}", f"use_gui:=False", f"inchworm_count:={count}", f"name_space:={WIDTH}x{HEIGHT}_{pattern}_{count}"]
+
+
+      launch_file = [(roslaunch.rlutil.resolve_launch_arguments(launch_path + cli_args)[0], cli_args)]
+      launch = roslaunch.parent.ROSLaunchParent(uuid, launch_file)
+
+      launch.start()
+      count += 1
+      running += 1
+
+
     rospy.sleep(1)
     rospy.loginfo(len(durations))
+
+ 
 
   durations.sort(key=lambda x: x[0])
   file = open(f"{algo_path}/data/{WIDTH}x{HEIGHT}_pattern{pattern}.csv", "w+")
@@ -82,7 +100,7 @@ def main():
 
   plt.xlabel("Inchworm count")
   plt.ylabel("Total ticks elapsed")
-  plt.title(f"Time to shingle a {WIDTH}x{HEIGHT} roof")
+  plt.title(f"Time to shingle a {WIDTH}x{HEIGHT} roof with pattern {pattern}")
 
   # ATTEMPTING A POWER REGRESSION TO GET A BEST FIT LINE
   log_of_inchworms = []
@@ -136,13 +154,13 @@ def main():
   plt.plot(x, y, label=f"y = {round(A, 3)}x^{round(B, 3)}, \n r^2 = {round(r_squared, 5)}", color='m')
   plt.legend()
 
-  # plt.yscale("log")
+  plt.yscale("log")
   # plt.xscale("log")
   # Uncomment if you want to add a limit, Need to know a good top value 
   # ax = plt.gca()
   # ax.set_ylim(1,45000)
 
-  plt.show()
+  plt.savefig(f"{algo_path}/data/{WIDTH}x{HEIGHT}_{pattern}.png")
 
 if __name__ == "__main__":
   main()
