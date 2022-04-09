@@ -48,6 +48,7 @@
 
         <!-- roof grid -->
         <xacro:roof_description x="0" y="0" z="0.07" rx="${radians(9.02)}" ry="0" rz="0" fixed="1" idx="0" width="${shingle_width * NUM_COLS + shingle_width/2}" height="${shingle_height + overhang * NUM_ROWS}"></xacro:roof_description>
+        <!-- <xacro:roof_description x="0" y="-10" z="0.07" rx="${radians(9.02)}" ry="0" rz="0" fixed="1" idx="1" width="${shingle_width * NUM_COLS + shingle_width/2}" height="${shingle_height + overhang * NUM_ROWS}"></xacro:roof_description> -->
 
         <xacro:macro name="gen_row" params="col_count row_num">
             <xacro:if value="${col_count}">

@@ -279,7 +279,7 @@ class Inchworm:
 
     return shingle_indexes
 
-  def absoluteToRelative(self, roof_coord):
+  def absoluteToNeighbor(self, roof_coord):
     # Offset to get from where inchworm is to the desired position
     coord_offset = (roof_coord[0] - self.on_coord[0], roof_coord[1] - self.on_coord[1])
 
@@ -413,7 +413,7 @@ class Inchworm:
           for j,mate in enumerate(msg.female):
             if f"shingle_description_{on_shingle}" in mate:
               male_mate = msg.male[j]
-              if f"roof_description" in male_mate:
+              if f"roof_description_0" in male_mate:
                 # Shingle is on the roof. Update on_shingle and on_coord
                 rospy.loginfo(f"before: {self.on_shingle} after: {on_shingle}")
                 self.on_shingle = on_shingle
