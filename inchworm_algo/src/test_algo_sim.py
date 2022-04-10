@@ -80,8 +80,8 @@ def main():
       running += 1
 
 
-    rospy.sleep(1)
-    rospy.loginfo(len(durations))
+    rospy.sleep(0.005)
+    # rospy.loginfo(len(durations))
 
  
 

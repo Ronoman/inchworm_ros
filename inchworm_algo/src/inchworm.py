@@ -95,6 +95,7 @@ class Inchworm():
             self.shingle_order = self.create_diagonal_order(width, height)
 
         self.claimed_pos = set()
+        self.move_count = 0
 
     # this is used to create ox-plow order in shingling
     def create_shingle_order(self, width, height):
@@ -261,10 +262,12 @@ class Inchworm():
     def move_bottom_foot(self, new_pos):
         self.bottom_foot_status = EEStatus.IN_AIR
         self.bottom_foot_position = new_pos
+        self.move_count += 1
 
     def move_top_foot(self, new_pos):
         self.top_foot_status = EEStatus.IN_AIR
         self.top_foot_position = new_pos
+        self.move_count += 1
 
     def calc_inchworm_pos(self):
         '''calculates the effective position of the inchworm'''
