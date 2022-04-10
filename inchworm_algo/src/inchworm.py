@@ -969,7 +969,7 @@ class Inchworm():
     def tile_path(self, start, goal):
         frontier_path = self.calc_frontier(self.roof)
         # rospy.loginfo(f"frontier is {frontier_path}")
-        path_to_goal = [[start[0], start[1], 100]]
+        path_to_goal = [[start[0], start[1], Inchworm.dist(start, goal)]]
         # rospy.sleep(10)
 
         while (path_to_goal[-1][0] is not goal[0] or path_to_goal[-1][1] is not goal[1]) and (
