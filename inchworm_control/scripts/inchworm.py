@@ -69,34 +69,7 @@ class Inchworm:
     Poses.LEFT_LIFT: Poses.RIGHT_LIFT
   }
 
-  # Maps the Poses enum onto JointConstants (5-tuple of joint angles for a given pose)
-  POSE_JOINT_MAP = {
-    Poses.STRAIGHT: JointConstants.straight,
-
-    Poses.UPPER_LEFT_HOVER: JointConstants.upper_left,
-    Poses.UPPER_LEFT_DOWN: JointConstants.upper_left_down,
-    Poses.UPPER_LEFT_LIFT: JointConstants.upper_left_lift,
-
-    Poses.UPPER_RIGHT_HOVER: JointConstants.upper_right,
-    Poses.UPPER_RIGHT_DOWN: JointConstants.upper_right_down,
-    Poses.UPPER_RIGHT_LIFT: JointConstants.upper_right_lift,
-
-    Poses.RIGHT_HOVER: JointConstants.right,
-    Poses.RIGHT_DOWN: JointConstants.right_down,
-    Poses.RIGHT_LIFT: JointConstants.right_lift,
-
-    Poses.BOTTOM_RIGHT_HOVER: JointConstants.bottom_right,
-    Poses.BOTTOM_RIGHT_DOWN: JointConstants.bottom_right_down,
-    Poses.BOTTOM_RIGHT_LIFT: JointConstants.bottom_right_lift,
-
-    Poses.BOTTOM_LEFT_HOVER: JointConstants.bottom_left,
-    Poses.BOTTOM_LEFT_DOWN: JointConstants.bottom_left_down,
-    Poses.BOTTOM_LEFT_LIFT: JointConstants.bottom_left_lift,
-
-    Poses.LEFT_HOVER: JointConstants.left,
-    Poses.LEFT_DOWN: JointConstants.left_down,
-    Poses.LEFT_LIFT: JointConstants.left_lift
-  }
+ 
 
   # Used to figure the direction of the previous neighbor. If the inchworm just went to Neighbors.LEFT, it came from Neighbors.RIGHT.
   LAST_NEIGHBOR_MAP = {
@@ -119,32 +92,62 @@ class Inchworm:
       Neighbors.NONE: [Poses.STRAIGHT, Poses.STRAIGHT, Poses.STRAIGHT]
     }
 
-  POSE_JOINT_MAP = {
-    Poses.STRAIGHT: JointConstants.straight,
+  # Maps the Poses enum onto JointConstants (5-tuple of joint angles for a given pose) for bottom EE
+  POSE_JOINT_MAP_BOTTOM = {
+    Poses.STRAIGHT: JointConstants.BottomEE.straight,
 
-    Poses.UPPER_LEFT_HOVER: JointConstants.upper_left,
-    Poses.UPPER_LEFT_DOWN: JointConstants.upper_left_down,
-    Poses.UPPER_LEFT_LIFT: JointConstants.upper_left_lift,
+    Poses.UPPER_LEFT_HOVER: JointConstants.BottomEE.upper_left,
+    Poses.UPPER_LEFT_DOWN: JointConstants.BottomEE.upper_left_down,
+    Poses.UPPER_LEFT_LIFT: JointConstants.BottomEE.upper_left_lift,
 
-    Poses.UPPER_RIGHT_HOVER: JointConstants.upper_right,
-    Poses.UPPER_RIGHT_DOWN: JointConstants.upper_right_down,
-    Poses.UPPER_RIGHT_LIFT: JointConstants.upper_right_lift,
+    Poses.UPPER_RIGHT_HOVER: JointConstants.BottomEE.upper_right,
+    Poses.UPPER_RIGHT_DOWN: JointConstants.BottomEE.upper_right_down,
+    Poses.UPPER_RIGHT_LIFT: JointConstants.BottomEE.upper_right_lift,
 
-    Poses.RIGHT_HOVER: JointConstants.right,
-    Poses.RIGHT_DOWN: JointConstants.right_down,
-    Poses.RIGHT_LIFT: JointConstants.right_lift,
+    Poses.RIGHT_HOVER: JointConstants.BottomEE.right,
+    Poses.RIGHT_DOWN: JointConstants.BottomEE.right_down,
+    Poses.RIGHT_LIFT: JointConstants.BottomEE.right_lift,
 
-    Poses.BOTTOM_RIGHT_HOVER: JointConstants.bottom_right,
-    Poses.BOTTOM_RIGHT_DOWN: JointConstants.bottom_right_down,
-    Poses.BOTTOM_RIGHT_LIFT: JointConstants.bottom_right_lift,
+    Poses.BOTTOM_RIGHT_HOVER: JointConstants.BottomEE.bottom_right,
+    Poses.BOTTOM_RIGHT_DOWN: JointConstants.BottomEE.bottom_right_down,
+    Poses.BOTTOM_RIGHT_LIFT: JointConstants.BottomEE.bottom_right_lift,
 
-    Poses.BOTTOM_LEFT_HOVER: JointConstants.bottom_left,
-    Poses.BOTTOM_LEFT_DOWN: JointConstants.bottom_left_down,
-    Poses.BOTTOM_LEFT_LIFT: JointConstants.bottom_left_lift,
+    Poses.BOTTOM_LEFT_HOVER: JointConstants.BottomEE.bottom_left,
+    Poses.BOTTOM_LEFT_DOWN: JointConstants.BottomEE.bottom_left_down,
+    Poses.BOTTOM_LEFT_LIFT: JointConstants.BottomEE.bottom_left_lift,
 
-    Poses.LEFT_HOVER: JointConstants.left,
-    Poses.LEFT_DOWN: JointConstants.left_down,
-    Poses.LEFT_LIFT: JointConstants.left_lift
+    Poses.LEFT_HOVER: JointConstants.BottomEE.left,
+    Poses.LEFT_DOWN: JointConstants.BottomEE.left_down,
+    Poses.LEFT_LIFT: JointConstants.BottomEE.left_lift
+  
+  }
+  # Maps the Poses enum onto JointConstants (5-tuple of joint angles for a given pose) for top EE
+  POSE_JOINT_MAP_TOP = {
+    Poses.STRAIGHT: JointConstants.TopEE.straight,
+
+    Poses.UPPER_LEFT_HOVER: JointConstants.TopEE.upper_left,
+    Poses.UPPER_LEFT_DOWN: JointConstants.TopEE.upper_left_down,
+    Poses.UPPER_LEFT_LIFT: JointConstants.TopEE.upper_left_lift,
+
+    Poses.UPPER_RIGHT_HOVER: JointConstants.TopEE.upper_right,
+    Poses.UPPER_RIGHT_DOWN: JointConstants.TopEE.upper_right_down,
+    Poses.UPPER_RIGHT_LIFT: JointConstants.TopEE.upper_right_lift,
+
+    Poses.RIGHT_HOVER: JointConstants.TopEE.right,
+    Poses.RIGHT_DOWN: JointConstants.TopEE.right_down,
+    Poses.RIGHT_LIFT: JointConstants.TopEE.right_lift,
+
+    Poses.BOTTOM_RIGHT_HOVER: JointConstants.TopEE.bottom_right,
+    Poses.BOTTOM_RIGHT_DOWN: JointConstants.TopEE.bottom_right_down,
+    Poses.BOTTOM_RIGHT_LIFT: JointConstants.TopEE.bottom_right_lift,
+
+    Poses.BOTTOM_LEFT_HOVER: JointConstants.TopEE.bottom_left,
+    Poses.BOTTOM_LEFT_DOWN: JointConstants.TopEE.bottom_left_down,
+    Poses.BOTTOM_LEFT_LIFT: JointConstants.TopEE.bottom_left_lift,
+
+    Poses.LEFT_HOVER: JointConstants.TopEE.left,
+    Poses.LEFT_DOWN: JointConstants.TopEE.left_down,
+    Poses.LEFT_LIFT: JointConstants.TopEE.left_lift
   
   }
 
@@ -436,16 +439,13 @@ class Inchworm:
     #  newPose = Inchworm.EE_POSE_MAP.get(pose)
     #  print(f"treated as {newPose}")
 
-    angles = Inchworm.POSE_JOINT_MAP.get(pose)[:]
+    angles = []
 
-    if self.foot_down == 1:
-    #  print(angles)
-      angles[1],angles[3] = angles[3],angles[1]
-      #angles[0] = anglesOld[4] #grab the orientation from the old pose
-      #angles[4] = anglesOld[0]
-      #angles[0] = -angles[0]
-      #angles[4] = -angles[4]
-    #  print(angles)
+    if self.foot_down == 0:
+      angles = Inchworm.POSE_JOINT_MAP_BOTTOM.get(pose)
+
+    elif self.foot_down == 1:
+      angles = Inchworm.POSE_JOINT_MAP_TOP.get(pose)
 
     self.planner.run_quintic_traj(angles, time)
 
@@ -473,13 +473,11 @@ class Inchworm:
     #plant foot
     self.moveTo(poses[2], 2.0)
 
+    self.lastNeighbor = neighbor
+
     if ((plantFoot) and (neighbor != Inchworm.Neighbors.NONE)):
       self.swapFeet()
       #self.lastNeighbor = Inchworm.LAST_NEIGHBOR_MAP.get(neighbor)
-      self.lastNeighbor = neighbor
-    
-    else:
-      self.lastNeighbor = neighbor
     
     rospy.sleep(.1)
 
@@ -506,6 +504,9 @@ class Inchworm:
       pass
 
     self.foot_down = foot_down
+    #swap where the last neighbor was
+    temp = self.lastNeighbor
+    self.lastNeighbor = Inchworm.LAST_NEIGHBOR_MAP.get(temp)
     self.swapMagnet(turnOff, turnOn)
 
   ################
@@ -685,6 +686,7 @@ class Inchworm:
   def unitTest(self):
     rospy.loginfo("check right")
     self.move(Inchworm.Neighbors.RIGHT, plantFoot=False)
+    rospy.loginfo("check")
     rospy.sleep(5)
     rospy.loginfo("check upper right")
     self.move(Inchworm.Neighbors.UPPER_RIGHT, plantFoot=False)
@@ -706,6 +708,41 @@ class Inchworm:
     rospy.loginfo("check")
     rospy.sleep(5)
 
+  def walkingAround(self):
+    rospy.loginfo("go right")
+    self.move(Inchworm.Neighbors.RIGHT)
+    rospy.loginfo("go upper left")
+    self.move(Inchworm.Neighbors.UPPER_LEFT)
+    rospy.loginfo("go left")
+    self.move(Inchworm.Neighbors.LEFT)
+    rospy.loginfo("go lower left")
+    self.move(Inchworm.Neighbors.BOTTOM_LEFT)
+    rospy.loginfo("go lower right")
+    self.move(Inchworm.Neighbors.BOTTOM_RIGHT)
+    rospy.loginfo("go upper right")
+    self.move(Inchworm.Neighbors.UPPER_RIGHT)
+
+  def hexagon(self):
+    rospy.loginfo("go lower right")
+    self.move(Inchworm.Neighbors.BOTTOM_RIGHT)
+    rospy.sleep(1)
+    rospy.loginfo("go right")
+    self.move(Inchworm.Neighbors.RIGHT)
+    rospy.sleep(1)
+    rospy.loginfo("go upper right")
+    self.move(Inchworm.Neighbors.UPPER_RIGHT)
+    rospy.sleep(1)
+    rospy.loginfo("go upper left")
+    self.move(Inchworm.Neighbors.UPPER_LEFT)
+    rospy.sleep(1)
+    rospy.loginfo("go left")
+    self.move(Inchworm.Neighbors.LEFT)
+    rospy.sleep(1)
+    rospy.loginfo("go lower left")
+    self.move(Inchworm.Neighbors.BOTTOM_LEFT)
+    rospy.sleep(1)
+    rospy.loginfo("straighten")
+    self.move(Inchworm.Neighbors.NONE)
 
 def difference(list1, list2):
   diff = [(list1[0] - list2[0]), (list1[1] - list2[1]), (list1[2] - list2[2]), (list1[3] - list2[3]), (list1[4] - list2[4])]
@@ -726,9 +763,32 @@ if __name__ == "__main__":
   iw = Inchworm(idx=0)
   rospy.sleep(1)
 
-  
-  iw.unitTest()
-  rospy.loginfo("go right")
-  iw.move(Inchworm.Neighbors.RIGHT)
+  iw.hexagon()
+  iw.move(Inchworm.Neighbors.LEFT)
   rospy.sleep(1)
-  iw.unitTest()
+  iw.hexagon()
+  
+  
+#  rospy.loginfo("grab right")
+#  iw.move(Inchworm.Neighbors.RIGHT, plantFoot=False)
+#  iw.pickupShingle(Inchworm.Neighbors.RIGHT)
+#  rospy.sleep(1)
+#  rospy.loginfo("place upper left")
+#  iw.move(Inchworm.Neighbors.UPPER_LEFT, plantFoot=False)
+#  iw.placeShingle(Inchworm.Neighbors.UPPER_LEFT)
+#  rospy.sleep(1)
+#  rospy.loginfo("go left")
+#  iw.move(Inchworm.Neighbors.LEFT)
+#  rospy.loginfo("go upper right")
+#  iw.move(Inchworm.Neighbors.UPPER_RIGHT)
+#  rospy.loginfo("straighten")
+#  iw.move(Inchworm.Neighbors.NONE)
+
+  
+  
+  
+
+  
+
+  #rospy.loginfo("grab left")
+  #iw.pickupShingle(6, iw.Neighbors.LEFT)
