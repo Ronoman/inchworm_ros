@@ -14,9 +14,11 @@ class ShingleManager():
     self.roof_height = roof_height
     self.shingle_count = roof_width * roof_height
 
-    # How many shingles moved to the roof so far
-    self.shingles_moved = 0
+    # How many shingles moved to the roof so far. Starts at roof_width since the first row starts on the roof
+    self.shingles_moved = roof_width
 
+    rospy.wait_for_service("/gazebo/set_model_state")
+    rospy.wait_for_service("/gazebo/get_model_state")
     self.gazebo_move_service = rospy.ServiceProxy("/gazebo/set_model_state", SetModelState)
     self.gazebo_get_service = rospy.ServiceProxy("/gazebo/get_model_state", GetModelState)
 
@@ -39,6 +41,10 @@ class ShingleManager():
     self.mate_suppress_proxy(req)
 
   def spawnShingle(self, roof_coord):
+    # Begin by suppressing the shingle on roof 1, then delay to make sure the suppress went through
+    self.suppressShingle(self.shingles_moved)
+    rospy.sleep(0.25)
+
     # Shingle placement constants. MUST match what is in inchworm_description/sdf/all_models.sdf
     # (except for Z Offset. Don't ask why, I don't know)
     SHINGLE_HEIGHT = 0.1829
@@ -83,8 +89,6 @@ class ShingleManager():
 
     req.model_state.reference_frame = "world"
 
-    print(req)
-
     self.gazebo_move_service(req)
     self.gazebo_move_service(req)
     self.gazebo_move_service(req)
@@ -111,21 +115,8 @@ if __name__ == "__main__":
   height = rospy.get_param("/roof_height")
 
   manager = ShingleManager(width, height)
-  rospy.sleep(2)
 
-  req = GetModelStateRequest()
-  req.model_name = "inchworm::shingle_description_0"
-  req.relative_entity_name = "world"
-
-  rospy.sleep(0.075)
-  res = manager.gazebo_get_service(req)
-  print(res)
-
-  for row in range(height):
-    for col in range(width):
-      manager.suppressShingle(row*width + col)
-      rospy.sleep(1)
-      manager.spawnShingle((col, row))
-      rospy.sleep(0.075)
-      res = manager.gazebo_get_service(req)
-  
+  manager.spawnShingle((0, 1))
+  manager.spawnShingle((0, 2))
+  manager.spawnShingle((0, 3))
+  manager.spawnShingle((0, 4))
