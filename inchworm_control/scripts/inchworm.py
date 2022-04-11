@@ -69,8 +69,6 @@ class Inchworm:
     Poses.LEFT_LIFT: Poses.RIGHT_LIFT
   }
 
- 
-
   # Used to figure the direction of the previous neighbor. If the inchworm just went to Neighbors.LEFT, it came from Neighbors.RIGHT.
   LAST_NEIGHBOR_MAP = {
     Neighbors.LEFT: Neighbors.RIGHT,
@@ -211,12 +209,8 @@ class Inchworm:
 
     # self.mag_state_pub = rospy.Publisher()
 
-    rospy.loginfo("Disabling all mates...")
-    self.suppressAll()
-
-    # This shouldn't disable any mates, and should enable mates adjacent to and including the starting shingle.
-    rospy.loginfo("Enabling starting point mates...")
-    self.updateSuppressedMates(-9999999999, self.coord_to_idx(self.on_coord))
+    rospy.loginfo("Initializing link mates...")
+    self.initializeMates()
 
     rospy.loginfo(f"Initialize inchworm class for inchworm {self.idx}.")
 
@@ -296,15 +290,16 @@ class Inchworm:
   #########################
   ### MAGNET MANAGEMENT ###
   #########################
-  def suppressAll(self):
+  def initializeMates(self):
     '''
-    Run on __init__(). Suppresses all robot mates. Immediately followed by a updateSuppressedMates() call to enable
-    starting position mates.
+    Run on __init__(). Deactivates all inchworm to shingle mates, then reenables just the bottom link.
     '''
 
+    # Scoped inchworm links
     iw_bot = ["inchworm", f"inchworm_description_{self.idx}", f"iw_root_{self.idx}"]
     iw_top = ["inchworm", f"inchworm_description_{self.idx}", f"iw_foot_top_{self.idx}"]
 
+    # Suppress both links, which will disable all shingle mates.
     req = SuppressLinkRequest()
     req.suppress = True
     req.scoped_link = iw_bot
@@ -314,80 +309,43 @@ class Inchworm:
     req.scoped_link = iw_top
     self.link_suppress_proxy(req)
 
-  def updateSuppressedMates(self, currently_on, going_to):
-    '''
-    Suppresses all possible mates for shingles adjacent to `currently_on`, 
-    unsuppresses all possible mates for shingles adjacent to `going_to`.
-    '''
-    
-    # Find all shingle indices adjacent to and including currently_on and going_to.
-    adj_current = self.getAdjacentShingleIndexes(self.idx_to_coord(currently_on)) + [currently_on] if currently_on > -1 else []
-    adj_going   = self.getAdjacentShingleIndexes(self.idx_to_coord(going_to)) + [going_to]
-
-    iw_bot = ["inchworm", f"inchworm_description_{self.idx}", f"iw_root_{self.idx}"]
-    iw_top = ["inchworm", f"inchworm_description_{self.idx}", f"iw_foot_top_{self.idx}"]
-
+    # Enable iw_root -> shingle_{on_coord}
     req = SuppressMateRequest()
+    req.suppress = False
+    req.scoped_male = iw_bot
+    req.scoped_female = ["inchworm", f"shingle_description_{self.on_shingle}", f"shingle_{self.on_shingle}"]
+
+    self.mate_suppress_proxy(req)
+
+  def swapMagnet(self, turnOff, turnOn, neighbor):
+    req = SuppressLinkRequest()
+    req.scoped_link = turnOff
     req.suppress = True
 
-    # Suppress all in adjacent current
-    for idx in adj_current:
-      rospy.loginfo(f"\tSuppressing shingle {idx}")
-      shingle = ["inchworm", f"shingle_description_{idx}", f"shingle_{idx}"]
+    self.link_suppress_proxy(req)
 
-      req.scoped_female = shingle
+    # Calculate neighbor shingle index
+    if self.on_coord[1] % 2 == 0:
+      inverted = {v: k for k, v in Inchworm.EVEN_ROW_LOOKUP_NEIGHBOR_MAP.items()}
+    else:
+      inverted = {v: k for k, v in Inchworm.ODD_ROW_LOOKUP_NEIGHBOR_MAP.items()}
 
-      req.scoped_male = iw_bot
-      self.mate_suppress_proxy(req)
+    neighbor_offset = inverted[neighbor]
+    going_to = (self.on_coord[0] + neighbor_offset[0], self.on_coord[1] + neighbor_offset[1])
+    going_to_idx = self.coord_to_idx(going_to)
 
-      req.scoped_male = iw_top
-      self.mate_suppress_proxy(req)
-
-    req.suppress = False
-
-    # Unsuppress all in where you're going to
-    for idx in adj_going:
-      rospy.loginfo(f"\tUnsuppressing shingle {idx}")
-      shingle = ["inchworm", f"shingle_description_{idx}", f"shingle_{idx}"]
-
-      req.scoped_female = shingle
-
-      if (self.foot_down == 0):
-        req.scoped_male = iw_bot
-        self.mate_suppress_proxy(req)
-
-      elif (self.foot_down == 1):
-        req.scoped_male = iw_top
-        self.mate_suppress_proxy(req)
-
-  def swapMagnet(self, turnOff, turnOn):
-    # Find all shingle indices adjacent to and including currently_on and going_to.
-    adj_current = self.getAdjacentShingleIndexes(self.idx_to_coord(self.on_shingle)) + [self.on_shingle] if self.on_shingle > -1 else []
+    rospy.loginfo(f"Going to shingle coordinate {going_to}")
+    shingle_idx = self.shingleToRoof(going_to_idx)
+    rospy.loginfo(f"Which is shingle index {shingle_idx}")
 
     req = SuppressMateRequest()
-    req.suppress = True
-
-    # Suppress all in adjacent current
-    for idx in adj_current:
-      rospy.loginfo(f"\tSuppressing shingle {idx}")
-      shingle = ["inchworm", f"shingle_description_{idx}", f"shingle_{idx}"]
-
-      req.scoped_female = shingle
-
-      req.scoped_male = turnOff
-      self.mate_suppress_proxy(req)
-
+    req.scoped_male = turnOn
+    req.scoped_female = ["inchworm", f"shingle_description_{shingle_idx}", f"shingle_{shingle_idx}"]
     req.suppress = False
 
-    # Unsuppress all in where you're going to (this is wrong, but this is for testing)
-    for idx in adj_current:
-      rospy.loginfo(f"\tUnsuppressing shingle {idx}")
-      shingle = ["inchworm", f"shingle_description_{idx}", f"shingle_{idx}"]
+    self.mate_suppress_proxy(req)
 
-      req.scoped_female = shingle
-
-      req.scoped_male = turnOn
-      self.mate_suppress_proxy(req)
+    rospy.sleep(0.25)
 
   def mateCB(self, msg):
     '''
@@ -411,16 +369,17 @@ class Inchworm:
 
           # Check if shingle is attached to roof
           for j,mate in enumerate(msg.female):
-            if f"shingle_description_{on_shingle}" in mate:
+            if f"shingle_description_{on_shingle}::" in mate:
               male_mate = msg.male[j]
               if f"roof_description_0" in male_mate:
                 # Shingle is on the roof. Update on_shingle and on_coord
-                rospy.loginfo(f"before: {self.on_shingle} after: {on_shingle}")
+                rospy.loginfo(f"inchworm_{self.idx} was on shingle_{self.on_shingle}, now on shingle_{on_shingle}")
+                rospy.loginfo(mate)
+                rospy.loginfo(male_mate)
                 self.on_shingle = on_shingle
                 roof_mate_idx = int(msg.male[j].split("::")[-1])
-                rospy.loginfo(f"Robot on roof index {roof_mate_idx}")
                 self.on_coord = self.idx_to_coord(roof_mate_idx)
-                rospy.loginfo(f"Robot on coord {self.on_coord}")
+                rospy.loginfo(f"inchworm_{self.idx} on index {roof_mate_idx}, coord {self.on_coord}")
 
                 return
 
@@ -490,24 +449,24 @@ class Inchworm:
 
     rospy.loginfo(f"foot down: {self.foot_down}")
     rospy.loginfo(f"on_shingle: {self.on_shingle}")
+
     if (self.foot_down == 0):
       turnOff = iw_bot
       turnOn = iw_top
       #switch to top foot
       foot_down = 1
-      pass
-    if (self.foot_down == 1):
+
+    elif (self.foot_down == 1):
       turnOff = iw_top
       turnOn = iw_bot
       #switch to bottom foot
       foot_down = 0
-      pass
 
     self.foot_down = foot_down
     #swap where the last neighbor was
     temp = self.lastNeighbor
     self.lastNeighbor = Inchworm.LAST_NEIGHBOR_MAP.get(temp)
-    self.swapMagnet(turnOff, turnOn)
+    self.swapMagnet(turnOff, turnOn, temp)
 
   ################
   ### SHINGLES ###
@@ -543,11 +502,26 @@ class Inchworm:
 
     last_mate = self.last_mate_msg
     for i,mate in enumerate(last_mate.male):
-      # If we find the corresponding roof mate point in the male list, lookup the shingle index and add it to the output list
-      if roof_idx == int(mate.split("::")[-1]):
+      # If we're not looking at the temporary roof, and the roof index matches, lookup the shingle index and add it to the output list
+      if mate.split("::")[1][-1] != "1" and roof_idx == int(mate.split("::")[-1]):
         shingle_idx = int(last_mate.female[i].split("::")[1].split("_")[-1])
+        return shingle_idx
 
-    return shingle_idx
+  def shingleToRoof(self, shingle_idx):
+    '''
+    Inverse of roofToShingle. Maps a shingle index to a roof index.
+    '''
+
+    roof_idx = None
+
+    while self.last_mate_msg is None:
+      rospy.sleep(0.1)
+
+    last_mate = self.last_mate_msg
+    for i,mate in enumerate(last_mate.female):
+      if mate.split("::")[-2] == f"shingle_{shingle_idx}":
+        roof_idx = int(last_mate.male[i].split("::")[-1])
+        return roof_idx
 
   def suppressShingle(self, shingle_idx):
     shingle = ["inchworm", f"shingle_description_{shingle_idx}", f"shingle_{shingle_idx}"]
@@ -758,37 +732,45 @@ def add(list1, list2):
 if __name__ == "__main__":
   # This only exists to test the class.
 
+  from shingle_manager import ShingleManager
+
   rospy.init_node("iw_class_test")
 
   iw = Inchworm(idx=0)
   rospy.sleep(1)
 
-  iw.hexagon()
-  iw.move(Inchworm.Neighbors.LEFT)
-  rospy.sleep(1)
-  iw.hexagon()
-  
-  
-#  rospy.loginfo("grab right")
-#  iw.move(Inchworm.Neighbors.RIGHT, plantFoot=False)
-#  iw.pickupShingle(Inchworm.Neighbors.RIGHT)
-#  rospy.sleep(1)
-#  rospy.loginfo("place upper left")
-#  iw.move(Inchworm.Neighbors.UPPER_LEFT, plantFoot=False)
-#  iw.placeShingle(Inchworm.Neighbors.UPPER_LEFT)
-#  rospy.sleep(1)
-#  rospy.loginfo("go left")
-#  iw.move(Inchworm.Neighbors.LEFT)
-#  rospy.loginfo("go upper right")
-#  iw.move(Inchworm.Neighbors.UPPER_RIGHT)
-#  rospy.loginfo("straighten")
-#  iw.move(Inchworm.Neighbors.NONE)
+  manager = ShingleManager(rospy.get_param("/roof_width"), rospy.get_param("/roof_height"))
 
-  
-  
-  
 
-  
+  # iw.move(Inchworm.Neighbors.UPPER_RIGHT)
+  # rospy.sleep(0.5)
+  # iw.move(Inchworm.Neighbors.UPPER_LEFT)
+  # rospy.sleep(0.5)
+  # iw.move(Inchworm.Neighbors.UPPER_RIGHT)
+  # rospy.sleep(3)
 
-  #rospy.loginfo("grab left")
-  #iw.pickupShingle(6, iw.Neighbors.LEFT)
+  # Place a shingle in each spot
+  for i in range(5):
+    manager.spawnShingle((0, 1))
+    rospy.sleep(0.5)
+    for j in range(4-i):
+      iw.move(Inchworm.Neighbors.UPPER_LEFT, plantFoot=False)
+      rospy.sleep(0.5)
+      iw.pickupShingle(Inchworm.Neighbors.UPPER_LEFT)
+      rospy.sleep(0.5)
+      iw.move(Inchworm.Neighbors.UPPER_RIGHT, plantFoot=False)
+      rospy.sleep(0.5)
+      iw.placeShingle(Inchworm.Neighbors.UPPER_RIGHT)
+      rospy.sleep(0.5)
+      iw.move(Inchworm.Neighbors.RIGHT)
+      rospy.sleep(0.5)
+    for j in range(4-i):
+      iw.move(Inchworm.Neighbors.LEFT)
+
+  # iw.move(Inchworm.Neighbors.RIGHT)
+  # iw.move(Inchworm.Neighbors.UPPER_LEFT)
+
+  # iw.hexagon()
+  # iw.move(Inchworm.Neighbors.LEFT)
+  # rospy.sleep(1)
+  # iw.hexagon()

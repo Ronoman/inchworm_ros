@@ -41,12 +41,12 @@ class InchwormActionServer:
     If the end effector is on a shingle, the inchworm will swap feet. WARNING: This assumes that the robot is in a good position to swap feet.
     '''
 
+    neighbor = self.inchworm.absoluteToNeighbor((goal.coord_x, goal.coord_y))
+
     # End effector is currently on the roof, so we need to swap it
     if (self.inchworm.foot_down == 0 and goal.end_effector == 0) or (self.inchworm.foot_down == 1 and goal.end_effector == 1):
       self.inchworm.swapFeet()
       rospy.sleep(2)
-
-    neighbor = self.inchworm.absoluteToNeighbor((goal.coord_x, goal.coord_y))
 
     # Move to that neighbor
     self.inchworm.move(neighbor, plantFoot=False)

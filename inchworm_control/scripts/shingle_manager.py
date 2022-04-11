@@ -41,6 +41,8 @@ class ShingleManager():
     self.mate_suppress_proxy(req)
 
   def spawnShingle(self, roof_coord):
+    rospy.loginfo(f"Spawning shingle at {roof_coord}")
+
     # Begin by suppressing the shingle on roof 1, then delay to make sure the suppress went through
     self.suppressShingle(self.shingles_moved)
     rospy.sleep(0.25)
@@ -116,7 +118,11 @@ if __name__ == "__main__":
 
   manager = ShingleManager(width, height)
 
-  manager.spawnShingle((0, 1))
-  manager.spawnShingle((0, 2))
-  manager.spawnShingle((0, 3))
-  manager.spawnShingle((0, 4))
+  # manager.spawnShingle((0, 1))
+  # manager.spawnShingle((0, 2))
+  # manager.spawnShingle((0, 3))
+  # manager.spawnShingle((0, 4))
+
+  for row in range(1, height-1):
+    for col in range(width-1, -1, -1):
+      manager.spawnShingle((col, row))
