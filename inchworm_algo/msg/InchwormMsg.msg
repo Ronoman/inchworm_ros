@@ -16,3 +16,4 @@ int8[] top_foot_valid_neighbors
 int8[] target
 int8 state
 int8[] claimed
+float32[] roof_conf

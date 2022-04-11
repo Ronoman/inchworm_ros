@@ -81,6 +81,8 @@ class Roof():
                 is_half_shingle == True
             new_shingle = Shingle(i, is_half_shingle)
             new_shingle = new_shingle.install_shingle(i, 0)
+            new_shingle.update_neighbor(0, ShingleStatus.INSTALLED)
+            new_shingle.update_neighbor(3, ShingleStatus.INSTALLED)
             self.shingle_array[0][i] = new_shingle
         self.shingle_count = self.width
         for shingleList in self.shingle_array:
