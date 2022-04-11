@@ -14,14 +14,14 @@ def jointStateCB(msg):
 def main():
   rospy.init_node("log_joints")
 
-  rospy.Subscriber("/inchworm/joint_states", JointState, jointStateCB)
+  rospy.Subscriber("/inchworm_0/joint_states", JointState, jointStateCB)
 
   while not rospy.is_shutdown():
     input()
 
     state = last_state
 
-    joint_names = ["iw_ankle_foot_bottom", "iw_beam_ankle_bottom", "iw_mid_joint", "iw_beam_ankle_top", "iw_ankle_foot_top"]
+    joint_names = ["iw_ankle_foot_bottom_0", "iw_beam_ankle_bottom_0", "iw_mid_joint_0", "iw_beam_ankle_top_0", "iw_ankle_foot_top_0"]
     cur_angles = []
 
     # Reorder the joint names to be the order specified by joint_names

@@ -416,7 +416,7 @@ class Inchworm:
     if (self.lastNeighbor != Inchworm.Neighbors.NONE):
       poses = Inchworm.NEIGHBOR_POSE_MAP.get(self.lastNeighbor)
       #hover above last place
-      self. moveTo(poses[0], 2.0)
+      self.moveTo(poses[0], 2.0)
       #lift above last place
       self.moveTo(poses[1], 2.0)
       rospy.sleep(1.0)
@@ -425,6 +425,8 @@ class Inchworm:
 
     
     poses = Inchworm.NEIGHBOR_POSE_MAP.get(neighbor)
+    print(f"NEIGHBOR: {neighbor}")
+    print(poses[1])
     #go to lift above next place
     self.moveTo(poses[1], 10.0)
     #hover above next place
@@ -740,14 +742,6 @@ if __name__ == "__main__":
   rospy.sleep(1)
 
   manager = ShingleManager(rospy.get_param("/roof_width"), rospy.get_param("/roof_height"))
-
-
-  # iw.move(Inchworm.Neighbors.UPPER_RIGHT)
-  # rospy.sleep(0.5)
-  # iw.move(Inchworm.Neighbors.UPPER_LEFT)
-  # rospy.sleep(0.5)
-  # iw.move(Inchworm.Neighbors.UPPER_RIGHT)
-  # rospy.sleep(3)
 
   # Place a shingle in each spot
   for i in range(5):
