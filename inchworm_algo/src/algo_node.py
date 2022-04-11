@@ -4,7 +4,7 @@ import rospy, sys, random
 
 from roof import Roof
 from inchworm import Inchworm, EEStatus
-from std_msgs.msg import Int32, Bool
+from std_msgs.msg import Int32, Bool, Int32MultiArray
 from shingle import ShingleStatus
 from inchworm_algo.msg import RoofState, InchwormsMsg
 from inchworm_algo.srv import GetInchwormState, GetInchwormStateResponse
@@ -26,11 +26,11 @@ def pauseCB(msg):
 def handle_get_inchworm_state(req):
     return GetInchwormStateResponse(state=inchworms[req.inchworm_idx].to_message())
 
-def spawn_inchworms(roof, inchworm_count):
+def spawn_inchworms(roof, inchworm_count, pat):
         inchworm_count = min(int(roof.width/2), inchworm_count)
         inchworms = []
         for inchworm_id in range(inchworm_count):
-            inchworms.append(Inchworm(id=inchworm_id, bottom_foot_pos=[inchworm_id * 2, 0], top_foot_pos=[(inchworm_id*2) + 1, 0], width=roof.width, height=roof.height, top_foot_stat=EEStatus.PLANTED))
+            inchworms.append(Inchworm(id=inchworm_id, bottom_foot_pos=[inchworm_id * 2, 0], top_foot_pos=[(inchworm_id*2) + 1, 0], width=roof.width, height=roof.height, top_foot_stat=EEStatus.PLANTED, pattern=pat))
             roof.inchworm_occ[0][inchworm_id * 2] = 1
             roof.inchworm_occ[0][(inchworm_id*2) + 1] = 1
         return inchworms
@@ -41,6 +41,8 @@ def update_inchworms(roof, inchworms):
     ticks += 1
     is_done = False
     random.shuffle(inchworms)
+    if ticks % 1000 == 0:
+        rospy.loginfo(ticks)
     for worm in inchworms:
         if worm is not None:
             worm.make_decision(roof)
@@ -71,23 +73,25 @@ if __name__ == "__main__":
         hz = int(sys.argv[4])
 
     roof = Roof(roof_width, roof_height, False)
-    
-    inchworms = spawn_inchworms(roof, inchworm_count)
 
-    roof_pub = rospy.Publisher("/algo/roof_state", RoofState, queue_size=1)
-    algo_finished_pub = rospy.Publisher("/algo/ticks_elapsed", Int32, queue_size=1)
-    inchworm_pub = rospy.Publisher("/algo/inchworms", InchwormsMsg, queue_size=1)
+    pattern = int(sys.argv[5])
+    inchworms = spawn_inchworms(roof, inchworm_count, pattern)
 
-    rate_sub = rospy.Subscriber("/algo/rate", Int32, rateCB)
-    pause_sub = rospy.Subscriber("/algo/pause", Bool, pauseCB)
+    roof_pub = rospy.Publisher("algo/roof_state", RoofState, queue_size=1)
+    algo_finished_pub = rospy.Publisher("/algo/ticks_elapsed", Int32MultiArray, queue_size=1)
+    inchworm_pub = rospy.Publisher("algo/inchworms", InchwormsMsg, queue_size=1)
 
-    rospy.Service("/algo/get_inchworm_state", GetInchwormState, handle_get_inchworm_state)
+    rate_sub = rospy.Subscriber("algo/rate", Int32, rateCB)
+    pause_sub = rospy.Subscriber("algo/pause", Bool, pauseCB)
+
+    rospy.Service("algo/get_inchworm_state", GetInchwormState, handle_get_inchworm_state)
 
     r = rospy.Rate(hz)
     status = False
     rospy.sleep(2) # time it takes to startup the algo viz
     while not rospy.is_shutdown() and not status:
         if not paused:
+
             roof_msg = roof.to_message()
             for worm in inchworms:
                 roof_msg.inchworms.append(worm.to_message())
@@ -96,7 +100,11 @@ if __name__ == "__main__":
             # inchworm_pub.publish(create_inchworms_msg(inchworms))
             if status:
                 rospy.loginfo("roof has been shingled")
-                finished_msg = Int32()
-                finished_msg.data = ticks
+                finished_msg = Int32MultiArray()
+                move_counts = []
+                for worm in inchworms:
+                    move_counts.append(worm.move_count)
+                finished_msg.data = [len(inchworms), ticks]
+                finished_msg.data.extend(move_counts)
                 algo_finished_pub.publish(finished_msg)
         r.sleep()

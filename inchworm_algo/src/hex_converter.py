@@ -1,7 +1,3 @@
-
-
-
-
 def cube_to_evenr(cube):
     q = cube[0]
     r = cube[1]

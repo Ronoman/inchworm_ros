@@ -88,7 +88,7 @@ class Shingle():
         self.y_coord = y
         self.on_frontier = True
         self.shingle_status = ShingleStatus.INSTALLED
-        print(self.shingle_status)
+        # print(self.shingle_status)
         return self
 
 
