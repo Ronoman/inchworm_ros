@@ -14,7 +14,6 @@ from std_msgs.msg import Int32MultiArray
 
 
 
-PATTERN = Pattern.OXEN_TURN.value
 
 durations = []
 running = 0
@@ -69,7 +68,7 @@ def main():
     if running < batch_size:
       print(f"Running test for inchworm count of {count}")
 
-      cli_args = [f"roof_width:={WIDTH}", f"roof_height:={HEIGHT}", f"rate:={RATE}", f"pattern:={PATTERN}", f"use_gui:=False", f"inchworm_count:={count}", f"name_space:={WIDTH}x{HEIGHT}_{pattern}_{count}"]
+      cli_args = [f"roof_width:={WIDTH}", f"roof_height:={HEIGHT}", f"rate:={RATE}", f"pattern:={pattern}", f"use_gui:=False", f"inchworm_count:={count}", f"name_space:={WIDTH}x{HEIGHT}_{pattern}_{count}"]
 
 
       launch_file = [(roslaunch.rlutil.resolve_launch_arguments(launch_path + cli_args)[0], cli_args)]
