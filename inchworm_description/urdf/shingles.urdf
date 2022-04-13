@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<robot name="shingle">
+  <link name="env_shingle">
+    <visual name="prism">
+        <geometry>
+            <box size="0.127 0.254 0.00635" />
+        </geometry>
+    </visual>
+
+    <collision>
+        <geometry>
+            <box size="0.127 0.254 0.00635" />
+        </geometry>
+    </collision>
+
+    <inertial>
+      <mass value="2.0" />
+      <inertia ixx="3.8554e-03" ixy="9.4075e-04" ixz="1.709e-04" iyy="4.445e-03" iyz="1.2246e-04" izz="2.5729e-03"/>
+    </inertial>
+  </link>
+
+
+</robot>
