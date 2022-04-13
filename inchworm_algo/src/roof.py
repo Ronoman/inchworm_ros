@@ -85,6 +85,8 @@ class Roof():
                 is_half_shingle == True
             new_shingle = Shingle(i, is_half_shingle)
             new_shingle = new_shingle.install_shingle(i, 0)
+            new_shingle.update_neighbor(0, ShingleStatus.INSTALLED)
+            new_shingle.update_neighbor(3, ShingleStatus.INSTALLED)
             self.shingle_array[0][i] = new_shingle
         self.shingle_count = self.width
         for shingleList in self.shingle_array:
@@ -111,11 +113,11 @@ class Roof():
         return self.shingle_count
 
 
-    def update_shingle_neighbor(self, target_shingle_x, target_shingle_y, shingle_n_x, shingle_n_y, n_id, n_status):
-        # figure out what the neighbor is based on x, y 
-        target_shingle = self.shingle_array[target_shingle_y][target_shingle_x]
-        n_index = self.get_shingle_n_index(target_shingle_x, target_shingle_y, shingle_n_x, shingle_n_y)
-        target_shingle.update_neighbor(n_id, n_index, n_status)
+    # def update_shingle_neighbor(self, target_shingle_x, target_shingle_y, shingle_n_x, shingle_n_y, n_id, n_status):
+    #     # figure out what the neighbor is based on x, y 
+    #     target_shingle = self.shingle_array[target_shingle_y][target_shingle_x]
+    #     n_index = self.get_shingle_n_index(target_shingle_x, target_shingle_y, shingle_n_x, shingle_n_y)
+    #     target_shingle.update_neighbor(n_id, n_index, n_status)
         
 
     def spawn_depots(self, spawn_opposite_side):

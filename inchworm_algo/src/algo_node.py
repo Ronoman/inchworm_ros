@@ -24,7 +24,11 @@ def pauseCB(msg):
     paused = msg.data
 
 def handle_get_inchworm_state(req):
-    return GetInchwormStateResponse(state=inchworms[req.inchworm_idx].to_message())
+    idx = 0
+    for i, worm in enumerate(inchworms):
+        if worm.id == req.inchworm_idx:
+            idx = i
+    return GetInchwormStateResponse(state=inchworms[idx].to_message())
 
 def spawn_inchworms(roof, inchworm_count, pat):
         inchworm_count = min(int(roof.width/2), inchworm_count)

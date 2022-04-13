@@ -7,7 +7,7 @@ from inchworm_algo.srv import GetInchwormState, GetInchwormStateRequest
 def main():
     rospy.init_node("inspect_state")
 
-    proxy = rospy.ServiceProxy("/algo/get_inchworm_state", GetInchwormState)
+    proxy = rospy.ServiceProxy("/algo/algo/get_inchworm_state", GetInchwormState)
 
     while not rospy.is_shutdown():
         idx = int(input("Inchworm index: "))
