@@ -27,24 +27,25 @@ class Inchworm:
 
   class Poses(Enum):
     STRAIGHT = 0
-    UPPER_LEFT_DOWN = 1
-    UPPER_LEFT_HOVER = 2
-    UPPER_LEFT_LIFT = 3
-    UPPER_RIGHT_DOWN = 4
-    UPPER_RIGHT_HOVER = 5
-    UPPER_RIGHT_LIFT = 6
-    RIGHT_DOWN = 7
-    RIGHT_HOVER = 8
-    RIGHT_LIFT = 9
-    BOTTOM_RIGHT_DOWN = 10
-    BOTTOM_RIGHT_HOVER = 11
-    BOTTOM_RIGHT_LIFT = 12
-    BOTTOM_LEFT_DOWN = 13
-    BOTTOM_LEFT_HOVER = 14
-    BOTTOM_LEFT_LIFT = 15
-    LEFT_DOWN = 16
-    LEFT_HOVER = 17
-    LEFT_LIFT = 18
+    RETRACT = 1
+    UPPER_LEFT_DOWN = 2
+    UPPER_LEFT_HOVER = 3
+    UPPER_LEFT_LIFT = 4
+    UPPER_RIGHT_DOWN = 5
+    UPPER_RIGHT_HOVER = 6
+    UPPER_RIGHT_LIFT = 7
+    RIGHT_DOWN = 8
+    RIGHT_HOVER = 9
+    RIGHT_LIFT = 10
+    BOTTOM_RIGHT_DOWN = 11
+    BOTTOM_RIGHT_HOVER = 12
+    BOTTOM_RIGHT_LIFT = 13
+    BOTTOM_LEFT_DOWN = 14
+    BOTTOM_LEFT_HOVER = 15
+    BOTTOM_LEFT_LIFT = 16
+    LEFT_DOWN = 17
+    LEFT_HOVER = 18
+    LEFT_LIFT = 19
 
   # Maps equivalent poses for swapping end effectors. If the upper end effector is down, then a lookup is done in this table to choose the correct pose.
   EE_POSE_MAP = {
@@ -93,6 +94,7 @@ class Inchworm:
   # Maps the Poses enum onto JointConstants (5-tuple of joint angles for a given pose) for bottom EE
   POSE_JOINT_MAP_BOTTOM = {
     Poses.STRAIGHT: JointConstants.BottomEE.straight,
+    Poses.RETRACT: JointConstants.BottomEE.retract,
 
     Poses.UPPER_LEFT_HOVER: JointConstants.BottomEE.upper_left,
     Poses.UPPER_LEFT_DOWN: JointConstants.BottomEE.upper_left_down,
@@ -122,6 +124,7 @@ class Inchworm:
   # Maps the Poses enum onto JointConstants (5-tuple of joint angles for a given pose) for top EE
   POSE_JOINT_MAP_TOP = {
     Poses.STRAIGHT: JointConstants.TopEE.straight,
+    Poses.RETRACT: JointConstants.TopEE.retract,
 
     Poses.UPPER_LEFT_HOVER: JointConstants.TopEE.upper_left,
     Poses.UPPER_LEFT_DOWN: JointConstants.TopEE.upper_left_down,
@@ -189,7 +192,7 @@ class Inchworm:
     #self.position = self.idx
 
     #for higher abstraction, last neighbor sent
-    self.lastNeighbor = self.Neighbors.NONE
+    self.lastNeighbor = Inchworm.Neighbors.NONE
     # The roof coordinate that the robot is currently on. Roof idx != shingle idx. Updated by mateCB
     self.on_coord = self.idx_to_coord(self.idx)
 
@@ -408,9 +411,41 @@ class Inchworm:
 
     self.planner.run_quintic_traj(angles, time)
 
+  def retract(self):
+    '''
+    Will retract the inchworm to the spin position.
+    '''
+
+    angles = self.planner.get_joint_state()
+
+    if self.foot_down == 0:
+      angles[1:4] = Inchworm.POSE_JOINT_MAP_BOTTOM.get(Inchworm.Poses.RETRACT)[1:4]
+
+    elif self.foot_down == 1:
+      angles[1:4] = Inchworm.POSE_JOINT_MAP_TOP.get(Inchworm.Poses.RETRACT)[1:4]
+
+    print(angles)
+
+    self.planner.run_quintic_traj(angles, 3.0)
+
+  def spinTo(self, neighbor):
+    '''
+    Spins the robot (while in the retract position) to point at a neighbor
+    '''
+
+    angles = self.planner.get_joint_state()
+
+    if self.foot_down == 0:
+      angles[0] = Inchworm.POSE_JOINT_MAP_BOTTOM.get(Inchworm.NEIGHBOR_POSE_MAP.get(neighbor)[0])[0]
+
+    elif self.foot_down == 1:
+      angles[-1] = Inchworm.POSE_JOINT_MAP_TOP.get(Inchworm.NEIGHBOR_POSE_MAP.get(neighbor)[0])[-1]
+
+    self.planner.run_quintic_traj(angles, 3.0)
+
   def move(self, neighbor, plantFoot=True):
     '''
-    Moves the robot to an adjacent shingle. Will automatically swap feet, unless neighbor is NONE (robot stands straight up)
+    Moves the robot to an adjacent shingle. Will swap feet if plantFoot, unless neighbor is NONE (robot stands straight up)
     '''
     #if the inchworm is not straight up and down, move up from last position
     if (self.lastNeighbor != Inchworm.Neighbors.NONE):
@@ -420,15 +455,21 @@ class Inchworm:
       #lift above last place
       self.moveTo(poses[1], 2.0)
       rospy.sleep(1.0)
-      #grab the last place
-      #lift above the last place
+      
+      # Move to spin position
+      self.retract()
+      rospy.sleep(1.0)
 
     
     poses = Inchworm.NEIGHBOR_POSE_MAP.get(neighbor)
     print(f"NEIGHBOR: {neighbor}")
-    print(poses[1])
+    
+    # Point at neighbor
+    self.spinTo(neighbor)
+    rospy.sleep(0.5)
+
     #go to lift above next place
-    self.moveTo(poses[1], 10.0)
+    self.moveTo(poses[1], 3.0)
     #hover above next place
     self.moveTo(poses[0], 2.0)
     #plant foot
@@ -728,8 +769,47 @@ def add(list1, list2):
   diff = [(list1[0] + list2[0]), (list1[1] + list2[1]), (list1[2] + list2[2]), (list1[3] + list2[3]), (list1[4] + list2[4])]
   return diff
 
+def shingleEvenRow(row):
+  # Place a shingle in each spot
+  for i in range(5):
+    manager.spawnShingle((0, row))
+    rospy.sleep(0.5)
+    for j in range(4-i):
+      iw.move(Inchworm.Neighbors.UPPER_LEFT, plantFoot=False)
+      rospy.sleep(0.5)
+      iw.pickupShingle(Inchworm.Neighbors.UPPER_LEFT)
+      rospy.sleep(0.5)
+      iw.move(Inchworm.Neighbors.UPPER_RIGHT, plantFoot=False)
+      rospy.sleep(0.5)
+      iw.placeShingle(Inchworm.Neighbors.UPPER_RIGHT)
+      rospy.sleep(0.5)
 
+      if j != (4-i-1):
+        iw.move(Inchworm.Neighbors.RIGHT)
+        rospy.sleep(0.5)
+    for j in range(3-i):
+      iw.move(Inchworm.Neighbors.LEFT)
 
+def shingleOddRow(row):
+  # Place a shingle in each spot
+  for i in range(5):
+    manager.spawnShingle((0, row))
+    rospy.sleep(0.5)
+    for j in range(4-i):
+      iw.move(Inchworm.Neighbors.UPPER_LEFT, plantFoot=False)
+      rospy.sleep(0.5)
+      iw.pickupShingle(Inchworm.Neighbors.UPPER_LEFT)
+      rospy.sleep(0.5)
+      iw.move(Inchworm.Neighbors.UPPER_RIGHT, plantFoot=False)
+      rospy.sleep(0.5)
+      iw.placeShingle(Inchworm.Neighbors.UPPER_RIGHT)
+      rospy.sleep(0.5)
+
+      if j != (4-i-1):
+        iw.move(Inchworm.Neighbors.RIGHT)
+        rospy.sleep(0.5)
+    for j in range(3-i):
+      iw.move(Inchworm.Neighbors.LEFT)
 
 if __name__ == "__main__":
   # This only exists to test the class.
@@ -743,28 +823,14 @@ if __name__ == "__main__":
 
   manager = ShingleManager(rospy.get_param("/roof_width"), rospy.get_param("/roof_height"))
 
-  # Place a shingle in each spot
-  for i in range(5):
-    manager.spawnShingle((0, 1))
-    rospy.sleep(0.5)
-    for j in range(4-i):
-      iw.move(Inchworm.Neighbors.UPPER_LEFT, plantFoot=False)
-      rospy.sleep(0.5)
-      iw.pickupShingle(Inchworm.Neighbors.UPPER_LEFT)
-      rospy.sleep(0.5)
-      iw.move(Inchworm.Neighbors.UPPER_RIGHT, plantFoot=False)
-      rospy.sleep(0.5)
-      iw.placeShingle(Inchworm.Neighbors.UPPER_RIGHT)
-      rospy.sleep(0.5)
-      iw.move(Inchworm.Neighbors.RIGHT)
-      rospy.sleep(0.5)
-    for j in range(4-i):
-      iw.move(Inchworm.Neighbors.LEFT)
+  iw.move(Inchworm.Neighbors.RIGHT)
+  iw.move(Inchworm.Neighbors.RIGHT)
+  iw.move(Inchworm.Neighbors.RIGHT)
 
-  # iw.move(Inchworm.Neighbors.RIGHT)
-  # iw.move(Inchworm.Neighbors.UPPER_LEFT)
-
-  # iw.hexagon()
-  # iw.move(Inchworm.Neighbors.LEFT)
-  # rospy.sleep(1)
-  # iw.hexagon()
+  # for row in range(4):
+  #   if (row+1) % 2 == 0:
+  #     shingleEvenRow(row+1)
+  #     iw.move(Inchworm.Neighbors.UPPER_LEFT)
+  #   else:
+  #     shingleOddRow(row+1)
+  #     iw.move(Inchworm.Neighbors.UPPER_RIGHT)

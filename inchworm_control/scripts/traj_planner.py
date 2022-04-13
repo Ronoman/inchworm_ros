@@ -110,7 +110,16 @@ class TrajectoryPlanner:
     return (positions, velocities, accelerations)
 
   def get_joint_state(self):
-    return self.current_joint_state
+    last_states = self.current_joint_state
+
+    joint_names = [f"iw_ankle_foot_bottom_{self.idx}", f"iw_beam_ankle_bottom_{self.idx}", f"iw_mid_joint_{self.idx}", f"iw_beam_ankle_top_{self.idx}", f"iw_ankle_foot_top_{self.idx}"]
+    cur_angles = []
+
+    # Reorder the joint names to be the order specified by joint_names
+    for name in joint_names:
+      cur_angles.append(last_states.position[last_states.name.index(name)])
+
+    return cur_angles
 
   def run_quintic_traj(self, angles, duration, num_pts=50, wait=True):
     '''
@@ -124,14 +133,7 @@ class TrajectoryPlanner:
     while self.current_joint_state is None:
       rospy.sleep(0.1)
 
-    last_states = self.current_joint_state
-
-    joint_names = [f"iw_ankle_foot_bottom_{self.idx}", f"iw_beam_ankle_bottom_{self.idx}", f"iw_mid_joint_{self.idx}", f"iw_beam_ankle_top_{self.idx}", f"iw_ankle_foot_top_{self.idx}"]
-    cur_angles = []
-
-    # Reorder the joint names to be the order specified by joint_names
-    for name in joint_names:
-      cur_angles.append(last_states.position[last_states.name.index(name)])
+    cur_angles = self.get_joint_state()
 
     # The desired angles from the payload
     new_angles = [float(q) for q in angles]
@@ -157,7 +159,7 @@ class TrajectoryPlanner:
 
     # Compose the full joint trajectory
     trajectory = JointTrajectory()
-    trajectory.joint_names = joint_names
+    trajectory.joint_names = [f"iw_ankle_foot_bottom_{self.idx}", f"iw_beam_ankle_bottom_{self.idx}", f"iw_mid_joint_{self.idx}", f"iw_beam_ankle_top_{self.idx}", f"iw_ankle_foot_top_{self.idx}"]
     trajectory.points = traj_pts
 
     trajectory.header.stamp = rospy.Time.now()

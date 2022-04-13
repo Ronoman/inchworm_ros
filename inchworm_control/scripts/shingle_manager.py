@@ -123,6 +123,5 @@ if __name__ == "__main__":
   # manager.spawnShingle((0, 3))
   # manager.spawnShingle((0, 4))
 
-  for row in range(1, height-1):
-    for col in range(width-1, -1, -1):
-      manager.spawnShingle((col, row))
+  for col in range(width-1, -1, -1):
+    manager.spawnShingle((col, 1))
