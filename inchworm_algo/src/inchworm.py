@@ -2,11 +2,9 @@
 
 from enum import Enum
 
-from importlib.resources import path
-from operator import truediv
-from pickletools import int4
+import cv2 as cv
 import numpy as np
-
+from PIL import Image
 
 
 
@@ -57,6 +55,14 @@ class Pattern(Enum):
     OXEN_TURN = 0
     DIAGONAL = 1
 
+CONF_CUTOFF_THRESH = 4.5
+CONF_EXPLORE_THRESH = 9.0
+INSTALLED_CONF = 75.0
+DEFAULT_CONF = 10.0
+PLACED_SHINGLE_CONF = 1.5
+CONF_DECRESS = 0.5
+LOW_CONF = 0.6
+PROB_OF_EXPLORE_IF_CANT_MOVE = 0.25
 
 # TODO: WE ARE CURRENTLY IGNORRING HALF SHINGLES
 class Inchworm():
@@ -108,7 +114,7 @@ class Inchworm():
         self.target = None
         self.roof_confidence = [0.0] * width * height
         for i in range(width):
-            self.roof_confidence[i] = 75.0
+            self.roof_confidence[i] = INSTALLED_CONF
         self.last_positions = []
         self.stuck_count = 0
         self.old_bottom_foot = None
@@ -195,7 +201,7 @@ class Inchworm():
 
 
     def get_shingle_state(self, x, y):
-        if self.get_shingle_conf(x, y) <= 0.6:
+        if self.get_shingle_conf(x, y) <= CONF_CUTOFF_THRESH:
             self.set_shingle_state(x, y, ShingleStatus.UNINSTALLED)
         return self.roof[x][y]
 
@@ -203,9 +209,11 @@ class Inchworm():
     def set_shingle_state(self, x, y, shingle_state, realiable=True):
         if realiable:
             if shingle_state == ShingleStatus.INSTALLED:
-                self.set_shingle_conf(x, y, 75.0)
+                self.set_shingle_conf(x, y, INSTALLED_CONF)
             else:
-                self.set_shingle_conf(x, y, 10)
+                self.set_shingle_conf(x, y, DEFAULT_CONF)
+        # elif self.roof[x][y] == ShingleStatus.UNINSTALLED and shingle_state == ShingleStatus.PLACED:
+            #  self.set_shingle_conf(x, y, PLACED_SHINGLE_CONF)
         if self.roof[x][y] != ShingleStatus.INSTALLED:
             self.roof[x][y] = shingle_state
 
@@ -398,7 +406,7 @@ class Inchworm():
             for j, occ in enumerate(row):
                 # rospy.loginfo(f"inchworm {self.id} rebuilding {[j, i]}: {occ}")
                 if occ == ShingleStatus.INSTALLED:
-                    if self.get_shingle_conf(j, i) > 0.2:
+                    if self.get_shingle_conf(i, j) > CONF_CUTOFF_THRESH:
                         self.make_children_valid(i, j)
                         
 
@@ -545,7 +553,7 @@ class Inchworm():
                 if self.placed_shingle_is_valid(coord) == True:
                     x_coord = coord[0]
                     y_coord = coord[1]
-                    return coord
+                    # return coord
                     # if self.pattern == Pattern.DIAGONAL:
                     #     return [x_coord, y_coord]
                 # rospy.loginfo(
@@ -618,7 +626,7 @@ class Inchworm():
 
         possible_targets = list(zip(neighbors, conf))
 
-        possible_targets = list(filter(lambda x: x[1] < 7, possible_targets))
+        possible_targets = list(filter(lambda x: x[1] < CONF_EXPLORE_THRESH, possible_targets))
 
         random.shuffle(possible_targets)
 
@@ -628,24 +636,54 @@ class Inchworm():
         if len(possible_targets) > 0:
             self.target = possible_targets[0][0]
         else:
-            self.target = [random.randint(0, self.roof_width), random.randint(0, len(self.roof[0]))]
+            roof_image = []
+            for i in range(len(self.roof[0])):
+                row = []
+                for j in range(len(self.roof)):
+                    row.append((self.roof[j][i].value))
+                roof_image.append(row)
+
+            roof_image = np.asarray(roof_image)
+
+            rospy.loginfo(roof_image)
+
+            # convert image to grayscale image
+            roof_image = np.array(roof_image.astype(np.uint8))
+            # gray_image = cv.cvtColor(np.int8(roof_image), cv.COLOR_BGR2GRAY)
+
+
+            
+
+            # convert the grayscale image to binary image
+            ret,thresh = cv.threshold(roof_image,1,255,1)
+
+            # calculate moments of binary image
+            M = cv.moments(thresh)
+
+            # calculate x,y coordinate of center
+            cX = int(M["m10"] / M["m00"])
+            cY = int(M["m01"] / M["m00"])
+
+
+            rospy.logwarn(f"inchworm {self.id} is exploring to a random location centroid at {[cX, cY]}")
+            self.target = [cX, cY]
 
     def make_state_explore(self, real_roof):
-        if random.random() > 0.25:
-            self.set_least_conf_neighbor_as_target()
+        
+        self.set_least_conf_neighbor_as_target()
 
-            if Inchworm.dist(self.bottom_foot_position, self.target) > Inchworm.dist(self.top_foot_position, self.target):
-                self.decide_on_movement_to_shingle(EE.BOTTOM_FOOT, self.valid_foot_positions, real_roof)
-            else:
-                self.decide_on_movement_to_shingle(EE.TOP_FOOT, self.valid_foot_positions, real_roof)
-            if len(self.ee_shingle_neighbors) > 0 and (real_roof.get_occ_position(self.ee_shingle_neighbors[0]["pos"]) == 0 or self.check_self_claimed(self.ee_shingle_neighbors[0]["pos"])):
-                self.claim_pos(real_roof, self.ee_shingle_neighbors[0]["pos"])
-                self.explore_state = 1
-                self.robot_state = RobotState.EXPLORE
-            else:
-                self.robot_state = RobotState.MAKE_DECISION
+        if Inchworm.dist(self.bottom_foot_position, self.target) > Inchworm.dist(self.top_foot_position, self.target):
+            self.decide_on_movement_to_shingle(EE.BOTTOM_FOOT, self.valid_foot_positions, real_roof)
+        else:
+            self.decide_on_movement_to_shingle(EE.TOP_FOOT, self.valid_foot_positions, real_roof)
+        if len(self.ee_shingle_neighbors) > 0 and (real_roof.get_occ_position(self.ee_shingle_neighbors[0]["pos"]) == 0 or self.check_self_claimed(self.ee_shingle_neighbors[0]["pos"])):
+            self.claim_pos(real_roof, self.ee_shingle_neighbors[0]["pos"])
+            self.explore_state = 1
+            rospy.loginfo(f'inchworm {self.id} is exploring {self.ee_shingle_neighbors[0]["pos"]}')
+            self.robot_state = RobotState.EXPLORE
         else:
             self.robot_state = RobotState.MAKE_DECISION
+      
 
 
 
@@ -664,7 +702,7 @@ class Inchworm():
         if len(self.ee_shingle_neighbors) > 0 and self.calc_inchworm_pos() not in self.last_positions and (real_roof.get_occ_position(self.ee_shingle_neighbors[0]["pos"]) == 0 or self.check_self_claimed(self.ee_shingle_neighbors[0]["pos"])):
             self.claim_pos(real_roof, self.ee_shingle_neighbors[0]["pos"])
             self.robot_state = RobotState.MOVE_TO_TARGET
-        elif random.random() > 0.25:
+        elif random.random() > PROB_OF_EXPLORE_IF_CANT_MOVE:
             self.make_state_explore(real_roof)
 
     def get_shingle_neighbors(self, pos):
@@ -681,24 +719,12 @@ class Inchworm():
                         shingle_neighbors.append(n)
         return shingle_neighbors
 
-    # TODO: GET RID OF THIS ASAP
-    def update_robot_roof(self, real_roof):
 
-        self.roof = [[None for i in range(len(real_roof.shingle_array))] for j in range(len(real_roof.shingle_array[0]))]
-
-        for ii, y in enumerate(real_roof.shingle_array):
-            for jj, x in enumerate(real_roof.shingle_array[ii]):
-                if x is not None:
-                    self.roof[jj][ii] = x.shingle_status
-                else:
-                    self.roof[jj][ii] = ShingleStatus.UNINSTALLED
-
-        pass
 
     def decress_conf(self):
         for i, val in enumerate(self.roof_confidence):
-                if val > 0.6:
-                    self.roof_confidence[i] = val - 0.5
+                if val > LOW_CONF:
+                    self.roof_confidence[i] = val - CONF_DECRESS
 
 
     def make_decision(self, real_roof):
@@ -735,9 +761,7 @@ class Inchworm():
             self.read_shingle_at(real_roof, self.bottom_foot_position)
             self.read_shingle_at(real_roof, self.top_foot_position)
             
-            # rospy.loginfo(f"the roof before rebuild is {self.roof}")
-
-            # self.update_robot_roof(real_roof)
+            
 
             # rospy.loginfo(f"the roof after rebuild is {self.roof}")
 
@@ -907,8 +931,8 @@ class Inchworm():
                                 self.claim_pos(real_roof, self.ee_shingle_neighbors[0]["pos"])
                                 self.robot_state = RobotState.MOVE_TO_TARGET
                                 self.stuck_count = 0
-                            elif random.random() > 0.5:
-                                self.make_state_explore(real_roof)
+                            # elif random.random() > 0.25:
+                            #     self.make_state_explore(real_roof)
 
 
                     else:
