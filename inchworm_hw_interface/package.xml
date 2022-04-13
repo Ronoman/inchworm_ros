@@ -53,6 +53,12 @@
   <exec_depend>message_runtime</exec_depend>
 
   <depend>std_msgs</depend>
+  <depend>controller_manager</depend>
+  <depend>hardware_interface</depend>
+  <depend>joint_limits_interface</depend>
+  <depend>roscpp</depend>
+  <depend>rosparam_shortcuts</depend>
+
 
   <!-- The export tag contains other, unspecified, tags -->
   <export>

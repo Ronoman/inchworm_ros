@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-import serial, rospy, subprocess, sys, struct, inspect
+import serial, rospy, subprocess, struct, inspect, math
 
 from threading import Lock
 
@@ -67,23 +67,27 @@ def heartbeat(byte_arr):
 
 def joint_poses(byte_arr):
     # Unpack 10 contiguous doubles
-    poses = struct.unpack("<" + "d"*5, byte_arr)
+    poses = struct.unpack("<" + "d"*15, byte_arr)
+
+    if True:
+        debug_str = String(f"Pose arr: {poses}")
+        debug_pub.publish(debug_str)
 
     joint_state_msg = JointState()
 
     joint_state_msg.header.stamp = rospy.Time.now()
 
     # TODO: Figure out the naming convention for joints, because this is bad and inconsistent
-    joint_state_msg.name = ["j0", "j1", "j2", "j3", "j4"]
+    joint_state_msg.name = ["iw_ankle_foot_bottom", "iw_beam_ankle_bottom", "iw_mid_joint", "iw_beam_ankle_top", "iw_ankle_foot_top"]
 
     for pos in poses[:5]:
-        joint_state_msg.position.append(pos)
+        joint_state_msg.position.append(math.radians(pos))
 
-    # for vel in poses[5:10]:
-    #     joint_state_msg.velocity.append(vel)
+    for vel in poses[5:10]:
+        joint_state_msg.velocity.append(vel)
 
-    # for effort in poses[10:]:
-    #     joint_state_msg.effort.append(effort)
+    for effort in poses[10:]:
+        joint_state_msg.effort.append(effort)
 
     joint_poses_pub.publish(joint_state_msg)
 
@@ -96,16 +100,10 @@ def joint_goal(byte_arr):
     joint_state_msg.header.stamp = rospy.Time.now()
 
     # TODO: Figure out the naming convention for joints, because this is bad and inconsistent
-    joint_state_msg.name = ["j0", "j1", "j2", "j3", "j4"]
+    joint_state_msg.name = ["iw_ankle_foot_bottom", "iw_beam_ankle_bottom", "iw_mid_joint", "iw_beam_ankle_top", "iw_ankle_foot_top"]
 
     for pos in poses[:5]:
-        joint_state_msg.position.append(pos)
-
-    # for vel in poses[5:10]:
-    #     joint_state_msg.velocity.append(vel)
-
-    # for effort in poses[10:]:
-    #     joint_state_msg.effort.append(effort)
+        joint_state_msg.position.append(math.radians(pos))
 
     joint_goal_pub.publish(joint_state_msg)
 
@@ -180,7 +178,7 @@ def send_heartbeat(msg):
 
 def send_joint_goal(msg):
     command = struct.pack(">cxxxxxxx", b"g")
-    data = struct.pack("<" + "d"*5, *msg.position)
+    data = struct.pack("<" + "d"*5, *[math.degrees(p) for p in msg.position])
 
     to_send = command + data
 
@@ -231,7 +229,7 @@ def init_pubs():
     heartbeat_pub = rospy.Publisher("heartbeat_res", Int32, queue_size=1)
     joint_poses_pub = rospy.Publisher("joint_states", JointState, queue_size=1)
     joint_goal_pub = rospy.Publisher("joint_goal", JointState, queue_size=1)
-    pid_consts_pub = rospy.Publisher("pid_consts", PIDConsts, queue_size=1)
+    pid_consts_pub = rospy.Publisher("pid_consts", PIDConsts, latch=True, queue_size=1)
     magnet_state_pub = rospy.Publisher("magnet_states", MagnetState, queue_size=1)
     debug_pub = rospy.Publisher("debug", String, queue_size=1)
     fault_pub = rospy.Publisher("fault", String, queue_size=1)
@@ -293,8 +291,8 @@ def init_serial():
 # More info in https://docs.google.com/document/d/1m7oZZbM0VJFrIxo1KRNSXnIhmvcEmCzY7amgNRJE87Q/edit?usp=sharing
 char_fn_map = {
     b"h": (16, heartbeat),
-    # 8 command + sizeof(double[10])
-    b"j": (48, joint_poses),
+    # 8 command + sizeof(double[15])
+    b"j": (128, joint_poses),
     # 8 command + sizeof(double[5])
     b"g": (48, joint_goal),
     b"p": (248, pid_consts),
@@ -322,7 +320,10 @@ if __name__ == "__main__":
         # If it's a valid command, parse it. Otherwise, skip this character
         if type_char in char_fn_map:
             if VERBOSE:
-                print(f"Received {type_char.decode()} message")
+                # Message command characters to ignore
+                suppress = ["d", "j"]
+                if type_char.decode() not in suppress:
+                    print(f"Received {type_char.decode()} message")
 
             # Skip 7 padding bytes
             _ = serial_port.read(7)

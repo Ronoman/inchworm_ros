@@ -1,6 +1,8 @@
 <launch>
   <arg name="model_name" default="inchworm"/>
-  <arg name="model" default="inchworm_description"/>
+  <arg name="model" default="updated_description"/>
+  <arg name="shingle_name" default="shingle"/>
+  <arg name="shingle_model" default="shingle"/>
   <arg name="gui" default="true"/>
   <arg name="paused" default="true"/>
 
@@ -13,6 +15,8 @@
   <group ns="$(arg model_name)">
 
     <param name="/inchworm/robot_description" command="$(find xacro)/xacro $(find inchworm_description)/urdf/$(arg model).urdf"/>
+
+    <param name="/$(arg shingle_name)/robot_description" command="$(find xacro)/xacro $(find inchworm_description)/urdf/$(arg shingle_model).urdf"/>
 
     <node name="tf_footprint_base" pkg="tf" type="static_transform_publisher" args="0 0 0 0 0 0 base_link base_footprint 100" />
 
@@ -37,4 +41,6 @@
         joint_effort_controller_joint_5" />
 
   <node name="spawn_model" pkg="gazebo_ros" type="spawn_model" args="-param $(arg model_name)/robot_description -urdf -model $(arg model_name)" output="screen" />
+  <node name="spawn_shingle" pkg="gazebo_ros" type="spawn_model" args="-param $(arg shingle_name)/robot_description -urdf -model $(arg shingle_name) -x 0.1 -y 0.127" output="screen" />
+
 </launch>

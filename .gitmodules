@@ -1,3 +1,0 @@
-[submodule "lcsr_assembly"]
-	path = lcsr_assembly
-	url = git@github.com:honeybee-robotics-forks/lcsr_assembly.git
