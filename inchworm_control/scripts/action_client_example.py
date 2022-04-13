@@ -15,46 +15,55 @@ def main():
 
   rospy.loginfo("Got servers, sending goals.")
 
-  goal = InchwormGoal()
+  goal0 = InchwormGoal()
+  goal1 = InchwormGoal()
 
   # Move action
-  goal.action_type = 0
-
-  goal.coord_x = 1
-  goal.coord_y = 1
-
+  goal0.action_type = 0
+  goal0.coord_x = 1
+  goal0.coord_y = 2
   # Top end effector
-  goal.end_effector = 1
+  goal0.end_effector = 1
 
-  client_0.send_goal(goal)
+  client_0.send_goal(goal0)
 
   rospy.sleep(1)
 
-  goal.coord_x = 2
-  client_1.send_goal(goal)
+  goal1.action_type = 0
+  goal1.coord_x = 1
+  goal1.coord_y = 0
+  goal1.end_effector = 1
+  client_1.send_goal(goal1)
 
   client_0.get_state()
 
   client_0.wait_for_result()
   client_1.wait_for_result()
 
-  goal.coord_x = 0
-  goal.coord_y = 2
-  goal.end_effector = 0
+  # Move action
+  goal0.action_type = 0
+  goal0.coord_x = 2
+  goal0.coord_y = 1
+  # Top end effector
+  goal0.end_effector = 0
 
-  client_0.send_goal(goal)
+  client_0.send_goal(goal0)
+
   rospy.sleep(1)
 
-  goal.coord_x = 1
-  client_1.send_goal(goal)
+  goal1.action_type = 0
+  goal1.coord_x = 0
+  goal1.coord_y = 0
+  goal1.end_effector = 0
+  client_1.send_goal(goal1)
+
+  client_0.get_state()
 
   client_0.wait_for_result()
   client_1.wait_for_result()
 
-  goal.coord_x = 0
-  goal.action_type = 1
-  client_0.send_goal(goal)
-  client_0.wait_for_result()
+
+ 
 
 if __name__ == "__main__":
   main()
