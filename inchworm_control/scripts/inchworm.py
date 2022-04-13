@@ -188,6 +188,9 @@ class Inchworm:
     # Index of shingle the robot is on. Updated by mateCB from Magnet Sim.
     self.on_shingle = -1
 
+    # Whether the inchworm is currently holding a shingle
+    self.holdingShingle = False
+
     #position on the roof of the robot
     #self.position = self.idx
 
@@ -435,13 +438,25 @@ class Inchworm:
 
     angles = self.planner.get_joint_state()
 
+    desired_angles = []
+    duration = 0
+
+    # We will travel 2pi radians in this time duration.
+    DURATION_SCALAR = 10
+
     if self.foot_down == 0:
-      angles[0] = Inchworm.POSE_JOINT_MAP_BOTTOM.get(Inchworm.NEIGHBOR_POSE_MAP.get(neighbor)[0])[0]
-
+      desired_angles = Inchworm.POSE_JOINT_MAP_BOTTOM.get(Inchworm.NEIGHBOR_POSE_MAP.get(neighbor)[0])
+      print(f"Delta distance: {abs(angles[0] - desired_angles[0])} rad")
+      duration = (abs(angles[0] - desired_angles[0]) / (2*math.pi)) * DURATION_SCALAR
     elif self.foot_down == 1:
-      angles[-1] = Inchworm.POSE_JOINT_MAP_TOP.get(Inchworm.NEIGHBOR_POSE_MAP.get(neighbor)[0])[-1]
+      desired_angles = Inchworm.POSE_JOINT_MAP_TOP.get(Inchworm.NEIGHBOR_POSE_MAP.get(neighbor)[0])
+      print(f"Delta distance: {abs(angles[0] - desired_angles[0])} rad")
+      duration = (abs(angles[4] - desired_angles[4]) / (2*math.pi)) * DURATION_SCALAR
 
-    self.planner.run_quintic_traj(angles, 3.0)
+
+    angles[0], angles[4] = desired_angles[0], desired_angles[4]
+
+    self.planner.run_quintic_traj(angles, duration)
 
   def move(self, neighbor, plantFoot=True):
     '''
@@ -451,9 +466,17 @@ class Inchworm:
     if (self.lastNeighbor != Inchworm.Neighbors.NONE):
       poses = Inchworm.NEIGHBOR_POSE_MAP.get(self.lastNeighbor)
       
-      # Move to spin position
-      self.retract()
-      rospy.sleep(1.0)
+      if not self.holdingShingle:
+        # Move to spin position
+        self.retract()
+        rospy.sleep(1.0)
+      else:
+        poses = Inchworm.NEIGHBOR_POSE_MAP.get(self.lastNeighbor)
+        #hover above last place
+        self.moveTo(poses[0], 2.0)
+        #lift above last place
+        self.moveTo(poses[1], 2.0)
+        rospy.sleep(1.0)
 
     
     poses = Inchworm.NEIGHBOR_POSE_MAP.get(neighbor)
@@ -662,11 +685,8 @@ class Inchworm:
     #pop that shingle off the roof
     self.suppressShingle(shingle_idx)
     #pull up a bit
-    poses = Inchworm.NEIGHBOR_POSE_MAP.get(neighbor)
-    #go to hover
-    #self.moveTo(poses[0], 3.0)
-    #go to lift
-    #self.moveTo(poses[1], 3.0)
+  
+    self.holdingShingle = True
 
   def placeShingle(self, neighbor):
     #make sure robot doesn't try to place in supporting shingle place
@@ -682,18 +702,14 @@ class Inchworm:
 
     print(f"last neighbor: {self.lastNeighbor}, currNeighbor: {neighbor}")
     #move shingle to place point
-    #self.move(neighbor, False)
-    print("get here")
 
     #pull up a bit
     poses = Inchworm.NEIGHBOR_POSE_MAP.get(neighbor)
-    #go to hover
-    #self.moveTo(poses[0], 3.0)
-    #go to lift
-    #self.moveTo(poses[1], 3.0)
 
     # magnetize shingle on the end effector not currently on the roof and disconnect from robot
     self.unsupressShingle(self.getAttachedShingle((self.foot_down + 1) % 2))
+
+    self.holdingShingle = False
 
   def unitTest(self):
     rospy.loginfo("check right")
@@ -818,14 +834,14 @@ if __name__ == "__main__":
 
   manager = ShingleManager(rospy.get_param("/roof_width"), rospy.get_param("/roof_height"))
 
-  iw.move(Inchworm.Neighbors.RIGHT)
-  iw.move(Inchworm.Neighbors.RIGHT)
-  iw.move(Inchworm.Neighbors.RIGHT)
+  # iw.move(Inchworm.Neighbors.RIGHT)
+  # iw.move(Inchworm.Neighbors.RIGHT)
+  # iw.move(Inchworm.Neighbors.RIGHT)
 
-  # for row in range(4):
-  #   if (row+1) % 2 == 0:
-  #     shingleEvenRow(row+1)
-  #     iw.move(Inchworm.Neighbors.UPPER_LEFT)
-  #   else:
-  #     shingleOddRow(row+1)
-  #     iw.move(Inchworm.Neighbors.UPPER_RIGHT)
+  for row in range(4):
+    if (row+1) % 2 == 0:
+      shingleEvenRow(row+1)
+      iw.move(Inchworm.Neighbors.UPPER_LEFT)
+    else:
+      shingleOddRow(row+1)
+      iw.move(Inchworm.Neighbors.UPPER_RIGHT)
