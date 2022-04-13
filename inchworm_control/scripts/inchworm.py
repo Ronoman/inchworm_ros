@@ -450,11 +450,6 @@ class Inchworm:
     #if the inchworm is not straight up and down, move up from last position
     if (self.lastNeighbor != Inchworm.Neighbors.NONE):
       poses = Inchworm.NEIGHBOR_POSE_MAP.get(self.lastNeighbor)
-      #hover above last place
-      self.moveTo(poses[0], 2.0)
-      #lift above last place
-      self.moveTo(poses[1], 2.0)
-      rospy.sleep(1.0)
       
       # Move to spin position
       self.retract()
@@ -466,7 +461,7 @@ class Inchworm:
     
     # Point at neighbor
     self.spinTo(neighbor)
-    rospy.sleep(0.5)
+    rospy.sleep(1.0)
 
     #go to lift above next place
     self.moveTo(poses[1], 3.0)

@@ -5,12 +5,14 @@ import rospy, actionlib
 from inchworm_control.msg import InchwormAction, InchwormResult
 
 from inchworm import Inchworm
+from shingle_manager import ShingleManager
 
 class InchwormActionServer:
-  def __init__(self, idx=0):
+  def __init__(self, idx, manager):
     self.server = actionlib.SimpleActionServer(f"inchworm_action_{idx}", InchwormAction, self.execute, False)
     
     self.inchworm = Inchworm(idx=idx)
+    self.manager = manager
 
     self.server.start()
   
@@ -29,6 +31,8 @@ class InchwormActionServer:
       success = self.handlePick(goal)
     elif goal.action_type == 2:
       success = self.handlePlace(goal)
+    elif goal.action_type == 3:
+      success = self.handleSpawn(goal)
     else:
       rospy.logerr(f"Action type {goal.action_type} not yet implemented.")
 
@@ -41,12 +45,12 @@ class InchwormActionServer:
     If the end effector is on a shingle, the inchworm will swap feet. WARNING: This assumes that the robot is in a good position to swap feet.
     '''
 
-    neighbor = self.inchworm.absoluteToNeighbor((goal.coord_x, goal.coord_y))
-
     # End effector is currently on the roof, so we need to swap it
     if (self.inchworm.foot_down == 0 and goal.end_effector == 0) or (self.inchworm.foot_down == 1 and goal.end_effector == 1):
       self.inchworm.swapFeet()
       rospy.sleep(2)
+
+    neighbor = self.inchworm.absoluteToNeighbor((goal.coord_x, goal.coord_y))
 
     # Move to that neighbor
     self.inchworm.move(neighbor, plantFoot=False)
@@ -75,15 +79,28 @@ class InchwormActionServer:
 
     return True
 
+  def handleSpawn(self, goal):
+    '''
+    Spawns a shingle. 
+    '''
+
+    self.manager.spawnShingle((goal.coord_x, goal.coord_y))
+
+    return True
+
 def main():
   rospy.init_node("action_manager")
 
   inchworm_count = rospy.get_param("robot_count")
+  width = rospy.get_param("/roof_width")
+  height = rospy.get_param("/roof_height")
 
   servers = []
 
+  manager = ShingleManager(width, height)
+
   for i in range(inchworm_count):
-    servers.append(InchwormActionServer(i))
+    servers.append(InchwormActionServer(i, manager))
 
   rospy.loginfo("All inchworm action servers started")
 
