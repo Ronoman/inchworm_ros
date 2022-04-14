@@ -35,29 +35,25 @@ class ShingleManager():
   def initializeMates(self):
     #what I could do is grab the active mates, grab the shingles on roof 0 and the shingles on roof 1
 
-    roof0 = ["inchworm", f"roof_description_0", f"roof_0"]
-    roof1 = ["inchworm", f"roof_description_1", f"roof_1"]
-
-
     req = SuppressMateRequest()
     req.suppress = True
     #cycle through the shingles on roof 0, turn off roof 1
     for i in range (0,self.roof_width-1):
       req.scoped_male = ["inchworm", f"roof_description_1", f"roof_1"]
       req.scoped_female = ["inchworm", f"shingle_description_{i}", f"shingle_{i}"]
+      rospy.loginfo(f"suppress shingle {i} to roof 1")
       self.mate_suppress_proxy(req)
     
-    req.suppress = False
-    reqLink = SuppressLinkRequest()
+    
     
     for i in range (self.roof_width, self.shingle_count -1):
       #cycle through the shingles on roof 1, turn off roof 0
       shingle = ["inchworm", f"shingle_description_{i}", f"shingle_{i}"]
-      reqLink.scoped_link= shingle
-      self.link_suppress_proxy(reqLink)
 
-      req.scoped_male = ["inchworm", f"roof_description_1", f"roof_1"] #don't think I can get more specific than this
+      req.scoped_male = ["inchworm", f"roof_description_0", f"roof_0"] #don't think I can get more specific than this
       req.scoped_female = shingle
+
+      rospy.loginfo(f"suppress shingle {i} to roof 0")
       self.mate_suppress_proxy(req)
     
   def suppressShingle(self, idx):
