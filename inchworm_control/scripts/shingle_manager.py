@@ -46,9 +46,6 @@ class ShingleManager():
       req.scoped_male = ["inchworm", f"roof_description_1", f"roof_1"]
       req.scoped_female = ["inchworm", f"shingle_description_{i}", f"shingle_{i}"]
       self.mate_suppress_proxy(req)
-
-
-
     
     req.suppress = False
     reqLink = SuppressLinkRequest()
