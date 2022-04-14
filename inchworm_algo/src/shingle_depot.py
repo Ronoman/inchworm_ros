@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
-import rospy, rospkg, math, shingle, sys, std_msgs
+import rospy, rospkg, math, shingle, sys, std_msgs, actionlib
+
 
 from inchworm_algo.msg import ShingleMsg
 from inchworm_algo.srv import *

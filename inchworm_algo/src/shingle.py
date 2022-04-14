@@ -80,8 +80,8 @@ class Shingle():
         return self
 
     def pickup_shingle(self):
-        self.x = -1
-        self.y = -1
+        self.x_coord = -1
+        self.y_coord = -1
         self.shingle_status = ShingleStatus.UNINSTALLED
         return self
         

@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
-
+import rospy, actionlib
 from shingle_depot import ShingleDepot
 from shingle import Shingle, ShingleStatus, NeighborIndex
+from inchworm_control.msg import InchwormAction, InchwormGoal
+from actionlib_msgs.msg import GoalStatus
 
 
 # all x and y are in array coords currently
@@ -29,7 +31,7 @@ class Roof():
     inchworm_occ = []
     shingle_count = -1
 
-    def __init__(self, width, height, dual_side_depots):
+    def __init__(self, width, height, dual_side_depots, physics = False):
         self.shingle_array = []
         for i in range(height):
             self.shingle_array.append([None] * width)
@@ -39,6 +41,8 @@ class Roof():
         self.spawn_first_row()
         self.spawn_depots(dual_side_depots)
         self.inchworms = []
+        self.using_physics = physics
+        
 
 
     def place_shingle(self, shingle, coord):
@@ -143,10 +147,21 @@ class Roof():
         else:
             return True
 
-    def spawn_shingle(self):
+    def spawn_shingle(self, inchworm_id):
         if self.check_if_can_spawn_shingle():
             self.shingle_array[self.shingle_depots[0].get_location() + 1][0], self.shingle_count = self.shingle_depots[0].create_shingle(False, self.shingle_count)
             self.shingle_array[self.shingle_depots[0].get_location() + 1][0].place_shingle(0, self.shingle_depots[0].get_location() + 1)
+            if self.using_physics:
+                self.action_client = actionlib.SimpleActionClient(f"/inchworm_action_{inchworm_id}", InchwormAction)
+                self.action_client.wait_for_server()
+                goal = InchwormGoal()
+                goal.action_type = 3
+                
+                goal.coord_x = 0
+                goal.coord_y = self.shingle_depots[0].get_location() + 1
+                
+                goal.end_effector = 0
+                self.action_client.send_goal(goal)
             return True
         else:
             return False
