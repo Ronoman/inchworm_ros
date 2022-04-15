@@ -186,13 +186,10 @@ class Inchworm:
     self.foot_down = 0
 
     # Index of shingle the robot is on. Updated by mateCB from Magnet Sim.
-    self.on_shingle = -1
+    self.on_shingle = idx
 
     # Whether the inchworm is currently holding a shingle
     self.holdingShingle = False
-
-    #position on the roof of the robot
-    #self.position = self.idx
 
     #for higher abstraction, last neighbor sent
     self.lastNeighbor = Inchworm.Neighbors.NONE
@@ -833,6 +830,8 @@ if __name__ == "__main__":
   rospy.sleep(1)
 
   manager = ShingleManager(rospy.get_param("/roof_width"), rospy.get_param("/roof_height"))
+
+  input()
 
   # iw.move(Inchworm.Neighbors.RIGHT)
   # iw.move(Inchworm.Neighbors.RIGHT)

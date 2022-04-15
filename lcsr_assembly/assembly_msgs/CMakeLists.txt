@@ -56,6 +56,7 @@ add_service_files(
   FILES
   SuppressLink.srv
   SuppressMate.srv
+  SuppressMatePair.srv
 )
 
 ## Generate actions in the 'action' folder
