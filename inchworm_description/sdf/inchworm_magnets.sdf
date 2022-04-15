@@ -123,16 +123,16 @@
           <xacro:if  value="${row_count % 2 == 0}">
             <mate_point type="rs" gender="male">
               <pose> ${(shingle_width + horiz_offset)*(num_cols - col_count) + shingle_width/2}
-                ${0.008 + (shingle_height - overhang)*(num_rows - row_count)} 
-                ${0.035}
+                ${0.008 + (shingle_height - overhang + vert_offset)*(num_rows - row_count)} 
+                ${0.030}
                 ${radians(90)} 0 -${radians(90)}} </pose>
             </mate_point>
           </xacro:if>
           <xacro:unless value="${row_count % 2 == 0}">
             <mate_point type="rs" gender="male">
               <pose> ${(shingle_width + horiz_offset)*(num_cols - col_count) + shingle_width}
-                ${0.008 + (shingle_height - overhang)*(num_rows - row_count)} 
-                ${0.035}
+                ${0.008 + (shingle_height - overhang + vert_offset)*(num_rows - row_count)} 
+                ${0.030}
                 ${radians(90)} 0 -${radians(90)}}</pose>
             </mate_point>
           </xacro:unless>
