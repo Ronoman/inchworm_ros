@@ -21,6 +21,7 @@
 
 #include <assembly_msgs/SuppressLink.h>
 #include <assembly_msgs/SuppressMate.h>
+#include <assembly_msgs/SuppressMatePair.h>
 
 #include "models.h"
 
@@ -35,6 +36,7 @@ namespace assembly_sim {
       ~AssemblySoup();
 
       // Ros callback for suppresing mates
+      bool SuppressMatePairCallback(assembly_msgs::SuppressMatePair::Request& req, assembly_msgs::SuppressMatePair::Response& res);
       bool SuppressMateCallback(assembly_msgs::SuppressMate::Request& req, assembly_msgs::SuppressMate::Response& res);
       bool SuppressLinkCallback(assembly_msgs::SuppressLink::Request& req, assembly_msgs::SuppressLink::Response& res);
 
@@ -46,6 +48,7 @@ namespace assembly_sim {
       // Pointer to the update event connection
       gazebo::event::ConnectionPtr updateConnection_;
 
+      ros::ServiceServer suppress_link_pair_srv_;
       ros::ServiceServer suppress_link_srv_;
       ros::ServiceServer suppress_mate_srv_;
 
