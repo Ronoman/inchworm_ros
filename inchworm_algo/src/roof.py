@@ -52,7 +52,7 @@ class Roof():
 
 
     def pickup_shingle(self, coord):
-        if self.shingle_array[coord[1]][coord[0]] is not None:
+        if coord[0] >= 0 and coord[1] >= 0 and self.shingle_array[coord[1]][coord[0]] is not None:
             shingle = self.shingle_array[coord[1]][coord[0]].pickup_shingle()
             self.shingle_array[coord[1]][coord[0]] = None
         else:
@@ -70,6 +70,7 @@ class Roof():
         return self.shingle_array[y][x]
     
     def set_shingle(self, x, y, shingle):
+        
         self.shingle_array[y][x] = shingle
     
     def get_shingle_n_index(self, t_x, t_y, n_x, n_y):

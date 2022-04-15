@@ -52,12 +52,12 @@ class Pattern(Enum):
     OXEN_TURN = 0
     DIAGONAL = 1
 
-CONF_CUTOFF_THRESH = 4.5
-CONF_EXPLORE_THRESH = 7.0
+CONF_CUTOFF_THRESH = 1.5
+CONF_EXPLORE_THRESH = 20.0
 INSTALLED_CONF = 75.0
 DEFAULT_CONF = 10.0
-PLACED_SHINGLE_CONF = 1.5
-CONF_DECRESS = 0.5
+PLACED_SHINGLE_CONF = 5.0
+CONF_DECRESS = 0.25
 LOW_CONF = 0.6
 PROB_OF_EXPLORE_IF_CANT_MOVE = 0.25
 
@@ -209,15 +209,17 @@ class Inchworm():
 
 
     def set_shingle_state(self, x, y, shingle_state, realiable=True):
-        if realiable:
-            if shingle_state == ShingleStatus.INSTALLED:
-                self.set_shingle_conf(x, y, INSTALLED_CONF)
-            else:
-                self.set_shingle_conf(x, y, DEFAULT_CONF)
-        # elif self.roof[x][y] == ShingleStatus.UNINSTALLED and shingle_state == ShingleStatus.PLACED:
-            #  self.set_shingle_conf(x, y, PLACED_SHINGLE_CONF)
-        if self.roof[x][y] != ShingleStatus.INSTALLED:
-            self.roof[x][y] = shingle_state
+        if x >= 0 and y >= 0:
+            if realiable:
+                if shingle_state == ShingleStatus.INSTALLED:
+                    self.set_shingle_conf(x, y, INSTALLED_CONF)
+                elif shingle_state == ShingleStatus.PLACED:
+                    self.set_shingle_conf(x, y, PLACED_SHINGLE_CONF)
+                else:
+                    self.set_shingle_conf(x, y, DEFAULT_CONF)
+            
+            if self.roof[x][y] != ShingleStatus.INSTALLED:
+                self.roof[x][y] = shingle_state
 
 
     def place_shingle(self, ee, shingle, roof):
@@ -730,16 +732,18 @@ class Inchworm():
         neighbors = self.get_shingle_pos_neighbors(self.bottom_foot_position)
         neighbors.extend(self.get_shingle_pos_neighbors(self.top_foot_position))
         conf = []
+        state = []
         for n in neighbors:
             conf.append(self.get_shingle_conf(n[0], n[1]))
+            state.append(self.get_shingle_state(n[0], n[1]).value)
 
-        possible_targets = list(zip(neighbors, conf))
+        possible_targets = list(zip(neighbors, conf, state))
 
         possible_targets = list(filter(lambda x: x[1] < CONF_EXPLORE_THRESH, possible_targets))
 
         random.shuffle(possible_targets)
 
-        possible_targets.sort(key=lambda x: x[1])
+        possible_targets.sort(key=lambda x: (-x[2], x[1]))
 
         rospy.loginfo(f"inchworm {self.id} has possible explore targets{possible_targets}")
         if len(possible_targets) > 0:
@@ -1177,14 +1181,14 @@ class Inchworm():
                     # figure out which foot needs to install the shingle, this needs to be done once per install
                     if Inchworm.dist(self.bottom_foot_position, self.target) > Inchworm.dist(self.top_foot_position, self.target):
                         self.decide_on_movement_to_shingle(EE.BOTTOM_FOOT, self.valid_foot_positions, real_roof)
-                        if len(self.ee_shingle_neighbors) > 1:
+                        if len(self.ee_shingle_neighbors) >= 1:
                             self.installing_status = 2
                         else:
                             self.installing_status = 0
                             self.robot_state = RobotState.MAKE_DECISION
                     else:
                         self.decide_on_movement_to_shingle(EE.TOP_FOOT, self.valid_foot_positions, real_roof)
-                        if len(self.ee_shingle_neighbors) > 1:
+                        if len(self.ee_shingle_neighbors) >= 1:
                             self.installing_status = 2
                         else:
                             self.installing_status = 0
@@ -1421,6 +1425,8 @@ class Inchworm():
                     if status[1]:
                         rospy.loginfo(f"inchworm {self.id} found an shingle at {self.ee_shingle_neighbors[0]['pos']}")
                         self.read_shingle_at(real_roof, self.ee_shingle_neighbors[0]["pos"])
+                        # if self.get_shingle_state(self.ee_shingle_neighbors[0]["pos"][0], self.ee_shingle_neighbors[0]["pos"][1]) == ShingleStatus.UNINSTALLED:
+                        #     self.set_shingle_state(self.ee_shingle_neighbors[0]["pos"][0], self.ee_shingle_neighbors[0]["pos"][1], ShingleStatus.PLACED)
                         self.update_shingle_with_current_roof(real_roof, self.top_foot_position)
                         self.update_shingle_with_current_roof(real_roof, self.bottom_foot_position)
                         self.explore_state = 3
