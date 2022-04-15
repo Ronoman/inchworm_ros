@@ -5,7 +5,8 @@ import rospy, math, tf2_ros
 from tf.transformations import quaternion_from_euler
 
 from gazebo_msgs.srv import SetModelState, SetModelStateRequest, GetModelState, GetModelStateRequest
-from assembly_msgs.srv import SuppressMate, SuppressMateRequest
+from assembly_msgs.msg import MateList
+from assembly_msgs.srv import SuppressMatePair, SuppressMatePairRequest, SuppressMate, SuppressMateRequest, SuppressLink, SuppressLinkRequest
 from std_srvs.srv import Empty, EmptyRequest
 
 class ShingleManager():
@@ -22,12 +23,51 @@ class ShingleManager():
     self.gazebo_move_service = rospy.ServiceProxy("/gazebo/set_model_state", SetModelState)
     self.gazebo_get_service = rospy.ServiceProxy("/gazebo/get_model_state", GetModelState)
 
+    rospy.wait_for_service("/suppress_mate_pair")
     rospy.wait_for_service("/suppress_mate")
+    rospy.wait_for_service("/suppress_link")
+    self.mate_pair_suppress_proxy = rospy.ServiceProxy("/suppress_mate_pair", SuppressMatePair)
     self.mate_suppress_proxy = rospy.ServiceProxy("/suppress_mate", SuppressMate)
-
+    self.link_suppress_proxy = rospy.ServiceProxy("/suppress_link", SuppressLink)
+    
     self.buffer = tf2_ros.Buffer()
     self.listener = tf2_ros.TransformListener(self.buffer)
+    self.initializeMates()
 
+  def initializeMates(self):
+
+    # Suppress all shingles to everything
+    req = SuppressLinkRequest()
+    req.suppress = True
+    for i in range(self.shingle_count):
+      req.scoped_link = ["inchworm", f"shingle_description_{i}", f"shingle_{i}"]
+
+      self.link_suppress_proxy(req)
+
+    # Cycle through the shingles on roof 0, turn on specific mate point
+    req = SuppressMatePairRequest()
+    req.suppress = False
+    req.scoped_male = ["inchworm", f"roof_description_0", f"roof_0"]
+    req.female_mate_id = 1
+
+    for i in range (self.roof_width):
+      req.scoped_female = ["inchworm", f"shingle_description_{i}", f"shingle_{i}"]
+
+      req.male_mate_id = i
+
+      rospy.loginfo(f"suppress shingle {i} to roof 1")
+      self.mate_pair_suppress_proxy(req)
+    
+    req.scoped_male = ["inchworm", f"roof_description_1", f"roof_1"] #don't think I can get more specific than this
+    # Cycle through the shingles on roof 1, turn on specific mate point
+    for i in range(self.roof_width, self.shingle_count):
+      req.scoped_female = ["inchworm", f"shingle_description_{i}", f"shingle_{i}"]
+
+      req.male_mate_id = i
+
+      rospy.loginfo(f"suppress shingle {i} to roof 0")
+      self.mate_pair_suppress_proxy(req)
+    
   def suppressShingle(self, idx):
 
     female = ["inchworm", f"shingle_description_{idx}", f"shingle_{idx}"]
@@ -36,6 +76,12 @@ class ShingleManager():
     req = SuppressMateRequest()
     req.suppress = True
     req.scoped_female = female
+    req.scoped_male = male
+
+    self.mate_suppress_proxy(req)
+
+    male = ["inchworm", f"roof_description_0", "roof_0"]
+    req.suppress = False
     req.scoped_male = male
 
     self.mate_suppress_proxy(req)

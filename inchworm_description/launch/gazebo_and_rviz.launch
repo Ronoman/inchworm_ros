@@ -8,7 +8,7 @@
 
   <arg name="use_moveit" default="false" />
 
-  <arg name="robot_count" default="1" />
+  <arg name="robot_count" default="2" />
   <param name="robot_count" value="$(arg robot_count)" />
 
   <arg name="roof_width" default="5" />
@@ -62,4 +62,7 @@
 
   <!-- Start the MoveGroup that will control the robot. -->
   <include file="$(find inchworm_moveit)/launch/move_group.launch" if="$(arg use_moveit)" />
+
+  <!-- Start up the action manager -->
+  <node name="action_manager" pkg="inchworm_control" type="action_manager.py" output="screen" />
 </launch>

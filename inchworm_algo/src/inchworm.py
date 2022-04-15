@@ -56,9 +56,11 @@ CONF_CUTOFF_THRESH = 1.5
 CONF_EXPLORE_THRESH = 20.0
 INSTALLED_CONF = 75.0
 DEFAULT_CONF = 10.0
+
 PLACED_SHINGLE_CONF = 5.0
 CONF_DECRESS = 0.25
 LOW_CONF = 0.6
+
 PROB_OF_EXPLORE_IF_CANT_MOVE = 0.25
 
 # TODO: WE ARE CURRENTLY IGNORRING HALF SHINGLES
@@ -582,6 +584,7 @@ class Inchworm():
         for n in neighbors:
             if (real_roof.get_occ_position([n[0], n[1]]) == 0 or self.check_self_claimed([n[0], n[1]])):
                 move_targets.append({"pos": n, "foot": foot_to_move})
+        random.shuffle(move_targets)
         return move_targets
 
 
@@ -650,11 +653,11 @@ class Inchworm():
         y_coord = -1
 
         # rospy.loginfo(f"inchworm {self.id} has a shingle order of {self.shingle_order}")
-        for i in reversed(range(len(self.roof[0]))):
-            row = []
-            for j in range(len(self.roof)):
-                row.append(self.roof[j][i].value)
-            rospy.logwarn(f"inchworm {self.id} row {i} has values {row}")
+        # for i in reversed(range(len(self.roof[0]))):
+        #     row = []
+        #     for j in range(len(self.roof)):
+        #         row.append(self.roof[j][i].value)
+        #     rospy.logwarn(f"inchworm {self.id} row {i} has values {row}")
         for i, coord in enumerate(self.shingle_order):
             val = self.get_shingle_state(coord[0], coord[1])
             # rospy.loginfo(val)
@@ -676,7 +679,7 @@ class Inchworm():
                 #         break
                 #     elif x_coord == self.roof_width -1:
                 #         break
-        rospy.loginfo(f"inchworm {self.id} has a target of {[x_coord, y_coord]} from choose target {self.shingle_order}")
+        # rospy.loginfo(f"inchworm {self.id} has a target of {[x_coord, y_coord]} from choose target {self.shingle_order}")
         # for i in reversed(range(len(self.roof[0]))):
         #     row = []
         #     for j in range(len(self.roof)):
@@ -758,7 +761,6 @@ class Inchworm():
 
             roof_image = np.asarray(roof_image)
 
-            rospy.loginfo(roof_image)
 
             # convert image to grayscale image
             roof_image = np.array(roof_image.astype(np.uint8))
@@ -810,8 +812,8 @@ class Inchworm():
             self.decide_on_movement_to_shingle(EE.BOTTOM_FOOT, self.valid_installed_foot_positions, real_roof)
         else:
             self.decide_on_movement_to_shingle(EE.TOP_FOOT, self.valid_installed_foot_positions, real_roof)
-        rospy.logwarn(f"inchworm {self.id}: {self.last_positions}")
-        rospy.logwarn(f"inchworm {self.id} at {self.calc_inchworm_pos()}")
+        # rospy.logwarn(f"inchworm {self.id}: {self.last_positions}")
+        # rospy.logwarn(f"inchworm {self.id} at {self.calc_inchworm_pos()}")
         if len(self.ee_shingle_neighbors) > 0 and self.calc_inchworm_pos() not in self.last_positions and (real_roof.get_occ_position(self.ee_shingle_neighbors[0]["pos"]) == 0 or self.check_self_claimed(self.ee_shingle_neighbors[0]["pos"])):
             self.claim_pos(real_roof, self.ee_shingle_neighbors[0]["pos"])
             self.robot_state = RobotState.MOVE_TO_TARGET
@@ -1631,11 +1633,11 @@ class Inchworm():
                 path_to_goal.append(next_best_tile)
             else:
                 rospy.logwarn(f"inchworm {self.id} has a goal of {goal} from path planning with path {path_to_goal}")
-                for i in reversed(range(len(self.roof[0]))):
-                    row = []
-                    for j in range(len(self.roof)):
-                        row.append(self.roof[j][i].value)
-                    rospy.logwarn(f"inchworm {self.id} row {i} has values {row}")
+                # for i in reversed(range(len(self.roof[0]))):
+                #     row = []
+                #     for j in range(len(self.roof)):
+                #         row.append(self.roof[j][i].value)
+                #     rospy.logwarn(f"inchworm {self.id} row {i} has values {row}")
                 rospy.logwarn(f"inchworm {self.id} PATH STUCK IN A DEAD END, CHECK NEIGHBORS")
                 # rospy.loginfo(f"start is {start}, goal is {goal}, path is {path_to_goal}")
                 oh_no = []
@@ -1749,7 +1751,7 @@ class Inchworm():
 
         - finding path along fronteier is not working correctly
         - need to have logic for if the robot can not move where it wants to, it starts exploring
-    
+        - updating after probe does not seem to be working
     '''
 
 if __name__ == "__main__":
