@@ -186,7 +186,7 @@ class Inchworm:
     self.foot_down = 0
 
     # Index of shingle the robot is on. Updated by mateCB from Magnet Sim.
-    self.on_shingle = idx * 2
+    self.on_shingle = 3 - idx 
 
     # Whether the inchworm is currently holding a shingle
     self.holdingShingle = False

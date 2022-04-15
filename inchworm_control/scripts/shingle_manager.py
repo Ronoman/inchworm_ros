@@ -16,7 +16,7 @@ class ShingleManager():
     self.shingle_count = roof_width * roof_height
 
     # How many shingles moved to the roof so far. Starts at roof_width since the first row starts on the roof
-    self.shingles_moved = roof_width
+    self.shingles_moved = roof_width * 2
 
     rospy.wait_for_service("/gazebo/set_model_state")
     rospy.wait_for_service("/gazebo/get_model_state")
@@ -50,7 +50,7 @@ class ShingleManager():
     req.scoped_male = ["inchworm", f"roof_description_0", f"roof_0"]
     req.female_mate_id = 1
 
-    for i in range (self.roof_width):
+    for i in range (self.roof_width * 2):
       req.scoped_female = ["inchworm", f"shingle_description_{i}", f"shingle_{i}"]
 
       req.male_mate_id = i
@@ -100,6 +100,7 @@ class ShingleManager():
     OVERHANG = 0.0871
     HORIZ_OFFSET = 0.005
     Z_OFFSET = 0.12
+    VERT_OFFSET = 0.019478
 
     if self.shingles_moved >= self.shingle_count:
       rospy.logerr("All available shingles moved, cannot spawn any more")
@@ -111,8 +112,8 @@ class ShingleManager():
     else:
       x_pos = (SHINGLE_WIDTH + HORIZ_OFFSET) * (roof_coord[0] + 1)
 
-    y_pos = (SHINGLE_HEIGHT - OVERHANG) * (roof_coord[1])
-    z_pos = Z_OFFSET + math.tan(math.radians(9.02)) * (SHINGLE_HEIGHT - OVERHANG) * (roof_coord[1])
+    y_pos = (SHINGLE_HEIGHT - OVERHANG + VERT_OFFSET) * (roof_coord[1])
+    z_pos = Z_OFFSET + math.tan(math.radians(9.02)) * (SHINGLE_HEIGHT - OVERHANG + VERT_OFFSET) * (roof_coord[1])
 
     rx = math.radians(90)
     ry = math.radians(9.02)

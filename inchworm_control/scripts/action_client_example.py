@@ -5,23 +5,23 @@ import rospy, actionlib
 from inchworm_control.msg import InchwormAction, InchwormGoal
 
 def spawnShingles(spawn, client_0):
-  spawn.action_type = 3
-  spawn.coord_x = 0
-  spawn.coord_y = 1
-  client_0.send_goal(spawn)
-  client_0.wait_for_result()
-  spawn.coord_x = 1
-  client_0.send_goal(spawn)
-  client_0.wait_for_result()
-  spawn.coord_x = 2
-  client_0.send_goal(spawn)
-  client_0.wait_for_result()
-  spawn.coord_x = 3
-  client_0.send_goal(spawn)
-  client_0.wait_for_result()
-  spawn.coord_x = 4
-  client_0.send_goal(spawn)
-  client_0.wait_for_result()
+  # spawn.action_type = 3
+  # spawn.coord_x = 0
+  # spawn.coord_y = 1
+  # client_0.send_goal(spawn)
+  # client_0.wait_for_result()
+  # spawn.coord_x = 1
+  # client_0.send_goal(spawn)
+  # client_0.wait_for_result()
+  # spawn.coord_x = 2
+  # client_0.send_goal(spawn)
+  # client_0.wait_for_result()
+  # spawn.coord_x = 3
+  # client_0.send_goal(spawn)
+  # client_0.wait_for_result()
+  # spawn.coord_x = 4
+  # client_0.send_goal(spawn)
+  # client_0.wait_for_result()
 
 
   spawn.coord_x = 0
@@ -92,22 +92,7 @@ def main():
   goal1 = InchwormGoal()
   spawn = InchwormGoal()
 
-  spawnShingles(spawn, client_0)
-
-  walk0(goal0, 0, 1, 1)
-  walk1(goal1, 3, 0, 1)
-  client_0.send_goal(goal0)
-  client_1.send_goal(goal1)
-  client_0.wait_for_result()
-  client_1.wait_for_result()
-
-
-  walk0(goal0, 0, 2, 0)
-  walk1(goal1, 2, 0, 0)
-  client_0.send_goal(goal0)
-  client_1.send_goal(goal1)
-  client_0.wait_for_result()
-  client_1.wait_for_result()
+  #spawnShingles(spawn, client_0)
 
   walk0(goal0, 1, 1, 1)
   walk1(goal1, 1, 0, 1)
@@ -122,6 +107,28 @@ def main():
   client_1.send_goal(goal1)
   client_0.wait_for_result()
   client_1.wait_for_result()
+
+
+  # walk0(goal0, 0, 2, 0)
+  # walk1(goal1, 2, 0, 0)
+  # client_0.send_goal(goal0)
+  # client_1.send_goal(goal1)
+  # client_0.wait_for_result()
+  # client_1.wait_for_result()
+
+  # walk0(goal0, 1, 1, 1)
+  # walk1(goal1, 1, 0, 1)
+  # client_0.send_goal(goal0)
+  # client_1.send_goal(goal1)
+  # client_0.wait_for_result()
+  # client_1.wait_for_result()
+
+  # walk0(goal0, 2, 1, 0)
+  # walk1(goal1, 0, 0, 0)
+  # client_0.send_goal(goal0)
+  # client_1.send_goal(goal1)
+  # client_0.wait_for_result()
+  # client_1.wait_for_result()
 
   
 
