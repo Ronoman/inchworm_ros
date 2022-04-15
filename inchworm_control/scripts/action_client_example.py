@@ -95,7 +95,7 @@ def main():
   spawnShingles(spawn, client_0)
 
   walk0(goal0, 0, 1, 1)
-  walk1(goal1, 2, 0, 1)
+  walk1(goal1, 3, 0, 1)
   client_0.send_goal(goal0)
   client_1.send_goal(goal1)
   client_0.wait_for_result()
@@ -103,39 +103,27 @@ def main():
 
 
   walk0(goal0, 0, 2, 0)
-  walk1(goal1, 3, 0, 0)
+  walk1(goal1, 2, 0, 0)
   client_0.send_goal(goal0)
   client_1.send_goal(goal1)
   client_0.wait_for_result()
   client_1.wait_for_result()
 
   walk0(goal0, 1, 1, 1)
-  walk1(goal1, 4, 0, 1)
+  walk1(goal1, 1, 0, 1)
   client_0.send_goal(goal0)
   client_1.send_goal(goal1)
   client_0.wait_for_result()
   client_1.wait_for_result()
 
   walk0(goal0, 2, 1, 0)
-  walk1(goal1, 3, 0, 0)
+  walk1(goal1, 0, 0, 0)
   client_0.send_goal(goal0)
   client_1.send_goal(goal1)
   client_0.wait_for_result()
   client_1.wait_for_result()
 
-  walk0(goal0, 3, 1, 1)
-  walk1(goal1, 2, 0, 1)
-  client_0.send_goal(goal0)
-  client_1.send_goal(goal1)
-  client_0.wait_for_result()
-  client_1.wait_for_result()
- 
-  walk0(goal0, 4, 1, 0)
-  walk1(goal1, 1, 0, 0)
-  client_0.send_goal(goal0)
-  client_1.send_goal(goal1)
-  client_0.wait_for_result()
-  client_1.wait_for_result()
+  
 
   
 

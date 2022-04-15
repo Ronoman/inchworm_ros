@@ -186,7 +186,7 @@ class Inchworm:
     self.foot_down = 0
 
     # Index of shingle the robot is on. Updated by mateCB from Magnet Sim.
-    self.on_shingle = idx
+    self.on_shingle = idx * 2
 
     # Whether the inchworm is currently holding a shingle
     self.holdingShingle = False
@@ -194,7 +194,7 @@ class Inchworm:
     #for higher abstraction, last neighbor sent
     self.lastNeighbor = Inchworm.Neighbors.NONE
     # The roof coordinate that the robot is currently on. Roof idx != shingle idx. Updated by mateCB
-    self.on_coord = self.idx_to_coord(self.idx * 2)
+    self.on_coord = self.idx_to_coord(self.on_shingle)
 
     # Most recent mate callback. Used to inspect current shingle config
     self.last_mate_msg = None
