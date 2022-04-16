@@ -16,7 +16,7 @@ class ShingleManager():
     self.shingle_count = roof_width * roof_height
 
     # How many shingles moved to the roof so far. Starts at roof_width since the first row starts on the roof
-    self.shingles_moved = roof_width * 2
+    self.shingles_moved = roof_width
 
     rospy.wait_for_service("/gazebo/set_model_state")
     rospy.wait_for_service("/gazebo/get_model_state")
@@ -50,7 +50,7 @@ class ShingleManager():
     req.scoped_male = ["inchworm", f"roof_description_0", f"roof_0"]
     req.female_mate_id = 1
 
-    for i in range (self.roof_width * 2):
+    for i in range (self.roof_width):
       req.scoped_female = ["inchworm", f"shingle_description_{i}", f"shingle_{i}"]
 
       req.male_mate_id = i
