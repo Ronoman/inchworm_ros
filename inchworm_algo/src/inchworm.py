@@ -453,7 +453,7 @@ class Inchworm():
     def move_bottom_foot(self, new_pos):
         if self.check_self_claimed(new_pos):
             if self.using_physics:
-                if self.goal_sent:
+                if not self.goal_sent:
                     goal = InchwormGoal()
                     goal.action_type = 0
                     goal.coord_x = new_pos[0]
@@ -474,7 +474,7 @@ class Inchworm():
     def move_top_foot(self, new_pos):
         if self.check_self_claimed(new_pos):
             if self.using_physics:
-                if self.goal_sent:
+                if not self.goal_sent:
                     goal = InchwormGoal()
                     goal.action_type = 0
                     goal.coord_x = new_pos[0]
@@ -482,11 +482,16 @@ class Inchworm():
                     goal.end_effector = 1
                     self.action_client.send_goal(goal)
                     self.goal_sent = True
+                    self.top_foot_status = EEStatus.IN_AIR
+                    rospy.logwarn(f"inchworm {self.id} sending top foot to {new_pos}")
                 else:
                     if self.action_client.get_state() == GoalStatus.SUCCEEDED:
                         self.top_foot_status = EEStatus.IN_AIR
                         self.top_foot_position = new_pos
                         self.goal_sent = False
+                        rospy.logwarn(f"inchworm {self.id} has made it to the target {new_pos}")
+                    else:
+                        rospy.loginfo(f"inchworm {self.id} has not made it to target yet")
             else:
                 self.top_foot_status = EEStatus.IN_AIR
                 self.top_foot_position = new_pos
