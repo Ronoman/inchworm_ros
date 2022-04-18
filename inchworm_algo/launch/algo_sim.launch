@@ -6,7 +6,7 @@
     <arg name="rate" default="10"/>
     <arg name="use_gui" default="true"/>
     <arg name="name_space" default="algo"/>
-    <arg name="physics" default="false"/>
+    <arg name="physics" default="False"/>
     <node pkg="inchworm_algo" type="algo_node.py" name="algo_node" args="$(arg roof_width) $(arg roof_height) $(arg inchworm_count) $(arg rate) $(arg pattern) $(arg physics)" ns="$(arg name_space)" output="screen"/>
 
 

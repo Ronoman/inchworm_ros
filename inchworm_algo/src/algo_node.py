@@ -75,7 +75,8 @@ if __name__ == "__main__":
     inchworm_count = int(sys.argv[3])
     if len(sys.argv) >= 4:
         hz = int(sys.argv[4])
-    use_physics = bool(sys.argv[6])
+    use_physics = sys.argv[6] == "True"
+    rospy.logwarn(use_physics)
     roof = Roof(roof_width, roof_height, False, use_physics)
 
     pattern = int(sys.argv[5])
