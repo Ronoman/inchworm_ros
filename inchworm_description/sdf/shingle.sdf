@@ -25,7 +25,7 @@
           <pose>-0.092913 -0.014478 0 0 -0 0</pose>
           <geometry>
             <box>
-              <size>0.087122 0.014478 0.254</size>
+              <size>0.075 0.01 0.235</size>
             </box>
           </geometry>
         </collision>
@@ -33,7 +33,7 @@
           <pose>-0.04508 0 0 0 -0 1.72822</pose>
           <geometry>
             <box>
-              <size>0.013652 0.183003 0.254</size>
+              <size>0.0075 0.17 0.235</size>
             </box>
           </geometry>
         </collision>
