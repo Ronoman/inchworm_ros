@@ -108,6 +108,7 @@ class Inchworm():
             self.shingle_order = self.create_diagonal_order(width, height)
 
         self.move_count = 0
+        self.state_counts = {"pickup_from_depot": 0, "move_to_target": 0, "install_shingle": 0, "move_shingle": 0, "explore": 0, "move_to_depot": 0}
         self.probe_step = 0
         self.claimed_pos = set()
         self.target = None
@@ -805,6 +806,7 @@ class Inchworm():
             self.claim_pos(real_roof, self.ee_shingle_neighbors[0]["pos"])
             self.explore_state = 1
             rospy.loginfo(f'inchworm {self.id} is exploring {self.ee_shingle_neighbors[0]["pos"]}')
+            self.state_counts["explore"] += 1
             self.robot_state = RobotState.EXPLORE
         else:
             self.robot_state = RobotState.MAKE_DECISION
@@ -826,6 +828,7 @@ class Inchworm():
         # rospy.logwarn(f"inchworm {self.id} at {self.calc_inchworm_pos()}")
         if len(self.ee_shingle_neighbors) > 0 and self.calc_inchworm_pos() not in self.last_positions and (real_roof.get_occ_position(self.ee_shingle_neighbors[0]["pos"]) == 0 or self.check_self_claimed(self.ee_shingle_neighbors[0]["pos"])):
             self.claim_pos(real_roof, self.ee_shingle_neighbors[0]["pos"])
+            self.state_counts["move_to_depot"] += 1
             self.robot_state = RobotState.MOVE_TO_TARGET
         elif random.random() > PROB_OF_EXPLORE_IF_CANT_MOVE:
             self.make_state_explore(real_roof)
@@ -937,6 +940,7 @@ class Inchworm():
                 if len(self.path_for_shingle) == 1:
                     if real_roof.get_occ_position([placed_shingle.x_coord, placed_shingle.y_coord]) == 0 or self.check_self_claimed([placed_shingle.x_coord, placed_shingle.y_coord]):
                         self.install_shingle_target = placed_shingle
+                        self.state_counts["install_shingle"] += 1
                         self.robot_state = RobotState.INSTALL_SHINGLE
                         # signal intention to move
                         self.claim_pos(real_roof, [placed_shingle.x_coord, placed_shingle.y_coord]) 
@@ -976,6 +980,7 @@ class Inchworm():
                             self.get_shingle_state(self.ee_shingle_neighbors[0]["pos"][0], self.ee_shingle_neighbors[0]["pos"][1]) == ShingleStatus.INSTALLED):
                             # rospy.loginfo(f"inchworm {self.id} is claiming {self.ee_shingle_neighbors[0]['pos']} and initate move")
                             self.claim_pos(real_roof, self.ee_shingle_neighbors[0]["pos"])
+                            self.state_counts["move_to_target"] += 1
                             self.robot_state = RobotState.MOVE_TO_TARGET
                         
                 else:  # The inchworm needs to move a shingle
@@ -1054,6 +1059,7 @@ class Inchworm():
                                 self.get_shingle_state(self.ee_shingle_neighbors[0]["pos"][0], self.ee_shingle_neighbors[0]["pos"][1]) == ShingleStatus.INSTALLED):
                                 # rospy.loginfo(f"inchworm {self.id} is claiming {self.ee_shingle_neighbors[0]['pos']} and initate move")
                                 self.claim_pos(real_roof, self.ee_shingle_neighbors[0]["pos"])
+                                self.state_counts["move_to_target"] += 1
                                 self.robot_state = RobotState.MOVE_TO_TARGET
                                 self.stuck_count = 0
                             # elif random.random() > 0.25:
@@ -1074,6 +1080,7 @@ class Inchworm():
                     if claimed_new_postion and real_roof.get_occ_position([placed_shingle.x_coord, placed_shingle.y_coord]) == 0:
                         self.claim_pos(real_roof,[placed_shingle.x_coord, placed_shingle.y_coord])
                         self.robot_state = RobotState.MOVE_SHINGLE
+                        self.state_counts["move_shingle"] += 1
                         # rospy.loginfo(f"inchworm {self.id} moving shingle")
                     # else:
                     #     # otherwise try and move away, this will sometimes throw an exception due to unclaiming, if it does the inchworm should not move
@@ -1091,6 +1098,7 @@ class Inchworm():
                 else:
                     # rospy.loginfo(f"inchworm {self.id} is picking up a new shingle from the depot")
                     self.robot_state = RobotState.PICKUP_SHINGLE_FROM_DEPOT
+                    self.state_counts["pickup_from_depot"] += 1
 
         return real_roof
 

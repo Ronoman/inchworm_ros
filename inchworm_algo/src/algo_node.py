@@ -108,9 +108,13 @@ if __name__ == "__main__":
                 rospy.loginfo("roof has been shingled")
                 finished_msg = Int32MultiArray()
                 move_counts = []
+                state_data = []
                 for worm in inchworms:
                     move_counts.append(worm.move_count)
+                    state_data.extend(list(worm.state_counts.values()))
+                rospy.loginfo(state_data)
                 finished_msg.data = [len(inchworms), ticks]
                 finished_msg.data.extend(move_counts)
+                finished_msg.data.extend(state_data)
                 algo_finished_pub.publish(finished_msg)
         r.sleep()
