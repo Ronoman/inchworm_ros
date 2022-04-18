@@ -21,8 +21,8 @@
       <max_distance>0.01</max_distance>
 
       <attach_threshold>
-        <linear>0.05</linear>
-        <angular>0.5</angular>
+        <linear>0.03</linear>
+        <angular>0.3</angular>
       </attach_threshold>
 
       <detach_threshold>
@@ -63,8 +63,8 @@
       <max_distance>0.01</max_distance>
 
       <attach_threshold>
-        <linear>0.05</linear>
-        <angular>0.5</angular>
+        <linear>0.03</linear>
+        <angular>0.3</angular>
       </attach_threshold>
 
       <detach_threshold>
