@@ -81,8 +81,8 @@ def main():
   client_0 = actionlib.SimpleActionClient("/inchworm_action_0", InchwormAction)
   client_0.wait_for_server()
 
-  # client_1 = actionlib.SimpleActionClient("/inchworm_action_1", InchwormAction)
-  # client_1.wait_for_server()
+  client_1 = actionlib.SimpleActionClient("/inchworm_action_1", InchwormAction)
+  client_1.wait_for_server()
 
   rospy.loginfo("Got servers, sending goals.")
 
@@ -92,45 +92,44 @@ def main():
   goal1 = InchwormGoal()
   spawn = InchwormGoal()
 
-  rospy.loginfo("Spawning shingles 5x5 roof start")
-  spawnShingles(spawn, client_0)
-  rospy.loginfo("Shingles spawned")
-  walk0(goal0, 0, 1, 1)
-  # walk1(goal1, 1, 0, 1)
-  client_0.send_goal(goal0)
-  # client_1.send_goal(goal1)
-  client_0.wait_for_result()
-  # client_1.wait_for_result()
-
-  walk0(goal0, 1, 1, 0)
-  client_0.send_goal(goal0)
-  client_0.wait_for_result()
-
-  walk0(goal0, 1, 0, 1)
-  client_0.send_goal(goal0)
-  client_0.wait_for_result()
-
-  # walk0(goal0, 2, 1, 0)
-  # walk1(goal1, 0, 0, 0)
+  # rospy.loginfo("Spawning shingles 5x5 roof start")
+  # spawnShingles(spawn, client_0)
+  # rospy.loginfo("Shingles spawned")
+  # walk0(goal0, 0, 1, 1)
+  # walk1(goal1, 3, 0, 1)
   # client_0.send_goal(goal0)
   # client_1.send_goal(goal1)
   # client_0.wait_for_result()
   # client_1.wait_for_result()
 
+  # rospy.sleep(1)
 
-  # walk0(goal0, 0, 2, 0)
+  # walk0(goal0, 1, 1, 0)
   # walk1(goal1, 2, 0, 0)
   # client_0.send_goal(goal0)
   # client_1.send_goal(goal1)
   # client_0.wait_for_result()
   # client_1.wait_for_result()
 
-  # walk0(goal0, 1, 1, 1)
+  # rospy.sleep(1)
+
+  # walk0(goal0, 2, 1, 1)
   # walk1(goal1, 1, 0, 1)
   # client_0.send_goal(goal0)
   # client_1.send_goal(goal1)
   # client_0.wait_for_result()
   # client_1.wait_for_result()
+
+  rospy.sleep(1)
+  
+  walk0(goal0, 2, 0, 0)
+  walk1(goal1, 1, 1, 0)
+  client_0.send_goal(goal0)
+  client_1.send_goal(goal1)
+  client_0.wait_for_result()
+  client_1.wait_for_result()
+
+  rospy.sleep(1)
 
   # walk0(goal0, 2, 1, 0)
   # walk1(goal1, 0, 0, 0)

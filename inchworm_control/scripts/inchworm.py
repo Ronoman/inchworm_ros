@@ -494,7 +494,6 @@ class Inchworm:
 
     if ((plantFoot) and (neighbor != Inchworm.Neighbors.NONE)):
       self.swapFeet()
-      #self.lastNeighbor = Inchworm.LAST_NEIGHBOR_MAP.get(neighbor)
     
     rospy.sleep(.1)
 
