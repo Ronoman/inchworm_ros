@@ -94,7 +94,8 @@ class Inchworm():
         self.next_tick_time = rospy.Time.now()
         self.robot_state = RobotState.MAKE_DECISION
         self.target_bottom_foot_pos = bottom_foot_pos
-        self.target_top_foot_pos = top_foot_pos
+        self.target_top_foot_pos = bottom_foot_pos
+        
         self.foot_shingle_neighbor_to_move_to = 0
         self.ee_shingle_neighbors = []
         self.installing_status = 0
@@ -127,6 +128,9 @@ class Inchworm():
             self.goal_sent_bottom = False
             self.goal_sent_top = False
             self.goal_sent = False
+        while self.top_foot_position != top_foot_pos:
+            self.move_top_foot(top_foot_pos)
+        
 
 
     # this is used to create ox-plow order in shingling
@@ -468,6 +472,8 @@ class Inchworm():
                     goal.end_effector = False
                     self.action_client.send_goal(goal)
                     self.goal_sent_bottom = True
+                    self.bottom_foot_status = EEStatus.IN_AIR
+
                 else:
                     if self.action_client.get_state() == GoalStatus.SUCCEEDED:
                         self.bottom_foot_status = EEStatus.IN_AIR
