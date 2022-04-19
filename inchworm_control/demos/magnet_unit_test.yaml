@@ -1,0 +1,16 @@
+magnet_unit_test:
+  - wait:
+      type: delay
+      duration: 5.0
+  - disable_bottom:
+      type: magnet
+      duration: 0.5
+      payload:
+        magnet1: False
+        magnet2: True
+  - enable_bottom:
+      type: magnet
+      duration: 2.0
+      payload:
+        magnet1: True
+        magnet2: True

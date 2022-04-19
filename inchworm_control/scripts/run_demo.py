@@ -33,7 +33,7 @@ def main():
   global trajectory_pub, mag_state_pub
   rospy.init_node("demo_runner")
 
-  mag_state_pub = rospy.Publisher("/inchworm/magnet_states", MagnetState, queue_size=1)
+  mag_state_pub = rospy.Publisher("/inchworm/set_magnet_state", MagnetState, queue_size=1)
 
   rospack = rospkg.RosPack()
 

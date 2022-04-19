@@ -1,0 +1,161 @@
+step_tile:
+ ##get to the camera ##
+  - setup:
+      type: delay
+      duration: 5.0
+
+  - Ninja Pose:
+      type: joint
+      duration: 3.0
+      payload:
+        - 0.0
+        - 1.27
+        - 2.2
+        - -0.34
+        - 0.0
+
+  - Rotate:
+      type: joint
+      duration: 3.0
+      payload:
+        - -2.5
+        - 1.27
+        - 2.2
+        - -0.34
+        - -2.4
+
+  - Hover:
+      type: joint
+      duration: 3.0
+      payload:
+        - -2.5
+        - 1.27
+        - 2.2
+        - -0.34
+        - -2.4
+
+  - disable_magnet:
+      type: magnet
+      duration: 0.1
+      payload:
+        magnet1: False
+        magnet2: True
+
+  - land:
+      type: joint
+      duration: 0.5
+      payload:
+        - -2.5
+        - 0.6
+        - 2.1
+        - 0.45
+        - -2.5
+
+  - enable_magnet:
+      type: magnet
+      duration: 1.0
+      payload:
+        magnet1: True
+        magnet2: True
+
+  ## now holding the shingle
+  
+  - lift:
+      type: joint
+      duration: 3.0
+      payload:
+        - -2.4
+        - 1.2
+        - 1.97
+        - 0.05
+        - -2.4
+
+  ## get around the robot
+  - Rotate:
+      type: joint
+      duration: 3.0
+      payload:
+        - -0.8
+        - 1.26
+        - 1.8
+        - .08
+        - -0.7
+
+  - hover:
+      type: joint
+      duration: 2.0
+      payload:
+        - -0.69
+        - 0.69
+        - 2.15
+        - 0.35
+        - -0.67
+
+
+
+  - drop:
+      type: joint
+      duration: 1.0
+      payload:
+        - -0.49
+        - 0.59
+        - 2.16
+        - 0.402
+        - -0.67
+
+
+  ### GO BACK HOME ###
+
+  - disable_magnet:
+      type: magnet
+      duration: 0.1
+      payload:
+        magnet1: False
+        magnet2: True
+  
+  - ninja_pose:
+      type: joint
+      duration: 2.0
+      payload:
+        - -0.5
+        - 1.27
+        - 2.2
+        - -0.34
+        - -0.5
+
+  - enable_magnet:
+      type: magnet
+      duration: 0.1
+      payload:
+        magnet1: True
+        magnet2: True
+
+  - rotate_back:
+      type: joint
+      duration: 2.0
+      payload:
+        - 0.
+        - 1.27
+        - 2.2
+        - -0.34
+        - 0.17
+  
+  - hover_over_next_shingle:
+      type: joint
+      duration: 2.0
+      payload:
+        - 0.0
+        - 1.0
+        - 1.45
+        - 0.76
+        - 0.17
+
+  - land_on_shingle:
+      type: joint
+      duration: 2.0
+      payload:
+        - 0.0
+        - 0.9
+        - 1.45
+        - 0.9
+        - 0.135

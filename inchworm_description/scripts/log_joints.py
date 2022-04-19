@@ -29,7 +29,7 @@ def main():
       cur_angles.append(state.position[state.name.index(name)])
 
     for angle in cur_angles:
-      print(f"- {angle:.6f}")
+      print(f"{angle:.6f}")
 
 if __name__ == "__main__":
   main()
