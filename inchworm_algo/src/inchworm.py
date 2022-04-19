@@ -475,8 +475,7 @@ class Inchworm():
                     self.bottom_foot_status = EEStatus.IN_AIR
 
                 else:
-                    if self.action_client.get_state() == GoalStatus.SUCCEEDED:
-                        self.bottom_foot_status = EEStatus.IN_AIR
+                    if self.action_client.get_state() != GoalStatus.ACTIVE and self.action_client.get_state() != GoalStatus.PENDING or self.action_client.get_state() == GoalStatus.SUCCEEDED:
                         self.bottom_foot_position = new_pos
                         self.goal_sent_bottom = False
             else:
@@ -499,8 +498,7 @@ class Inchworm():
                     self.top_foot_status = EEStatus.IN_AIR
                     rospy.logwarn(f"inchworm {self.id} sending top foot to {new_pos}")
                 else:
-                    if self.action_client.get_state() == GoalStatus.SUCCEEDED:
-                        self.top_foot_status = EEStatus.IN_AIR
+                    if self.action_client.get_state() != GoalStatus.ACTIVE and self.action_client.get_state() != GoalStatus.PENDING or self.action_client.get_state() == GoalStatus.SUCCEEDED:
                         self.top_foot_position = new_pos
                         self.goal_sent_top = False
                         rospy.logwarn(f"inchworm {self.id} has made it to the target {new_pos}")
@@ -1770,9 +1768,10 @@ class Inchworm():
         pip install pygame==1.9.6
 
 
-        - finding path along fronteier is not working correctly
-        - need to have logic for if the robot can not move where it wants to, it starts exploring
-        - updating after probe does not seem to be working
+        - possible optimizations
+            - plant a foot after installing || finding an installed shingle
+            - time stamp data about the shingles, this will allow us to keep up to date info
+            - record the inchworms target in the shingle, this will allow inchworm to do more intlegent comms
     '''
 
 if __name__ == "__main__":
