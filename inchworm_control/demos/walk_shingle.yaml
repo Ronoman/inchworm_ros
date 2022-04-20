@@ -147,7 +147,7 @@ walk_shingle:
 
 ## STEP_TILE DEMO ####
 
-  hover:
+  - hover:
       type: joint
       duration: 4.0
       payload:
@@ -372,7 +372,7 @@ walk_shingle:
 
   ## STEP_TILE DEMO ####
 
-  hover:
+  - hover:
       type: joint
       duration: 4.0
       payload:
