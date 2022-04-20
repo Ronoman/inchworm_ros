@@ -21,7 +21,7 @@ def main(count):
   try:
     launch.spin()
   finally:
-    launch.shutdown()
+    launch.stop()
 
 if __name__ == "__main__":
   main(1)

@@ -1,27 +1,49 @@
 #!/usr/bin/env python3
 
-import rospy, actionlib
+import rospy, actionlib, os
 
 from inchworm_control.msg import InchwormAction, InchwormResult
 
 from inchworm import Inchworm
 from shingle_manager import ShingleManager
 
+from rospkg import RosPack
+
+from threading import Lock
+
 class InchwormActionServer:
-  def __init__(self, idx, manager):
+  def __init__(self, idx, manager, log_file=None, run_count=0):
     self.server = actionlib.SimpleActionServer(f"inchworm_action_{idx}", InchwormAction, self.execute, False)
     
+    self.idx = idx
+
     self.inchworm = Inchworm(idx=idx)
     self.manager = manager
 
+    self.log_file = log_file
+
+    if log_file is None:
+      self.log_file = os.path.join(RosPack().get_path("inchworm_control"), f"logs/{run_count}/iw_{idx}.log")
+
     self.server.start()
+
+  def logAction(self, goal):
+    rospy.loginfo(self.log_file)
+    with open(self.log_file, "a+") as f:
+      f.write(f"-----\n")
+      f.write(f"currently on shingle {self.inchworm.on_shingle}, coord {self.inchworm.on_coord}\n")
+      f.write(("bottom" if self.inchworm.foot_down == False else "top") + " EE is down\n")
+      f.write(f"-\n")
+      f.write(f"timestamp: {rospy.Time.now().to_time()}\n")
+      f.write(str(goal) + "\n\n")
   
   def execute(self, goal):
     '''
     Dispatches an InchwormActionGoal. Runs in a thread (whatever that means in python), so multiple servers can handle execute at the same time.
     '''
     rospy.loginfo(f"IW Action Server {self.inchworm.idx} received goal:")
-    print(goal)
+    rospy.loginfo(goal)
+    self.logAction(goal)
 
     success = False
     
@@ -97,10 +119,19 @@ def main():
 
   servers = []
 
+  run_count = 0
+  run_count_path = os.path.join(RosPack().get_path("inchworm_control"), "logs/run_count.txt")
+  with open(run_count_path, "r") as f:
+    run_count = f.readline().strip("\n")
+  with open(run_count_path, "w") as f:
+    f.write(str(int(run_count) + 1))
+
+  os.mkdir(os.path.join(RosPack().get_path("inchworm_control"), "logs", str(run_count)))
+
   manager = ShingleManager(width, height)
 
   for i in range(inchworm_count):
-    servers.append(InchwormActionServer(i, manager))
+    servers.append(InchwormActionServer(i, manager, None, int(run_count)))
 
   rospy.loginfo("All inchworm action servers started")
 

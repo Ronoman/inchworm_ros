@@ -94,7 +94,8 @@ class Inchworm():
         self.next_tick_time = rospy.Time.now()
         self.robot_state = RobotState.MAKE_DECISION
         self.target_bottom_foot_pos = bottom_foot_pos
-        self.target_top_foot_pos = top_foot_pos
+        self.target_top_foot_pos = bottom_foot_pos
+        
         self.foot_shingle_neighbor_to_move_to = 0
         self.ee_shingle_neighbors = []
         self.installing_status = 0
@@ -128,6 +129,9 @@ class Inchworm():
             self.goal_sent_bottom = False
             self.goal_sent_top = False
             self.goal_sent = False
+        while self.top_foot_position != top_foot_pos:
+            self.move_top_foot(top_foot_pos)
+        
 
 
     # this is used to create ox-plow order in shingling
@@ -473,9 +477,10 @@ class Inchworm():
                     goal.end_effector = False
                     self.action_client.send_goal(goal)
                     self.goal_sent_bottom = True
+                    self.bottom_foot_status = EEStatus.IN_AIR
+
                 else:
-                    if self.action_client.get_state() == GoalStatus.SUCCEEDED:
-                        self.bottom_foot_status = EEStatus.IN_AIR
+                    if self.action_client.get_state() != GoalStatus.ACTIVE and self.action_client.get_state() != GoalStatus.PENDING or self.action_client.get_state() == GoalStatus.SUCCEEDED:
                         self.bottom_foot_position = new_pos
                         self.goal_sent_bottom = False
             else:
@@ -498,8 +503,7 @@ class Inchworm():
                     self.top_foot_status = EEStatus.IN_AIR
                     rospy.logwarn(f"inchworm {self.id} sending top foot to {new_pos}")
                 else:
-                    if self.action_client.get_state() == GoalStatus.SUCCEEDED:
-                        self.top_foot_status = EEStatus.IN_AIR
+                    if self.action_client.get_state() != GoalStatus.ACTIVE and self.action_client.get_state() != GoalStatus.PENDING or self.action_client.get_state() == GoalStatus.SUCCEEDED:
                         self.top_foot_position = new_pos
                         self.goal_sent_top = False
                         rospy.logwarn(f"inchworm {self.id} has made it to the target {new_pos}")
@@ -1769,9 +1773,10 @@ class Inchworm():
         pip install pygame==1.9.6
 
 
-        - finding path along fronteier is not working correctly
-        - need to have logic for if the robot can not move where it wants to, it starts exploring
-        - updating after probe does not seem to be working
+        - possible optimizations
+            - plant a foot after installing || finding an installed shingle
+            - time stamp data about the shingles, this will allow us to keep up to date info
+            - record the inchworms target in the shingle, this will allow inchworm to do more intlegent comms
     '''
 
 if __name__ == "__main__":
