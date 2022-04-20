@@ -335,10 +335,12 @@ class Inchworm:
 
     neighbor_offset = inverted[neighbor]
     going_to = (self.on_coord[0] + neighbor_offset[0], self.on_coord[1] + neighbor_offset[1])
-    going_to_idx = self.coord_to_idx(going_to)
+    going_to_roof_idx = self.coord_to_idx(going_to)
 
     rospy.loginfo(f"Going to shingle coordinate {going_to}")
-    shingle_idx = self.shingleToRoof(going_to_idx)
+    shingle_idx = self.roofToShingle(going_to_roof_idx)
+    rospy.loginfo(self.last_mate_msg.male)
+    rospy.loginfo(self.last_mate_msg.female)
     rospy.loginfo(f"Which is shingle index {shingle_idx}")
 
     req = SuppressMateRequest()
