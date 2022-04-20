@@ -682,13 +682,17 @@ class Inchworm():
             val = self.get_shingle_state(coord[0], coord[1])
             # rospy.loginfo(val)
             if (val != ShingleStatus.INSTALLED and i - 1 > -1 and 
-                ((self.get_shingle_state(self.shingle_order[i - 1][0], self.shingle_order[i - 1][1]) == ShingleStatus.INSTALLED))):# or i >= self.most_recent_target)):
+                ((self.get_shingle_state(self.shingle_order[i - 1][0], self.shingle_order[i - 1][1]) == ShingleStatus.INSTALLED) or i == self.most_recent_target)):
                 rospy.loginfo(f"inchworm {self.id} has possible target {coord}")
                 if self.placed_shingle_is_valid(coord) == True:
                     x_coord = coord[0]
                     y_coord = coord[1]
-                    # self.most_recent_target = i
-                    return coord
+                    if self.most_recent_target < i:
+                        self.most_recent_target = i
+                else:
+                    self.set_shingle_state(coord[0], coord[1], ShingleStatus.INSTALLED)
+                    self.rebuild_roof()
+                    # return coord
                     # if self.pattern == Pattern.DIAGONAL:
                     #     return [x_coord, y_coord]
                 # rospy.loginfo(

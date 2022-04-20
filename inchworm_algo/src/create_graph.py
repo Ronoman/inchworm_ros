@@ -4,7 +4,7 @@ import csv, sys, pandas as pd
 import matplotlib.pyplot as plt
 import plotly.graph_objects as go
 
-move_to_days = (16/3600)/24
+move_to_days = (16/3600)
 WIDTH = 10
 HEIGHT = 10
 pattern = 0
@@ -89,9 +89,9 @@ for run in data:
 print(average_data)
 
 plt.scatter(inchworms, move_data)
-plt.xlabel("Inchworm count")
-plt.ylabel("Total estimated days")
-plt.title(f"Time to shingle a {WIDTH}x{HEIGHT} roof with pattern {pattern}")
+plt.xlabel("Inchworm Count")
+plt.ylabel("Total Estimated Hours Until Compilation")
+plt.title(f"Time to Shingle a {WIDTH}x{HEIGHT} Roof with Pattern {pattern}")
 
 plt.savefig(f"{WIDTH}x{HEIGHT}_{pattern}.png")
 
