@@ -128,8 +128,8 @@ class Inchworm():
             self.goal_sent_bottom = False
             self.goal_sent_top = False
             self.goal_sent = False
-        while self.top_foot_position != top_foot_pos:
-            self.move_top_foot(top_foot_pos)
+        # while self.top_foot_position != top_foot_pos:
+        #     self.move_top_foot(top_foot_pos)
         
 
 
@@ -791,8 +791,8 @@ class Inchworm():
             M = cv.moments(thresh)
 
             # calculate x,y coordinate of center
-            cX = int(M["m10"] / M["m00"])
-            cY = int(M["m01"] / M["m00"])
+            cX = int(M["m10"] / M["m00"]) + random.randint(-int(self.roof_width/4), int(self.roof_width/4))
+            cY = int(M["m01"] / M["m00"]) + random.randint(-int(self.roof_width/4), int(self.roof_width/4))
 
 
             rospy.logwarn(f"inchworm {self.id} is exploring to a random location centroid at {[cX, cY]}")
@@ -1183,7 +1183,7 @@ class Inchworm():
                             self.robot_state = RobotState.MAKE_DECISION
 
         elif self.robot_state == RobotState.INSTALL_SHINGLE:
-            rospy.loginfo(f"inchworm {self.id} is in install state {self.installing_status}")
+            # rospy.loginfo(f"inchworm {self.id} is in install state {self.installing_status}")
             if self.placed_shingle_is_valid([self.install_shingle_target.x_coord, self.install_shingle_target.y_coord]):
                 # double check that the placed shingle is a valid install 
                 # rospy.loginfo(
@@ -1312,7 +1312,7 @@ class Inchworm():
             # TODO: This is where we could implement moving along the frontier, just moving about
             self.robot_state = RobotState.MAKE_DECISION
         elif self.robot_state == RobotState.MOVE_SHINGLE:
-            rospy.logwarn(f"inchworm {self.id} is in move shingle step {self.move_shingle_step}")
+            # rospy.logwarn(f"inchworm {self.id} is in move shingle step {self.move_shingle_step}")
             # moving shingles is a multi step process so it requires a state machine in order to be non-blocking
             if self.move_shingle_step == 1:
                     
