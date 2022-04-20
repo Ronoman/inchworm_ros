@@ -138,11 +138,11 @@ walk_shingle:
       type: joint
       duration: 1.5
       payload:
-        - 3.2
+        - 0
         - 1.27
         - 2.2
         - -0.34
-        - 0
+        - 3.2
 
 
 ## STEP_TILE DEMO ####
@@ -151,11 +151,11 @@ walk_shingle:
       type: joint
       duration: 4.0
       payload:
-        - 3.2
+        - 0.0
         - 0.75
         - 1.16
         - 1.2
-        - 0.0
+        - 3.2
     
   - disable_bottom:
       type: magnet
@@ -168,11 +168,11 @@ walk_shingle:
       type: joint
       duration: 2.0
       payload:
-        - 3.2
+        - 0.0
         - 0.9
         - 1.4
         - 0.9
-        - 0.0
+        - 3.2
 
   - enable_bottom:
       type: magnet
@@ -187,21 +187,21 @@ walk_shingle:
       type: joint
       duration: 1.0
       payload:
-        - 3.2
+        - 0.2
         - 0.9
         - 1.35
         - 0.9
-        - 0.2
+        - 3.2
   
   - jiggle_back:
       type: joint
       duration: 1.0
       payload:
-        - 3.2
+        - 0.0
         - 0.9
         - 1.35
         - 0.9
-        - 0.0
+        - 3.2
  
  ## half of the step delete the rest once I compared
 
@@ -216,21 +216,21 @@ walk_shingle:
       type: joint
       duration: 2.0
       payload:
-        - 3.2
+        - 0.0
         - 1.0
         - 1.5
         - 0.7
-        - 0.0
+        - 3.2
   
   - pull in:
       type: joint
       duration: 4.0
       payload:
-        - 3.2
+        - 0.0
         - 1.75
         - 2.2
         - -0.75
-        - 0.0
+        - 3.2
 
   - enable_bottom:
       type: magnet
