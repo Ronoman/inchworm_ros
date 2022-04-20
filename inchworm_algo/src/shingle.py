@@ -56,6 +56,7 @@ class Shingle():
         self.shingle_status = ShingleStatus.PLACED ## TODO: THIS IS MAGIC TO MAKE THE ALGO SIM WORK FOR NOW
         self.neighbors_status = [ShingleStatus.UNINSTALLED] * 6
         self.neighbors_update_times = [0] * 6
+        self.most_recent_target = 0
 
 
 

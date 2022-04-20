@@ -120,6 +120,7 @@ class Inchworm():
         self.old_bottom_foot = None
         self.old_top_foot = None
         self.using_physics = physics
+        self.most_recent_target = 0
         if physics:
             rospy.logwarn(f"waiting for server")
             self.action_client = actionlib.SimpleActionClient(f"/inchworm_action_{self.id}", InchwormAction)
@@ -410,6 +411,8 @@ class Inchworm():
 
         # update the "roof" to include shingle, if the shingle is in a place
         self.set_shingle_state(shingle_coord[0], shingle_coord[1], shingle.shingle_status) 
+        if shingle.most_recent_target > self.most_recent_target:
+            self.most_recent_target = shingle.most_recent_target
         if shingle.shingle_status == ShingleStatus.INSTALLED:
             neighbor_status = shingle.get_neighbor_locations_and_status()
             i = 0
@@ -443,6 +446,8 @@ class Inchworm():
 
     def update_shingle_with_current_roof(self, real_roof, shingle_pos):
         shingle = real_roof.get_shingle(shingle_pos[0], shingle_pos[1])
+        if self.most_recent_target > shingle.most_recent_target:
+            shingle.most_recent_target = self.most_recent_target
         if shingle.y_coord % 2 == 0:
             realative_neighbors = self.EVEN_ROW_N_LOOKUP
         else:
@@ -672,7 +677,7 @@ class Inchworm():
         for i, coord in enumerate(self.shingle_order):
             val = self.get_shingle_state(coord[0], coord[1])
             # rospy.loginfo(val)
-            if (val != ShingleStatus.INSTALLED and i - 1 > -1 and 
+            if (i >= self.most_recent_target and val != ShingleStatus.INSTALLED and i - 1 > -1 and 
                 self.get_shingle_state(self.shingle_order[i - 1][0], self.shingle_order[i - 1][1]) == ShingleStatus.INSTALLED):
                 rospy.loginfo(f"inchworm {self.id} has possible target {coord}")
                 if self.placed_shingle_is_valid(coord) == True:
