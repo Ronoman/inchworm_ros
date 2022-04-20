@@ -1,6 +1,6 @@
 walk_shingle:
  
- ## MOVE_SHINGLE ###
+## MOVE_SHINGLE ###
  ##get to the camera ##
   - setup:
       type: delay
@@ -132,7 +132,7 @@ walk_shingle:
       payload:
         magnet1: True
         magnet2: True
-### here is where it differs from the MOVE_SHINGLE demo##
+  ### here is where it differs from the MOVE_SHINGLE demo##
 
   - rotate_back:
       type: joint
@@ -145,7 +145,7 @@ walk_shingle:
         - 0
 
 
-  ## STEP_TILE DEMO ####
+## STEP_TILE DEMO ####
 
   hover:
       type: joint
@@ -197,11 +197,11 @@ walk_shingle:
       type: joint
       duration: 1.0
       payload:
-        - 0.0
+        - 3.2
         - 0.9
         - 1.35
         - 0.9
-        - 0
+        - 0.0
  
  ## half of the step delete the rest once I compared
 
@@ -226,7 +226,7 @@ walk_shingle:
       type: joint
       duration: 4.0
       payload:
-        - 0.0
+        - 3.2
         - 1.75
         - 2.2
         - -0.75
@@ -239,8 +239,215 @@ walk_shingle:
         magnet1: True
         magnet2: True
 
+## instead of steping should have the inverse of the top half of this demo
 
-  - rotate:
+  - Rotate:
+      type: joint
+      duration: 1.0
+      payload:
+        - 0.67
+        - -0.34
+        - 2.2
+        - 1.27
+        - 0.75
+
+  - Hover:
+      type: joint
+      duration: 2.0
+      payload:
+        - 0.67
+        - 0.23
+        - 2.0
+        - 0.85
+        - 0.62
+
+  - disable_magnet:
+      type: magnet
+      duration: 0.1
+      payload:
+        magnet1: True
+        magnet2: False
+
+  - land:
+      type: joint
+      duration: 0.5
+      payload:
+        - 0.7
+        - 0.45
+        - 2.2
+        - 0.6
+        - 0.6
+
+  - enable_magnet:
+      type: magnet
+      duration: 1.0
+      payload:
+        magnet1: True
+        magnet2: True
+
+  ## now holding the shingle
+  
+  - lift:
+      type: joint
+      duration: 2.0
+      payload:
+        - 0.64
+        - -0.14
+        - 2.0
+        - 0.85
+        - 0.6
+
+
+  ## get around the robot
+
+
+  - finish_rotation:
+      type: joint
+      duration: 2.0
+      payload:
+        - 2.5
+        - -0.14
+        - 2.2
+        - 0.9
+        - 2.5
+
+  - hover_new_pos:
+      type: joint
+      duration: 1.0
+      payload:
+       - 2.45
+       - 0.0
+       - 2.0
+       - 0.8
+       - 2.6
+
+  - drop:
+      type: joint
+      duration: 1.0
+      payload:
+        - 2.45
+        - 0.38
+        - 2.190489
+        - 0.56
+        - 2.6
+
+
+  ### GO BACK HOME ###
+
+  - disable_magnet:
+      type: magnet
+      duration: 0.1
+      payload:
+        magnet1: True
+        magnet2: False
+  
+  - ninja_pose:
+      type: joint
+      duration: 2.0
+      payload:
+        - 2.5
+        - -0.34
+        - 2.2
+        - 1.27
+        - 2.5
+
+  - enable_magnet:
+      type: magnet
+      duration: 0.1
+      payload:
+        magnet1: True
+        magnet2: True
+  ### here is where it differs from the MOVE_SHINGLE demo##
+
+  - rotate_back:
+      type: joint
+      duration: 1.5
+      payload:
+        - 0
+        - -0.34
+        - 2.2
+        - 1.27
+        - 3.2
+
+
+  ## STEP_TILE DEMO ####
+
+  hover:
+      type: joint
+      duration: 4.0
+      payload:
+        - 0.0
+        - 1.2
+        - 1.16
+        - 0.75
+        - 3.2
+    
+  - disable_bottom:
+      type: magnet
+      duration: 0.1
+      payload:
+        magnet1: True
+        magnet2: False
+
+  - step:
+      type: joint
+      duration: 2.0
+      payload:
+        - 0.0
+        - 0.9
+        - 1.4
+        - 0.9
+        - 3.2
+
+  - enable_bottom:
+      type: magnet
+      duration: 2.0
+      payload:
+        magnet1: True
+        magnet2: True
+  
+
+
+  - jiggle:
+      type: joint
+      duration: 1.0
+      payload:
+        - 0.2
+        - 0.9
+        - 1.35
+        - 0.9
+        - 3.2
+  
+  - jiggle_back:
+      type: joint
+      duration: 1.0
+      payload:
+        - 0.0
+        - 0.9
+        - 1.35
+        - 0.9
+        - 3.2
+ 
+ ## half of the step delete the rest once I compared
+
+  - disable_Bottom:
+      type: magnet
+      duration: 0.1
+      payload:
+        magnet1: False
+        magnet2: True
+
+  - remove_foot:
+      type: joint
+      duration: 2.0
+      payload:
+        - 0.0
+        - 0.7
+        - 1.5
+        - 1.0
+        - 3.2
+  
+  - pull in:
       type: joint
       duration: 4.0
       payload:
@@ -250,7 +457,22 @@ walk_shingle:
         - -0.75
         - 3.2
 
-  ## instead of steping should have the inverse of the MOVE_SHINGLE demo
+  - enable_bottom:
+      type: magnet
+      duration: 0.1
+      payload:
+        magnet1: True
+        magnet2: True
+
+  - rotate:
+      type: joint
+      duration: 4.0
+      payload:
+        - 0.0
+        - 1.75
+        - 2.2
+        - -0.75
+        - 0.0
 
   - step:
       type: joint
@@ -260,4 +482,5 @@ walk_shingle:
         - 0.9
         - 1.4
         - 0.9
-        - 3.2  
+        - 0.0  
+
