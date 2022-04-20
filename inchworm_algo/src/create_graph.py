@@ -50,39 +50,40 @@ average_data = pd.DataFrame()
 for run in data:
     # print(run['state_data'])
     data_frame = pd.DataFrame.from_dict(run['state_data'], orient='index')
-    print(data_frame.drop(['inchworm_id']).mean(axis=1).to_frame())
-    print(average_data)
+    # print(data_frame.drop(['inchworm_id']).mean(axis=1).to_frame())
+    # print(average_data)
+    move_data.append(max(run['move_counts']) * move_to_days)
+    inchworms.append(run['inchworm_count'])
     run_average = data_frame.drop(['inchworm_id']).mean(axis=1)
     run_average.name = str(run["inchworm_count"])
     average_data = average_data.append(run_average)
-    move_data.append(max(run['move_counts']) * move_to_days)
-    inchworms.append(run['inchworm_count'])
+    
     # print(run['move_counts'])
-    fig = go.Figure()
-    for i in range(run['inchworm_count']):
-        print(data_frame.T.columns.values.tolist()[1:])
-        print(data_frame.T.iloc[i].values.tolist()[1:])
-        r_list = data_frame.T.iloc[i].values.tolist()[1:]
-        r_list.append(data_frame.T.iloc[i].values.tolist()[1])
-        theta_list = data_frame.T.columns.values.tolist()[1:]
-        theta_list.append(data_frame.T.columns.values.tolist()[1])
-        print(r_list)
-        print(theta_list)
-        fig.add_trace(go.Scatterpolar(
-            r=r_list,
-            theta=theta_list,
-            fill='none',
-            name=f'inchworm {i}'
-        ))
-    fig.update_traces(mode='lines+markers')
-    fig.update_layout(
-        polar=dict(
-            radialaxis=dict(
-            visible=True,
-            range=[0, data_frame.max() + 20]
-            )),
-        showlegend=True
-        )
+    # fig = go.Figure()
+    # for i in range(run['inchworm_count']):
+    #     print(data_frame.T.columns.values.tolist()[1:])
+    #     print(data_frame.T.iloc[i].values.tolist()[1:])
+    #     r_list = data_frame.T.iloc[i].values.tolist()[1:]
+    #     r_list.append(data_frame.T.iloc[i].values.tolist()[1])
+    #     theta_list = data_frame.T.columns.values.tolist()[1:]
+    #     theta_list.append(data_frame.T.columns.values.tolist()[1])
+    #     print(r_list)
+    #     print(theta_list)
+    #     fig.add_trace(go.Scatterpolar(
+    #         r=r_list,
+    #         theta=theta_list,
+    #         fill='none',
+    #         name=f'inchworm {i}'
+    #     ))
+    # fig.update_traces(mode='lines+markers')
+    # fig.update_layout(
+    #     polar=dict(
+    #         radialaxis=dict(
+    #         visible=True,
+    #         range=[0, data_frame.max() + 20]
+    #         )),
+    #     showlegend=True
+    #     )
     # fig.show()
 
 print(average_data)
@@ -127,5 +128,5 @@ fig.update_layout(
     )
     )
 fig.write_image("test_figure.png", width=1000, height=600)
-# fig.show()
-# plt.show()
+fig.show()
+plt.show()

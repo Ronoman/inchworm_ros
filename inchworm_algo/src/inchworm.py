@@ -61,7 +61,7 @@ PLACED_SHINGLE_CONF = 5.0
 CONF_DECRESS = 0.25
 LOW_CONF = 0.6
 
-PROB_OF_EXPLORE_IF_CANT_MOVE = 0.10
+PROB_OF_EXPLORE_IF_CANT_MOVE = 0.1
 
 # TODO: WE ARE CURRENTLY IGNORRING HALF SHINGLES
 class Inchworm():
@@ -681,13 +681,14 @@ class Inchworm():
         for i, coord in enumerate(self.shingle_order):
             val = self.get_shingle_state(coord[0], coord[1])
             # rospy.loginfo(val)
-            if (i >= self.most_recent_target and val != ShingleStatus.INSTALLED and i - 1 > -1 and 
-                self.get_shingle_state(self.shingle_order[i - 1][0], self.shingle_order[i - 1][1]) == ShingleStatus.INSTALLED):
+            if (val != ShingleStatus.INSTALLED and i - 1 > -1 and 
+                ((self.get_shingle_state(self.shingle_order[i - 1][0], self.shingle_order[i - 1][1]) == ShingleStatus.INSTALLED))):# or i >= self.most_recent_target)):
                 rospy.loginfo(f"inchworm {self.id} has possible target {coord}")
                 if self.placed_shingle_is_valid(coord) == True:
                     x_coord = coord[0]
                     y_coord = coord[1]
-                    # return coord
+                    # self.most_recent_target = i
+                    return coord
                     # if self.pattern == Pattern.DIAGONAL:
                     #     return [x_coord, y_coord]
                 # rospy.loginfo(
@@ -839,7 +840,7 @@ class Inchworm():
             self.claim_pos(real_roof, self.ee_shingle_neighbors[0]["pos"])
             self.state_counts["move_to_depot"] += 1
             self.robot_state = RobotState.MOVE_TO_TARGET
-        elif random.random() > PROB_OF_EXPLORE_IF_CANT_MOVE:
+        elif random.random() < PROB_OF_EXPLORE_IF_CANT_MOVE:
             self.make_state_explore(real_roof)
 
     def get_shingle_neighbors(self, pos):
@@ -1129,6 +1130,8 @@ class Inchworm():
                 rospy.loginfo(f"inchworm {self.id} failed to spawn shingle, but is next to a spawned shingle")
                 self.robot_state = RobotState.MAKE_DECISION
             else:
+                if random.random() < PROB_OF_EXPLORE_IF_CANT_MOVE:
+                    pass
                 self.make_state_explore(real_roof)
 
             

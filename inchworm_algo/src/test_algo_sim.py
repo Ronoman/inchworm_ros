@@ -60,6 +60,8 @@ def main():
 
 
   batch_size = 9
+  if int(int(WIDTH)/2) < batch_size:
+    batch_size = int(int(WIDTH)/2) + 1
 
 
   count = 1
