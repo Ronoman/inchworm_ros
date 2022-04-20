@@ -27,6 +27,8 @@ class TrajectoryPlanner:
 
     self.current_joint_state = None
 
+    self.last_desired_state = None
+
   def jointCB(self, msg):
     self.current_joint_state = msg
 
@@ -122,7 +124,10 @@ class TrajectoryPlanner:
     bool wait      : Whether this function should block through the trajectory execution or not.
     '''
 
-    last_states = self.current_joint_state
+    if self.last_desired_state is None:
+      last_states = self.current_joint_state
+    else:
+      last_states = self.last_desired_state
 
     if TrajectoryPlanner.REAL_ROBOT:
       joint_names = [f"iw_ankle_foot_bottom", f"iw_beam_ankle_bottom", f"iw_mid_joint", f"iw_beam_ankle_top", f"iw_ankle_foot_top"]
@@ -136,6 +141,8 @@ class TrajectoryPlanner:
 
     # The desired angles from the payload
     new_angles = [float(q) for q in angles]
+
+    self.last_desired_state = JointState(name=joint_names, position=new_angles)
 
     # Calculate the quintic trajectory for each joint. Impose 0 velocity and 0 acceleration at limits.
     traj_triplets = []
