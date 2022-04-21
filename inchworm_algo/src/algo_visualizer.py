@@ -12,8 +12,8 @@ inchworms = []
 tile_renderer = None
 
 
-WIDTH = 1500
-HEIGHT = 1000
+WIDTH = 900
+HEIGHT = 1050
 FPS = 60
 ## initialize pygame and create window
 pygame.init()

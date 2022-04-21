@@ -52,16 +52,16 @@ class Pattern(Enum):
     OXEN_TURN = 0
     DIAGONAL = 1
 
-CONF_CUTOFF_THRESH = 1.5
-CONF_EXPLORE_THRESH = 20.0
+CONF_CUTOFF_THRESH = 5.5
+CONF_EXPLORE_THRESH = 7.0
 INSTALLED_CONF = 75.0
 DEFAULT_CONF = 10.0
 
-PLACED_SHINGLE_CONF = 5.0
+PLACED_SHINGLE_CONF = 16.0
 CONF_DECRESS = 0.25
 LOW_CONF = 0.6
 
-PROB_OF_EXPLORE_IF_CANT_MOVE = 0.1
+PROB_OF_EXPLORE_IF_CANT_MOVE = 0.25
 
 # TODO: WE ARE CURRENTLY IGNORRING HALF SHINGLES
 class Inchworm():
@@ -687,11 +687,11 @@ class Inchworm():
                 if self.placed_shingle_is_valid(coord) == True:
                     x_coord = coord[0]
                     y_coord = coord[1]
-                    if self.most_recent_target < i:
-                        self.most_recent_target = i
-                else:
-                    self.set_shingle_state(coord[0], coord[1], ShingleStatus.INSTALLED)
-                    self.rebuild_roof()
+                #     if self.most_recent_target < i:
+                #         self.most_recent_target = i
+                # else:
+                #     self.set_shingle_state(coord[0], coord[1], ShingleStatus.INSTALLED)
+                #     self.rebuild_roof()
                     # return coord
                     # if self.pattern == Pattern.DIAGONAL:
                     #     return [x_coord, y_coord]
@@ -875,8 +875,8 @@ class Inchworm():
 
         # general idea is that this contitional is run everytime the robot has to make a desision,
         
-
-        
+        if not self.using_physics:
+            self.decress_conf()
 
         if self.robot_state == RobotState.MAKE_DECISION:
             # read the shingles at the current foot positions
@@ -884,7 +884,8 @@ class Inchworm():
             # TODO: allow inchworms to read the full data from a shingle and rebuild based off of that
             #   if the data read does not match the inchworms such that the shingles are out of date, update the shingle
             
-            self.decress_conf()
+            if self.using_physics:
+                self.decress_conf()
 
             # TODO: change this, will require a working probing state and being able to read shingles
             # self.roof = []
@@ -900,10 +901,6 @@ class Inchworm():
             
             self.update_shingle_with_current_roof(real_roof, self.bottom_foot_position)
             self.update_shingle_with_current_roof(real_roof, self.top_foot_position)
-            self.read_shingle_at(real_roof, self.bottom_foot_position)
-            self.read_shingle_at(real_roof, self.top_foot_position)
-            
-            
 
             # rospy.loginfo(f"the roof after rebuild is {self.roof}")
 

@@ -5,8 +5,8 @@ import matplotlib.pyplot as plt
 import plotly.graph_objects as go
 
 move_to_days = (16/3600)
-WIDTH = 10
-HEIGHT = 10
+WIDTH = 30
+HEIGHT = 30
 pattern = 0
 
 data = []
@@ -127,6 +127,7 @@ fig.update_layout(
         size=18
     )
     )
-fig.write_image("test_figure.png", width=1000, height=600)
+fig.write_image(f"{WIDTH}x{HEIGHT}_dist.png", width=1000, height=600)
+plt.savefig(f"{WIDTH}x{HEIGHT}_time01.png")
 fig.show()
 plt.show()
