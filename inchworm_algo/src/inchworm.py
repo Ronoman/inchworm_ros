@@ -103,7 +103,7 @@ class Inchworm():
         self.path_for_shingle = []
         if pattern == Pattern.OXEN_TURN.value:
             self.pattern = Pattern.OXEN_TURN
-            self.shingle_order = self.create_shingle_order(width, height)
+            self.shingle_order = self.create_oxen_turn(width, height)
         elif pattern == Pattern.DIAGONAL.value:
             self.pattern = Pattern.DIAGONAL
             self.shingle_order = self.create_diagonal_order(width, height)
@@ -135,7 +135,7 @@ class Inchworm():
 
 
     # this is used to create ox-plow order in shingling
-    def create_shingle_order(self, width, height):
+    def create_oxen_turn(self, width, height):
         shingle_index_order = []
         if height % 2 == 0:
             for i in range(height ):
@@ -160,10 +160,21 @@ class Inchworm():
 
         return shingle_index_order
 
+    # Physics sim manual order, to show we can do it in the algo sim too
+    def create_physics_order(self, width, height):
+        shingle_index_order = []
+
+        for row in range(height):
+            for col in range(width, -1, -1):
+                shingle_index_order.append([col, row])
+
+        return shingle_index_order
+
     def create_diagonal_order(self, width, height):
         in_bounds = lambda x,y: x >= 0 and x < width and y >= 0 and y < height
         rospy.logwarn(f"using diagonal_order")
         shingle_index_order = []
+
 
         UP_RIGHT_EVEN = [1, 1]
         UP_RIGHT_ODD  = [0, 1]
@@ -189,11 +200,6 @@ class Inchworm():
 
                 if in_bounds(next[0], next[1]):
                     shingle_index_order.append(next)
-
-        # rospy.logwarn(f"length of shingle order {len(shingle_index_order)}")
-        # print(shingle_index_order)
-        
-        return shingle_index_order
 
     def create_from_message(self, msg):
         self.id = msg.id
@@ -1784,5 +1790,6 @@ class Inchworm():
     '''
 
 if __name__ == "__main__":
+    rospy.init_node("test")
     iw = Inchworm(width=10, height=10)
-    iw.create_diagonal_order()
+    print(iw.create_physics_order(5, 5))
