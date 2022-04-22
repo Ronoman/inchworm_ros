@@ -104,13 +104,13 @@ class Inchworm():
         self.path_for_shingle = []
         if pattern == Pattern.OXEN_TURN.value:
             self.pattern = Pattern.OXEN_TURN
-            self.shingle_order = self.create_shingle_order(width, height)
+            self.shingle_order = self.create_oxen_turn(width, height)
         elif pattern == Pattern.DIAGONAL.value:
             self.pattern = Pattern.DIAGONAL
             self.shingle_order = self.create_diagonal_order(width, height)
         elif pattern == Pattern.PHYSICS.value:
             self.pattern = Pattern.PHYSICS
-            self.shingle_order = self.create_diagonal_order(width, height)
+            self.shingle_order = self.create_physics_order(width, height)
 
         self.move_count = 0
         self.state_counts = {"pickup_from_depot": 0, "move_to_target": 0, "install_shingle": 0, "move_shingle": 0, "explore": 0, "move_to_depot": 0}
@@ -139,7 +139,7 @@ class Inchworm():
 
 
     # this is used to create ox-plow order in shingling
-    def create_shingle_order(self, width, height):
+    def create_oxen_turn(self, width, height):
         shingle_index_order = []
         if height % 2 == 0:
             for i in range(height ):
@@ -197,6 +197,16 @@ class Inchworm():
         # rospy.logwarn(f"length of shingle order {len(shingle_index_order)}")
         # print(shingle_index_order)
         
+        return shingle_index_order
+
+        # Physics sim manual order, to show we can do it in the algo sim too
+    def create_physics_order(self, width, height):
+        shingle_index_order = []
+
+        for row in range(height):
+            for col in range(width, -1, -1):
+                shingle_index_order.append([col, row])
+
         return shingle_index_order
 
     def create_from_message(self, msg):
@@ -1789,4 +1799,4 @@ class Inchworm():
 
 if __name__ == "__main__":
     iw = Inchworm(width=10, height=10)
-    iw.create_diagonal_order()
+    print(iw.create_physics_order(5, 5))
