@@ -81,7 +81,7 @@ def main():
       running += 1
 
 
-    rospy.sleep(0.005)
+    rospy.sleep(0.5)
     # rospy.loginfo(len(durations))
 
  
