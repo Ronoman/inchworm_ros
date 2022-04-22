@@ -199,12 +199,12 @@ class Inchworm():
         
         return shingle_index_order
 
-        # Physics sim manual order, to show we can do it in the algo sim too
-    def create_physics_order(self, width, height):
+    # Physics sim manual order, to show we can do it in the algo sim too
+    def create_physics_order(_, width, height):
         shingle_index_order = []
 
         for row in range(height):
-            for col in range(width, -1, -1):
+            for col in range(width-1, -1, -1):
                 shingle_index_order.append([col, row])
 
         return shingle_index_order
