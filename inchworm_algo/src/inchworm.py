@@ -224,8 +224,8 @@ class Inchworm():
             if realiable:
                 if shingle_state == ShingleStatus.INSTALLED:
                     self.set_shingle_conf(x, y, INSTALLED_CONF)
-                elif shingle_state == ShingleStatus.PLACED:
-                    self.set_shingle_conf(x, y, PLACED_SHINGLE_CONF)
+                # elif shingle_state == ShingleStatus.PLACED:
+                #     self.set_shingle_conf(x, y, PLACED_SHINGLE_CONF)
                 else:
                     self.set_shingle_conf(x, y, DEFAULT_CONF)
             # elif shingle_state != self.roof[x][y] and shingle_state == ShingleStatus.PLACED:
@@ -655,11 +655,11 @@ class Inchworm():
         else:
             test_x = shingle_coord[0] + Inchworm.ODD_ROW_N_LOOKUP[1][0]
             test_y = shingle_coord[1] + Inchworm.ODD_ROW_N_LOOKUP[1][1]
-            if test_x > -1 and test_y > -1 and self.get_shingle_state(test_x, test_y) == ShingleStatus.INSTALLED:
+            if test_x > -1 and test_y > -1 and test_x < self.roof_width and self.get_shingle_state(test_x, test_y) == ShingleStatus.INSTALLED:
                 validity_count += 1
             test_x = shingle_coord[0] + Inchworm.ODD_ROW_N_LOOKUP[2][0]
             test_y = shingle_coord[1] + Inchworm.ODD_ROW_N_LOOKUP[2][1]
-            if test_x > -1 and test_y > -1 and self.get_shingle_state(test_x, test_y) == ShingleStatus.INSTALLED:
+            if test_x > -1 and test_x < self.roof_width and test_y > -1 and self.get_shingle_state(test_x, test_y) == ShingleStatus.INSTALLED:
                 validity_count += 1
             if shingle_coord[0] == 0:
                 validity_count += 1

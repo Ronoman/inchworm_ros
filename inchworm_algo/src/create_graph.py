@@ -87,7 +87,7 @@ for run in data:
     # fig.show()
 
 print(average_data)
-
+plt.rcParams['font.size'] = '14'
 plt.scatter(inchworms, move_data)
 plt.xlabel("Inchworm Count")
 plt.ylabel("Total Estimated Hours Until Compilation")
@@ -96,7 +96,7 @@ plt.title(f"Time to Shingle a {WIDTH}x{HEIGHT} Roof with Pattern {pattern}")
 plt.savefig(f"{WIDTH}x{HEIGHT}_{pattern}.png")
 
 
-
+data_points = [0, 3, 5]
 fig = go.Figure()
 for i in range(average_data.shape[0]):
     print(average_data.columns.values.tolist()[1:])
