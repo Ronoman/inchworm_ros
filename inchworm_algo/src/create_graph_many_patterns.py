@@ -49,12 +49,23 @@ for i in range(3):
     inchworms = []
     move_data = []
     average_data = pd.DataFrame()
-    
+    for run in data:
+        # print(run['state_data'])
+        data_frame = pd.DataFrame.from_dict(run['state_data'], orient='index')
+        # print(data_frame.drop(['inchworm_id']).mean(axis=1).to_frame())
+        # print(average_data)
+        move_data.append(max(run['move_counts']) * move_to_days)
+        inchworms.append(run['inchworm_count'])
+        
+        
+
+    print(average_data)
     plt.rcParams['font.size'] = '14'
     plt.scatter(inchworms, move_data, label=f"Pattern {i}")
 plt.xlabel("Inchworm Count")
 plt.ylabel("Estimated Hours Until Compilation")
 plt.title(f"Time to Shingle a {WIDTH}x{HEIGHT} Roof")
+plt.legend()
 
 plt.savefig(f"{WIDTH}x{HEIGHT}_{pattern}.png")
 
