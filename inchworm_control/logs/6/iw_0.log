@@ -1,0 +1,90 @@
+-----
+currently on shingle 0, coord (0, 0)
+bottom EE is down
+-
+timestamp: 3.37
+action_type: 3
+coord_x: 0
+coord_y: 1
+end_effector: False
+
+-----
+currently on shingle 0, coord (0, 0)
+bottom EE is down
+-
+timestamp: 3.743
+action_type: 0
+coord_x: 0
+coord_y: 1
+end_effector: True
+
+-----
+currently on shingle 0, coord (0, 0)
+bottom EE is down
+-
+timestamp: 20.343
+action_type: 0
+coord_x: 1
+coord_y: 1
+end_effector: True
+
+-----
+currently on shingle 0, coord (0, 0)
+bottom EE is down
+-
+timestamp: 39.344
+action_type: 0
+coord_x: 0
+coord_y: 1
+end_effector: True
+
+-----
+currently on shingle 0, coord (0, 0)
+bottom EE is down
+-
+timestamp: 56.347
+action_type: 1
+coord_x: 0
+coord_y: 1
+end_effector: True
+
+-----
+currently on shingle 0, coord (0, 0)
+bottom EE is down
+-
+timestamp: 60.343
+action_type: 0
+coord_x: 1
+coord_y: 1
+end_effector: True
+
+-----
+currently on shingle 0, coord (0, 0)
+bottom EE is down
+-
+timestamp: 78.344
+action_type: 2
+coord_x: 1
+coord_y: 1
+end_effector: True
+
+-----
+currently on shingle 0, coord (0, 0)
+bottom EE is down
+-
+timestamp: 81.343
+action_type: 0
+coord_x: 1
+coord_y: 0
+end_effector: True
+
+-----
+currently on shingle 0, coord (0, 0)
+bottom EE is down
+-
+timestamp: 96.347
+action_type: 0
+coord_x: 1
+coord_y: 1
+end_effector: False
+

@@ -5,6 +5,7 @@ Panels:
     Property Tree Widget:
       Expanded:
         - /Inchworm Model1
+        - /TF1
         - /TF1/Frames1
         - /RobotModel1
       Splitter Ratio: 0.5
@@ -63,40 +64,6 @@ Visualization Manager:
         Expand Link Details: false
         Expand Tree: false
         Link Tree Style: Links in Alphabetic Order
-        iw_ankle_bottom:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        iw_ankle_top:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        iw_beam_bottom:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        iw_beam_top:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        iw_foot_bottom:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        iw_foot_top:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        iw_root:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
       Name: Inchworm Model
       Robot Description: inchworm/robot_description
       TF Prefix: ""
@@ -124,50 +91,220 @@ Visualization Manager:
       Frame Timeout: 15
       Frames:
         All Enabled: false
-        iw_ankle_bottom:
-          Value: true
-        iw_ankle_top:
-          Value: true
-        iw_beam_bottom:
-          Value: true
-        iw_beam_top:
-          Value: true
-        iw_foot_bottom:
-          Value: true
-        iw_foot_top:
-          Value: true
         iw_foot_top_0/iw_foot:
-          Value: true
+          Value: false
         iw_foot_top_0/male_0:
-          Value: true
-        iw_root:
-          Value: true
+          Value: false
+        iw_root_0:
+          Value: false
         iw_root_0/iw_root:
-          Value: true
+          Value: false
         iw_root_0/male_0:
+          Value: false
+        roof_0/male_0:
           Value: true
+        roof_0/male_1:
+          Value: true
+        roof_0/male_10:
+          Value: false
+        roof_0/male_11:
+          Value: false
+        roof_0/male_12:
+          Value: false
+        roof_0/male_13:
+          Value: false
+        roof_0/male_14:
+          Value: false
+        roof_0/male_15:
+          Value: false
+        roof_0/male_16:
+          Value: false
+        roof_0/male_17:
+          Value: false
+        roof_0/male_18:
+          Value: false
+        roof_0/male_19:
+          Value: false
+        roof_0/male_2:
+          Value: false
+        roof_0/male_20:
+          Value: false
+        roof_0/male_21:
+          Value: false
+        roof_0/male_22:
+          Value: false
+        roof_0/male_23:
+          Value: false
+        roof_0/male_24:
+          Value: false
+        roof_0/male_3:
+          Value: false
+        roof_0/male_4:
+          Value: false
+        roof_0/male_5:
+          Value: false
+        roof_0/male_6:
+          Value: false
+        roof_0/male_7:
+          Value: false
+        roof_0/male_8:
+          Value: false
+        roof_0/male_9:
+          Value: false
+        roof_0/roof:
+          Value: false
         shingle_0/female_0:
+          Value: false
+        shingle_0/female_1:
           Value: true
         shingle_0/shingle:
-          Value: true
+          Value: false
         shingle_1/female_0:
+          Value: false
+        shingle_1/female_1:
           Value: true
         shingle_1/shingle:
-          Value: true
+          Value: false
+        shingle_10/female_0:
+          Value: false
+        shingle_10/female_1:
+          Value: false
+        shingle_10/shingle:
+          Value: false
+        shingle_11/female_0:
+          Value: false
+        shingle_11/female_1:
+          Value: false
+        shingle_11/shingle:
+          Value: false
+        shingle_12/female_0:
+          Value: false
+        shingle_12/female_1:
+          Value: false
+        shingle_12/shingle:
+          Value: false
+        shingle_13/female_0:
+          Value: false
+        shingle_13/female_1:
+          Value: false
+        shingle_13/shingle:
+          Value: false
+        shingle_14/female_0:
+          Value: false
+        shingle_14/female_1:
+          Value: false
+        shingle_14/shingle:
+          Value: false
+        shingle_15/female_0:
+          Value: false
+        shingle_15/female_1:
+          Value: false
+        shingle_15/shingle:
+          Value: false
+        shingle_16/female_0:
+          Value: false
+        shingle_16/female_1:
+          Value: false
+        shingle_16/shingle:
+          Value: false
+        shingle_17/female_0:
+          Value: false
+        shingle_17/female_1:
+          Value: false
+        shingle_17/shingle:
+          Value: false
+        shingle_18/female_0:
+          Value: false
+        shingle_18/female_1:
+          Value: false
+        shingle_18/shingle:
+          Value: false
+        shingle_19/female_0:
+          Value: false
+        shingle_19/female_1:
+          Value: false
+        shingle_19/shingle:
+          Value: false
         shingle_2/female_0:
-          Value: true
+          Value: false
+        shingle_2/female_1:
+          Value: false
         shingle_2/shingle:
-          Value: true
+          Value: false
+        shingle_20/female_0:
+          Value: false
+        shingle_20/female_1:
+          Value: false
+        shingle_20/shingle:
+          Value: false
+        shingle_21/female_0:
+          Value: false
+        shingle_21/female_1:
+          Value: false
+        shingle_21/shingle:
+          Value: false
+        shingle_22/female_0:
+          Value: false
+        shingle_22/female_1:
+          Value: false
+        shingle_22/shingle:
+          Value: false
+        shingle_23/female_0:
+          Value: false
+        shingle_23/female_1:
+          Value: false
+        shingle_23/shingle:
+          Value: false
+        shingle_24/female_0:
+          Value: false
+        shingle_24/female_1:
+          Value: false
+        shingle_24/shingle:
+          Value: false
         shingle_3/female_0:
-          Value: true
+          Value: false
+        shingle_3/female_1:
+          Value: false
         shingle_3/shingle:
-          Value: true
+          Value: false
         shingle_4/female_0:
-          Value: true
+          Value: false
+        shingle_4/female_1:
+          Value: false
         shingle_4/shingle:
-          Value: true
+          Value: false
+        shingle_5/female_0:
+          Value: false
+        shingle_5/female_1:
+          Value: false
+        shingle_5/shingle:
+          Value: false
+        shingle_6/female_0:
+          Value: false
+        shingle_6/female_1:
+          Value: false
+        shingle_6/shingle:
+          Value: false
+        shingle_7/female_0:
+          Value: false
+        shingle_7/female_1:
+          Value: false
+        shingle_7/shingle:
+          Value: false
+        shingle_8/female_0:
+          Value: false
+        shingle_8/female_1:
+          Value: false
+        shingle_8/shingle:
+          Value: false
+        shingle_9/female_0:
+          Value: false
+        shingle_9/female_1:
+          Value: false
+        shingle_9/shingle:
+          Value: false
         world:
-          Value: true
+          Value: false
       Marker Alpha: 1
       Marker Scale: 0.5
       Name: TF
@@ -179,31 +316,186 @@ Visualization Manager:
           iw_foot_top_0/iw_foot:
             iw_foot_top_0/male_0:
               {}
-          iw_root:
-            iw_foot_bottom:
-              iw_ankle_bottom:
-                iw_beam_bottom:
-                  iw_beam_top:
-                    iw_ankle_top:
-                      iw_foot_top:
-                        {}
+          iw_root_0:
+            {}
           iw_root_0/iw_root:
             iw_root_0/male_0:
+              {}
+          roof_0/roof:
+            roof_0/male_0:
+              {}
+            roof_0/male_1:
+              {}
+            roof_0/male_10:
+              {}
+            roof_0/male_11:
+              {}
+            roof_0/male_12:
+              {}
+            roof_0/male_13:
+              {}
+            roof_0/male_14:
+              {}
+            roof_0/male_15:
+              {}
+            roof_0/male_16:
+              {}
+            roof_0/male_17:
+              {}
+            roof_0/male_18:
+              {}
+            roof_0/male_19:
+              {}
+            roof_0/male_2:
+              {}
+            roof_0/male_20:
+              {}
+            roof_0/male_21:
+              {}
+            roof_0/male_22:
+              {}
+            roof_0/male_23:
+              {}
+            roof_0/male_24:
+              {}
+            roof_0/male_3:
+              {}
+            roof_0/male_4:
+              {}
+            roof_0/male_5:
+              {}
+            roof_0/male_6:
+              {}
+            roof_0/male_7:
+              {}
+            roof_0/male_8:
+              {}
+            roof_0/male_9:
               {}
           shingle_0/shingle:
             shingle_0/female_0:
               {}
+            shingle_0/female_1:
+              {}
           shingle_1/shingle:
             shingle_1/female_0:
+              {}
+            shingle_1/female_1:
+              {}
+          shingle_10/shingle:
+            shingle_10/female_0:
+              {}
+            shingle_10/female_1:
+              {}
+          shingle_11/shingle:
+            shingle_11/female_0:
+              {}
+            shingle_11/female_1:
+              {}
+          shingle_12/shingle:
+            shingle_12/female_0:
+              {}
+            shingle_12/female_1:
+              {}
+          shingle_13/shingle:
+            shingle_13/female_0:
+              {}
+            shingle_13/female_1:
+              {}
+          shingle_14/shingle:
+            shingle_14/female_0:
+              {}
+            shingle_14/female_1:
+              {}
+          shingle_15/shingle:
+            shingle_15/female_0:
+              {}
+            shingle_15/female_1:
+              {}
+          shingle_16/shingle:
+            shingle_16/female_0:
+              {}
+            shingle_16/female_1:
+              {}
+          shingle_17/shingle:
+            shingle_17/female_0:
+              {}
+            shingle_17/female_1:
+              {}
+          shingle_18/shingle:
+            shingle_18/female_0:
+              {}
+            shingle_18/female_1:
+              {}
+          shingle_19/shingle:
+            shingle_19/female_0:
+              {}
+            shingle_19/female_1:
               {}
           shingle_2/shingle:
             shingle_2/female_0:
               {}
+            shingle_2/female_1:
+              {}
+          shingle_20/shingle:
+            shingle_20/female_0:
+              {}
+            shingle_20/female_1:
+              {}
+          shingle_21/shingle:
+            shingle_21/female_0:
+              {}
+            shingle_21/female_1:
+              {}
+          shingle_22/shingle:
+            shingle_22/female_0:
+              {}
+            shingle_22/female_1:
+              {}
+          shingle_23/shingle:
+            shingle_23/female_0:
+              {}
+            shingle_23/female_1:
+              {}
+          shingle_24/shingle:
+            shingle_24/female_0:
+              {}
+            shingle_24/female_1:
+              {}
           shingle_3/shingle:
             shingle_3/female_0:
               {}
+            shingle_3/female_1:
+              {}
           shingle_4/shingle:
             shingle_4/female_0:
+              {}
+            shingle_4/female_1:
+              {}
+          shingle_5/shingle:
+            shingle_5/female_0:
+              {}
+            shingle_5/female_1:
+              {}
+          shingle_6/shingle:
+            shingle_6/female_0:
+              {}
+            shingle_6/female_1:
+              {}
+          shingle_7/shingle:
+            shingle_7/female_0:
+              {}
+            shingle_7/female_1:
+              {}
+          shingle_8/shingle:
+            shingle_8/female_0:
+              {}
+            shingle_8/female_1:
+              {}
+          shingle_9/shingle:
+            shingle_9/female_0:
+              {}
+            shingle_9/female_1:
               {}
       Update Interval: 0
       Value: true
@@ -263,6 +555,7 @@ Visualization Manager:
         State Display Time: 3x
         Trail Step Size: 1
         Trajectory Topic: move_group/display_planned_path
+        Use Sim Time: false
       Planning Metrics:
         Payload: 1
         Show Joint Torques: false
@@ -332,7 +625,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 0.35224685072898865
+      Distance: 0.7724030017852783
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
@@ -340,17 +633,17 @@ Visualization Manager:
         Value: false
       Field of View: 0.7853981852531433
       Focal Point:
-        X: 0.006274892017245293
-        Y: -0.002065216191112995
-        Z: 0.13360460102558136
+        X: 0.00820415373891592
+        Y: -0.012269439175724983
+        Z: 0.07101521641016006
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.1253982037305832
+      Pitch: 0.16039830446243286
       Target Frame: <Fixed Frame>
-      Yaw: 5.150553226470947
+      Yaw: 4.675542831420898
     Saved: ~
 Window Geometry:
   Displays:

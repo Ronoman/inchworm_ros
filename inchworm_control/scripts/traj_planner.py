@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 
 import numpy as np
-import rospy
+import rospy, actionlib
 
 from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
+from control_msgs.msg import FollowJointTrajectoryAction, FollowJointTrajectoryGoal
 from sensor_msgs.msg import JointState
 
 # This is a library of trajectory generation functions.
@@ -22,12 +23,16 @@ class TrajectoryPlanner:
       traj_topic = f"/inchworm_{idx}/position_trajectory_controller/command"
       joint_topic = f"/inchworm_{idx}/joint_states"
 
-    self.traj_pub = rospy.Publisher(traj_topic, JointTrajectory, queue_size=1)
+    # self.traj_pub = rospy.Publisher(traj_topic, JointTrajectory, queue_size=1)
+    self.traj_client = actionlib.SimpleActionClient(f"/inchworm_{self.idx}/position_trajectory_controller/follow_joint_trajectory", FollowJointTrajectoryAction)
+    self.traj_client.wait_for_server()
+
     self.joint_sub = rospy.Subscriber(joint_topic, JointState, self.jointCB)
 
     self.current_joint_state = None
 
     self.last_desired_state = None
+    rospy.sleep(0.25)
 
   def jointCB(self, msg):
     self.current_joint_state = msg
@@ -113,7 +118,16 @@ class TrajectoryPlanner:
     return (positions, velocities, accelerations)
 
   def get_joint_state(self):
-    return self.current_joint_state
+    last_states = self.current_joint_state
+
+    joint_names = [f"iw_ankle_foot_bottom_{self.idx}", f"iw_beam_ankle_bottom_{self.idx}", f"iw_mid_joint_{self.idx}", f"iw_beam_ankle_top_{self.idx}", f"iw_ankle_foot_top_{self.idx}"]
+    cur_angles = []
+
+    # Reorder the joint names to be the order specified by joint_names
+    for name in joint_names:
+      cur_angles.append(last_states.position[last_states.name.index(name)])
+
+    return cur_angles
 
   def run_quintic_traj(self, angles, duration, num_pts=50, wait=True):
     '''
@@ -123,6 +137,9 @@ class TrajectoryPlanner:
     int num_pts    : The number of points to interpolate for the joint trajectory.
     bool wait      : Whether this function should block through the trajectory execution or not.
     '''
+
+    while self.current_joint_state is None:
+      rospy.sleep(0.1)
 
     if self.last_desired_state is None:
       last_states = self.current_joint_state
@@ -165,16 +182,23 @@ class TrajectoryPlanner:
 
     # Compose the full joint trajectory
     trajectory = JointTrajectory()
-    trajectory.joint_names = joint_names
+    trajectory.joint_names = [f"iw_ankle_foot_bottom_{self.idx}", f"iw_beam_ankle_bottom_{self.idx}", f"iw_mid_joint_{self.idx}", f"iw_beam_ankle_top_{self.idx}", f"iw_ankle_foot_top_{self.idx}"]
     trajectory.points = traj_pts
 
     trajectory.header.stamp = rospy.Time.now()
     trajectory.header.frame_id = "world"
 
-    self.traj_pub.publish(trajectory)
+    # self.traj_pub.publish(trajectory)
+
+    goal = FollowJointTrajectoryGoal()
+    goal.trajectory = trajectory
+    
+    self.traj_client.send_goal(goal)
 
     if wait:
+      print(f"Duration: {duration}")
       rospy.sleep(duration)
+      self.traj_client.wait_for_result()
 
 if __name__ == "__main__":
   # No need to import if this is run as a library
