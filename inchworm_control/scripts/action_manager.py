@@ -25,6 +25,9 @@ class InchwormActionServer:
     if log_file is None:
       self.log_file = os.path.join(RosPack().get_path("inchworm_control"), f"logs/{run_count}/iw_{idx}.log")
 
+    # Startup by sending inchworms to the right
+    self.inchworm.move(neighbor=Inchworm.Neighbors.RIGHT, plantFoot=False)
+
     self.server.start()
 
   def logAction(self, goal):
