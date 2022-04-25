@@ -126,5 +126,6 @@ if __name__ == "__main__":
                 finished_msg.data.extend(state_data)
                 algo_finished_pub.publish(finished_msg)
         r.sleep()
-    pause_physics_client=rospy.ServiceProxy('/gazebo/pause_physics',Empty)
-    pause_physics_client(EmptyRequest())
+    if use_physics:
+        pause_physics_client=rospy.ServiceProxy('/gazebo/pause_physics',Empty)
+        pause_physics_client(EmptyRequest())
