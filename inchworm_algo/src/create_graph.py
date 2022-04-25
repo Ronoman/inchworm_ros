@@ -7,7 +7,7 @@ import plotly.graph_objects as go
 move_to_days = (16/3600)
 WIDTH = 30
 HEIGHT = 30
-pattern = 0
+pattern = 2
 
 data = []
 with open(f"../data/{sys.argv[1]}") as csvfile:
@@ -96,7 +96,7 @@ plt.title(f"Time to Shingle a {WIDTH}x{HEIGHT} Roof with Pattern {pattern}")
 plt.savefig(f"{WIDTH}x{HEIGHT}_{pattern}.png")
 
 
-data_points = [0, 3, 6]
+data_points = [0, 3, 6, 10, 14]
 fig = go.Figure()
 for i in data_points:
     print(average_data.columns.values.tolist()[1:])
@@ -127,7 +127,7 @@ fig.update_layout(
         size=18
     )
     )
-fig.write_image(f"{WIDTH}x{HEIGHT}_dist.png", width=1000, height=600)
+fig.write_image(f"{WIDTH}x{HEIGHT}_{pattern}_dist.png", width=1000, height=600)
 # plt.savefig(f"{WIDTH}x{HEIGHT}_time01.png")
 fig.show()
 # plt.show()

@@ -11,7 +11,7 @@ HEIGHT = 30
 pattern = 0
 
 
-for j in range(2):
+for j in range(3):
     data = []
     with open(f"../data/{sys.argv[1]}{j}.csv") as csvfile:
         reader = csv.reader(csvfile, delimiter=' ')
