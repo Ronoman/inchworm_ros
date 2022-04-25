@@ -14,6 +14,7 @@ from shingle import Shingle, ShingleStatus
 from shingle_depot import ShingleDepot
 import hex_converter
 import random
+from std_srvs.srv import Empty
 # all x and y are in array coords currently
 
 DEBUG = False
@@ -451,7 +452,7 @@ class Inchworm():
                                 new_shingle_status = ShingleStatus.INSTALLED
                             else:
                                 new_shingle_status = ShingleStatus.PLACED
-                                self.set_shingle_state(key[0], key[1], ShingleStatus.PLACED, realiable=False)
+                                self.set_shingle_state(key[0], key[1], ShingleStatus.PLACED, realiable=True)
                             neighbor_index = shingle.convert_to_neighbor_index(key)
                             try:
                                 shingle.update_neighbor(neighbor_index, new_shingle_status)

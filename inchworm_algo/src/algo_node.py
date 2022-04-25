@@ -8,6 +8,8 @@ from std_msgs.msg import Int32, Bool, Int32MultiArray
 from shingle import ShingleStatus
 from inchworm_algo.msg import RoofState, InchwormsMsg
 from inchworm_algo.srv import GetInchwormState, GetInchwormStateResponse
+from std_srvs.srv import Empty, EmptyRequest
+
 
 # Globals that can be accessed by ROS callbacks
 r = None
@@ -22,6 +24,7 @@ def rateCB(msg):
 def pauseCB(msg):
     global paused
     paused = msg.data
+    
 
 def handle_get_inchworm_state(req):
     idx = 0
@@ -123,3 +126,5 @@ if __name__ == "__main__":
                 finished_msg.data.extend(state_data)
                 algo_finished_pub.publish(finished_msg)
         r.sleep()
+    pause_physics_client=rospy.ServiceProxy('/gazebo/pause_physics',Empty)
+    pause_physics_client(EmptyRequest())
