@@ -10,9 +10,10 @@ WIDTH = 30
 HEIGHT = 30
 pattern = 0
 
-data = []
-for i in range(3):
-    with open(f"../data/{sys.argv[1]}") as csvfile:
+
+for j in range(2):
+    data = []
+    with open(f"../data/{sys.argv[1]}{j}.csv") as csvfile:
         reader = csv.reader(csvfile, delimiter=' ')
         for row in reader:
             # print(row)
@@ -61,7 +62,7 @@ for i in range(3):
 
     print(average_data)
     plt.rcParams['font.size'] = '14'
-    plt.scatter(inchworms, move_data, label=f"Pattern {i}")
+    plt.scatter(inchworms, move_data, label=f"Pattern {j}")
 plt.xlabel("Inchworm Count")
 plt.ylabel("Estimated Hours Until Compilation")
 plt.title(f"Time to Shingle a {WIDTH}x{HEIGHT} Roof")

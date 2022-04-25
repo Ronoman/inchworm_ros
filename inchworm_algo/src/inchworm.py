@@ -429,8 +429,13 @@ class Inchworm():
 
         # update the "roof" to include shingle, if the shingle is in a place
         self.set_shingle_state(shingle_coord[0], shingle_coord[1], shingle.shingle_status) 
+        rospy.logwarn(f"inchworm {self.id} reading {shingle.most_recent_target} -------------------------------")
         if shingle.most_recent_target > self.most_recent_target:
+            rospy.logwarn(f"inchworm {self.id} found a recent target of {shingle.most_recent_target}, which is less that {self.most_recent_target}")
             self.most_recent_target = shingle.most_recent_target
+            for i in range(0, self.most_recent_target):
+                self.set_shingle_state(self.shingle_order[i][0], self.shingle_order[i][1], ShingleStatus.INSTALLED)
+            # self.rebuild_roof()
         if shingle.shingle_status == ShingleStatus.INSTALLED:
             neighbor_status = shingle.get_neighbor_locations_and_status()
             i = 0
@@ -696,13 +701,13 @@ class Inchworm():
             val = self.get_shingle_state(coord[0], coord[1])
             # rospy.loginfo(val)
             if (val != ShingleStatus.INSTALLED and i - 1 > -1 and 
-                ((self.get_shingle_state(self.shingle_order[i - 1][0], self.shingle_order[i - 1][1]) == ShingleStatus.INSTALLED) or i == self.most_recent_target)):
+                ((self.get_shingle_state(self.shingle_order[i - 1][0], self.shingle_order[i - 1][1]) == ShingleStatus.INSTALLED))):
                 rospy.loginfo(f"inchworm {self.id} has possible target {coord}")
                 if self.placed_shingle_is_valid(coord) == True:
                     x_coord = coord[0]
                     y_coord = coord[1]
-                #     if self.most_recent_target < i:
-                #         self.most_recent_target = i
+                    if self.most_recent_target < i:
+                        self.most_recent_target = i
                 # else:
                 #     self.set_shingle_state(coord[0], coord[1], ShingleStatus.INSTALLED)
                 #     self.rebuild_roof()

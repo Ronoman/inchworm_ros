@@ -53,6 +53,11 @@ def update_inchworms(roof, inchworms):
     for worm in inchworms:
         end_shingle = roof.get_shingle(0, roof.height - 1)
         if end_shingle is not None and end_shingle.shingle_status == ShingleStatus.INSTALLED:
+            for row in roof.shingle_array:
+                for shingle in row:
+                    if shingle.shingle_status != ShingleStatus.INSTALLED:
+                        rospy.logerr("roof shingling failed!!!!")
+                        rospy.signal_shutdown("roof failed to be shingled")
             is_done = True
         if worm is not None and not is_done:
             worm.run_action(roof)

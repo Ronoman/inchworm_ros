@@ -46,7 +46,7 @@ def main():
   WIDTH = int(sys.argv[2])
   HEIGHT = int(sys.argv[3])
 
-  INCHWORM_COUNTS = [i+1 for i in range(int(WIDTH/4))]
+  INCHWORM_COUNTS = [i+1 for i in range(int(WIDTH/2))]
 
   tick_sub = rospy.Subscriber("/algo/ticks_elapsed", Int32MultiArray, tickCB)
 
@@ -60,17 +60,17 @@ def main():
 
 
   batch_size = 9
-  if int(int(WIDTH)/4) < batch_size:
-    batch_size = int(int(WIDTH)/4)
+  if int(int(WIDTH)/2) < batch_size:
+    batch_size = int(int(WIDTH)/2)
 
 
   count = 1
-  while len(durations) != int(int(WIDTH)/4) and not rospy.is_shutdown():
+  while len(durations) != int(int(WIDTH)/2) and not rospy.is_shutdown():
 
-    if running < batch_size and count <= int(int(WIDTH)/4):
+    if running < batch_size and count <= int(int(WIDTH)/2):
       print(f"Running test for inchworm count of {count}")
 
-      cli_args = [f"roof_width:={WIDTH}", f"roof_height:={HEIGHT}", f"rate:={RATE}", f"pattern:={pattern}", f"use_gui:=False", f"inchworm_count:={count}", f"name_space:={WIDTH}x{HEIGHT}_{pattern}_{count}"]
+      cli_args = [f"roof_width:={WIDTH}", f"roof_height:={HEIGHT}", f"rate:={RATE}", f"pattern:={pattern}", f"use_gui:=True", f"inchworm_count:={count}", f"name_space:={WIDTH}x{HEIGHT}_{pattern}_{count}"]
 
 
       launch_file = [(roslaunch.rlutil.resolve_launch_arguments(launch_path + cli_args)[0], cli_args)]

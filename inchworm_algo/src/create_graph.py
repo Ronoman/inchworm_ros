@@ -96,9 +96,9 @@ plt.title(f"Time to Shingle a {WIDTH}x{HEIGHT} Roof with Pattern {pattern}")
 plt.savefig(f"{WIDTH}x{HEIGHT}_{pattern}.png")
 
 
-data_points = [0, 3, 5]
+data_points = [0, 3, 6]
 fig = go.Figure()
-for i in range(average_data.shape[0]):
+for i in data_points:
     print(average_data.columns.values.tolist()[1:])
     print(average_data.iloc[i].values.tolist()[1:])
     r_list = average_data.iloc[i].values.tolist()[1:]
@@ -123,11 +123,11 @@ fig.update_layout(
     title=f"Share of Actions Taken in Run by Average Inchworm<br><sup>On a {WIDTH}x{HEIGHT} roof with pattern {pattern}</sup>",
     
     font=dict(
-        family="Courier New, monospace",
+        family="DejaVu Sans",
         size=18
     )
     )
 fig.write_image(f"{WIDTH}x{HEIGHT}_dist.png", width=1000, height=600)
-plt.savefig(f"{WIDTH}x{HEIGHT}_time01.png")
+# plt.savefig(f"{WIDTH}x{HEIGHT}_time01.png")
 fig.show()
-plt.show()
+# plt.show()
