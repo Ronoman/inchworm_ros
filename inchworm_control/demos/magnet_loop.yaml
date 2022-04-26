@@ -1,7 +1,7 @@
-magnet_unit_test:
+magnet_loop:
   - wait:
       type: delay
-      duration: 5.0
+      duration: 1.0
   - disable_bottom:
       type: magnet
       duration: 0.5
