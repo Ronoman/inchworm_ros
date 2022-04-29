@@ -24,7 +24,7 @@ class TrajectoryPlanner:
       joint_topic = f"/inchworm_{idx}/joint_states"
 
     # self.traj_pub = rospy.Publisher(traj_topic, JointTrajectory, queue_size=1)
-    self.traj_client = actionlib.SimpleActionClient(f"/inchworm_{self.idx}/position_trajectory_controller/follow_joint_trajectory", FollowJointTrajectoryAction)
+    self.traj_client = actionlib.SimpleActionClient(f"/inchworm/position_trajectory_controller/follow_joint_trajectory", FollowJointTrajectoryAction)
     self.traj_client.wait_for_server()
 
     self.joint_sub = rospy.Subscriber(joint_topic, JointState, self.jointCB)
@@ -182,7 +182,7 @@ class TrajectoryPlanner:
 
     # Compose the full joint trajectory
     trajectory = JointTrajectory()
-    trajectory.joint_names = [f"iw_ankle_foot_bottom_{self.idx}", f"iw_beam_ankle_bottom_{self.idx}", f"iw_mid_joint_{self.idx}", f"iw_beam_ankle_top_{self.idx}", f"iw_ankle_foot_top_{self.idx}"]
+    trajectory.joint_names = joint_names
     trajectory.points = traj_pts
 
     trajectory.header.stamp = rospy.Time.now()
@@ -196,9 +196,10 @@ class TrajectoryPlanner:
     self.traj_client.send_goal(goal)
 
     if wait:
-      print(f"Duration: {duration}")
+      rospy.loginfo(f"Duration: {duration}")
       rospy.sleep(duration)
-      self.traj_client.wait_for_result()
+      # self.traj_client.wait_for_result()
+      rospy.loginfo("Done sleeping")
 
 if __name__ == "__main__":
   # No need to import if this is run as a library
