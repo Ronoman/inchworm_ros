@@ -9,6 +9,14 @@ from traj_planner import TrajectoryPlanner
 from enum import Enum
 from joint_consts import JointConstants
 
+from typing import Optional, Tuple, List
+
+# Type annotation for an even-r coordinate
+Coord = Tuple[int, int]
+
+# Type annotation for a gazebo scoped link in list form
+ScopedLink = List[str]
+
 class Inchworm:
   '''
   High level controller for inchworms in the physics sim. Features:
@@ -174,7 +182,8 @@ class Inchworm:
   EVEN_ROW_N_LOOKUP = [(1, 0), (1, -1), (0, -1), (-1, 0), (0, 1), (1, 1)]
   ODD_ROW_N_LOOKUP = [(1, 0), (0, -1), (-1, -1), (-1, 0), (-1, 1), (0, 1)]
 
-  def __init__(self, idx=0):
+  def __init__(self, idx: Optional[int] = 0):
+    rospy.loginfo(f"Initializing inchworm {idx}")
     self.idx = idx
 
     self.planner = TrajectoryPlanner(idx=self.idx)
@@ -220,15 +229,21 @@ class Inchworm:
   ###################
   ###   HELPERS   ###
   ###################
-  def idx_to_coord(self, index):
+  def idx_to_coord(self, index: int) -> Coord:
+    '''
+    Roof index to even-r coordinate.
+    '''
     return (index % self.roof_width, math.floor(index / self.roof_width))
 
-  def coord_to_idx(self, coord):
+  def coord_to_idx(self, coord: Coord) -> int:
+    '''
+    Even-r coordinate to roof index.
+    '''
     return self.roof_width*coord[1] + coord[0]
 
-  def getAdjacentShingleIndexes(self, roof_coord):
+  def getAdjacentShingleIndexes(self, roof_coord: Coord) -> List[int]:
     '''
-    Returns a list of shingle indexes that are adjacent to the robot. Used to determine which mates to disable
+    Returns a list of shingle indexes (NOT roof indexes) that are adjacent to the robot. Used to determine which mates to disable
     This function uses self.on_coord, looks up adjacent roof indexes, then finds shingles that are attached to those roof mount points.
     '''
     #                    right   l right  l left   left    up left  up right
@@ -276,7 +291,10 @@ class Inchworm:
 
     return shingle_indexes
 
-  def absoluteToNeighbor(self, roof_coord):
+  def absoluteToNeighbor(self, roof_coord: Coord) -> Coord:
+    '''
+    Converts an absolute even-r coordinate into a relative coordinate to this inchworm.
+    '''
     # Offset to get from where inchworm is to the desired position
     coord_offset = (roof_coord[0] - self.on_coord[0], roof_coord[1] - self.on_coord[1])
 
@@ -290,7 +308,7 @@ class Inchworm:
 
     return neighbor
 
-  def isInchwormOnRoof(self):
+  def isInchwormOnRoof(self) -> bool:
     '''
     Determines whether the inchworm is currently attached to the roof. There are two cases where this function will return False:
       1. The inchworm is in the middle of a step, and has both end effectors disconnected.
@@ -306,11 +324,11 @@ class Inchworm:
 
     last_mate = self.last_mate_msg
 
-    for iw_mate in last_mate.male:
+    for i,iw_mate in enumerate(last_mate.male):
       if f"inchworm_description_{self.idx}" in iw_mate:
         on_shingle = int(last_mate.female[i].split("::")[1].split("_")[-1])
 
-        for shingle_mate in shingle_mate.female:
+        for shingle_mate in last_mate.female:
           if f"shingle_description_{on_shingle}::" in shingle_mate:
             return True
 
@@ -319,7 +337,7 @@ class Inchworm:
   #########################
   ### MAGNET MANAGEMENT ###
   #########################
-  def initializeMates(self):
+  def initializeMates(self) -> None:
     '''
     Run on __init__(). Deactivates all inchworm to shingle mates, then reenables just the bottom link.
     '''
@@ -346,7 +364,7 @@ class Inchworm:
 
     self.mate_suppress_proxy(req)
 
-  def swapMagnet(self, turnOff, turnOn, neighbor):
+  def swapMagnet(self, turnOff: ScopedLink, turnOn: ScopedLink, neighbor: Coord) -> None:
     req = SuppressLinkRequest()
     req.scoped_link = turnOff
     req.suppress = True
@@ -378,9 +396,9 @@ class Inchworm:
 
     rospy.sleep(0.25)
 
-  def mateCB(self, msg):
+  def mateCB(self, msg: MateList) -> None:
     '''
-    Callback for active_mate messages. Used to determine where the robot is currently
+    Callback for active_mate messages. Used to determine where the robot is currently. Updates the self.last_mate_msg member variable.
     '''
 
     self.last_mate_msg = msg
@@ -417,7 +435,7 @@ class Inchworm:
   ################
   ### MOVEMENT ###
   ################
-  def moveTo(self,pose,time):
+  def moveTo(self, pose: Poses, time: float) -> None:
     '''
     Moves the end effector not currently attached to the roof to a neighbor.
     neighbor: One of the `Neighbors` enum. This gets mapped to a JointConstants set of joint angles
@@ -439,7 +457,7 @@ class Inchworm:
 
     self.planner.run_quintic_traj(angles, time)
 
-  def retract(self):
+  def retract(self) -> None:
     '''
     Will retract the inchworm to the spin position.
     '''
@@ -456,7 +474,7 @@ class Inchworm:
 
     self.planner.run_quintic_traj(angles, 5.0)
 
-  def spinTo(self, neighbor):
+  def spinTo(self, neighbor: Neighbors) -> None:
     '''
     Spins the robot (while in the retract position) to point at a neighbor
     '''
@@ -483,7 +501,7 @@ class Inchworm:
 
     self.planner.run_quintic_traj(angles, duration)
 
-  def move(self, neighbor, plantFoot=True):
+  def move(self, neighbor: Neighbors, plantFoot: Optional[bool] = True) -> None:
     '''
     Moves the robot to an adjacent shingle. Will swap feet if plantFoot, unless neighbor is NONE (robot stands straight up)
     '''
@@ -525,7 +543,7 @@ class Inchworm:
     
     rospy.sleep(.1)
 
-  def swapFeet(self):
+  def swapFeet(self) -> None:
     '''
     Swaps which foot is attached to the roof. Make sure before calling the free end effector is placed above a mounting point before calling.
     '''
@@ -558,7 +576,7 @@ class Inchworm:
   ################
   ### SHINGLES ###
   ################
-  def getAttachedShingle(self, end_effector):
+  def getAttachedShingle(self, end_effector: bool) -> int:
     '''
     Returns the shingle index attached to end_effector (bottom if 0, top if 1), or -1 if that EE has no shingle attached.
     '''
@@ -576,7 +594,7 @@ class Inchworm:
 
     return -1
 
-  def roofToShingle(self, roof_idx):
+  def roofToShingle(self, roof_idx: int) -> int:
     '''
     Finds the shingle attached to a roof index.
     '''
@@ -594,7 +612,7 @@ class Inchworm:
         shingle_idx = int(last_mate.female[i].split("::")[1].split("_")[-1])
         return shingle_idx
 
-  def shingleToRoof(self, shingle_idx):
+  def shingleToRoof(self, shingle_idx: int) -> int:
     '''
     Inverse of roofToShingle. Maps a shingle index to a roof index.
     '''
@@ -610,7 +628,7 @@ class Inchworm:
         roof_idx = int(last_mate.male[i].split("::")[-1])
         return roof_idx
 
-  def suppressShingle(self, shingle_idx):
+  def suppressShingle(self, shingle_idx: int) -> None:
     shingle = ["inchworm", f"shingle_description_{shingle_idx}", f"shingle_{shingle_idx}"]
     roof = ["inchworm", f"roof_description_0", f"roof_0"]
     iw_bot = ["inchworm", f"inchworm_description_{self.idx}", f"iw_root_{self.idx}"]
@@ -637,7 +655,7 @@ class Inchworm:
     rospy.loginfo(f"\tUnsuppressing shingle {shingle_idx}")
     self.mate_suppress_proxy(req)
 
-  def unsupressShingle(self, shingle_idx):
+  def unsupressShingle(self, shingle_idx: int) -> None:
     shingle = ["inchworm", f"shingle_description_{shingle_idx}", f"shingle_{shingle_idx}"]
     roof = ["inchworm", f"roof_description_0", f"roof_0"]
     iw_bot = ["inchworm", f"inchworm_description_{self.idx}", f"iw_root_{self.idx}"]
@@ -667,7 +685,8 @@ class Inchworm:
     rospy.loginfo(f"\tUnsuppressing shingle {shingle_idx}")
     self.mate_suppress_proxy(req)
 
-  def getNeighborCoord(self, neighbor):
+  # Type annotations are fun. Neighbors is one of Inchworm.Neighbors
+  def getNeighborCoord(self, neighbor) -> Coord:
     pair_offsets = []
 
     # Determine which list to lookup from, based on whether this inchworm is on an even or odd row
@@ -691,7 +710,8 @@ class Inchworm:
 
     return pair
 
-  def pickupShingle(self, neighbor):
+  # Type annotations are fun. Neighbors is one of Inchworm.Neighbors
+  def pickupShingle(self, neighbor) -> None:
     rospy.sleep(1)
     #make sure robot doesn't grab a supporting shingle
     if ((neighbor == Inchworm.Neighbors.BOTTOM_LEFT) or (neighbor == Inchworm.Neighbors.BOTTOM_RIGHT)):
@@ -714,7 +734,8 @@ class Inchworm:
   
     self.holdingShingle = True
 
-  def placeShingle(self, neighbor):
+  # Type annotations are fun. Neighbors is one of Inchworm.Neighbors
+  def placeShingle(self, neighbor) -> None:
     #make sure robot doesn't try to place in supporting shingle place
     if ((neighbor == Inchworm.Neighbors.BOTTOM_LEFT) or (neighbor == Inchworm.Neighbors.BOTTOM_RIGHT)):
       print("Error: cannot place shingle underneath the shingle foot is planted on")
@@ -737,6 +758,7 @@ class Inchworm:
 
     self.holdingShingle = False
 
+  # This is no unit test, this is an integration test.
   def unitTest(self):
     rospy.loginfo("check right")
     self.move(Inchworm.Neighbors.RIGHT, plantFoot=False)
@@ -762,6 +784,7 @@ class Inchworm:
     rospy.loginfo("check")
     rospy.sleep(5)
 
+  # More integration tests
   def walkingAround(self):
     rospy.loginfo("go right")
     self.move(Inchworm.Neighbors.RIGHT)
@@ -776,6 +799,7 @@ class Inchworm:
     rospy.loginfo("go upper right")
     self.move(Inchworm.Neighbors.UPPER_RIGHT)
 
+  # Even more
   def hexagon(self):
     rospy.loginfo("go lower right")
     self.move(Inchworm.Neighbors.BOTTOM_RIGHT)

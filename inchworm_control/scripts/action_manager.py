@@ -121,7 +121,9 @@ class InchwormActionServer:
 
 def getRunNumber():
   log_path = os.path.join(RosPack().get_path("inchworm_control"), "logs")
-  dirs = os.listdir(log_path)
+  
+  # Stupid hack to ignore "run_count.txt" if it exists
+  dirs = list(filter(lambda name: "." not in name, os.listdir(log_path)))
 
   # This will break spectacularly if you put a non number log dir in the logs directory. So don't do that please.
   highest_log_dir = max([int(dir) for dir in dirs])
