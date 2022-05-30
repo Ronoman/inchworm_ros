@@ -138,7 +138,7 @@ namespace assembly_sim
       {
         if(req.suppress)
         {
-          gzwarn << "Suppress Mate - found matching mate for: " << desc << std::endl;
+          //gzwarn << "Suppress Mate - found matching mate for: " << desc << std::endl;
           mate->suppressMate(true);
           res.suppressed = true;
 
@@ -149,7 +149,7 @@ namespace assembly_sim
         }
         else
         {
-          gzwarn << "Unsuppress Mate - found matching mate for: " << desc << std::endl;
+          //gzwarn << "Unsuppress Mate - found matching mate for: " << desc << std::endl;
           mate->suppressMate(false);
           res.suppressed = false;
 
@@ -358,7 +358,7 @@ namespace assembly_sim
       {
         if(req.suppress)
         {
-          gzwarn << "Suppress Link - found matching mate for: " << desc << std::endl;
+          //gzwarn << "Suppress Link - found matching mate for: " << desc << std::endl;
           mate->suppressMate(true);
           res.suppressed = true;
 
@@ -366,7 +366,7 @@ namespace assembly_sim
         }
         else
         {
-          gzwarn << "Unsuppress Link - found matching mate for: " << desc << std::endl;
+          //gzwarn << "Unsuppress Link - found matching mate for: " << desc << std::endl;
           mate->suppressMate(false);
           res.suppressed = false;
 

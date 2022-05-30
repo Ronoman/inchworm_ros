@@ -401,7 +401,7 @@ namespace assembly_sim {
           to_gazebo(final_component_frame, final_component_pose);
           comp_link->SetWorldPose(final_component_pose);
 
-          gzwarn<<"jumping "<<comp_link->GetName()<<std::endl;
+          //gzwarn<<"jumping "<<comp_link->GetName()<<std::endl;
         }
       }
 
@@ -409,7 +409,7 @@ namespace assembly_sim {
       this->joint->Attach(this->female->link, this->male->link);
 
       // Male and female mate frames in world coordinates
-      gzwarn<<">> mate error (before): "<<this->mate_error.vel.Norm()<<", "<<this->mate_error.rot.Norm()<<std::endl;
+      //gzwarn<<">> mate error (before): "<<this->mate_error.vel.Norm()<<", "<<this->mate_error.rot.Norm()<<std::endl;
       KDL::Frame female_atom_frame, male_atom_frame;
       KDL::Frame female_mate_frame, male_mate_frame;
       to_kdl(this->female->link->WorldPose(), female_atom_frame);
@@ -417,7 +417,7 @@ namespace assembly_sim {
       female_mate_frame = female_atom_frame * female_mate_point->pose * (*this->mated_symmetry);
       male_mate_frame = male_atom_frame * male_mate_point->pose;
       this->mate_error = KDL::diff(female_mate_frame, male_mate_frame);
-      gzwarn<<">> mate error (after):  "<<this->mate_error.vel.Norm()<<", "<<this->mate_error.rot.Norm()<<std::endl;
+      //gzwarn<<">> mate error (after):  "<<this->mate_error.vel.Norm()<<", "<<this->mate_error.rot.Norm()<<std::endl;
 
 #if 0
       // set stiffness based on proximity to goal
@@ -497,7 +497,7 @@ namespace assembly_sim {
       if (suppress_requested && state != Mate::SUPPRESSED)
       {
         this->requestUpdate(Mate::SUPPRESSED);
-        gzwarn<<"Suppressing mate: "<<getDescription()<<std::endl;
+        //gzwarn<<"Suppressing mate: "<<getDescription()<<std::endl;
         return;
       }
       else if (!suppress_requested && state == Mate::SUPPRESSED)
@@ -572,9 +572,9 @@ namespace assembly_sim {
              twist_err.rot.Norm() < attach_threshold_angular)
           {
             // The mate points are within the attach threshold and should be mated
-            gzwarn<<"> Request mate "<<getDescription()<<std::endl;
-            gzwarn<<">    linear error: "<<twist_err.vel.Norm()<<std::endl;
-            gzwarn<<">   angular error: "<<twist_err.vel.Norm()<<std::endl;
+            //gzwarn<<"> Request mate "<<getDescription()<<std::endl;
+            //gzwarn<<">    linear error: "<<twist_err.vel.Norm()<<std::endl;
+            //gzwarn<<">   angular error: "<<twist_err.vel.Norm()<<std::endl;
             this->mated_symmetry = it_sym;
             this->mate_error = twist_err;
             this->requestUpdate(Mate::MATED);
@@ -602,12 +602,12 @@ namespace assembly_sim {
 
         case Mate::SUPPRESSED:
           if((this->state == Mate::MATED) || (this->state == Mate::MATING)) {
-            gzwarn<<"> Suppressing and deatching an active mate: "<<getDescription()<<std::endl;
+            //gzwarn<<"> Suppressing and deatching an active mate: "<<getDescription()<<std::endl;
             this->detach();
             this->state = Mate::SUPPRESSED;
             this->mated_symmetry = model->symmetries.end();
           } else {
-            gzwarn<<"> Suppressing an inactive mate: "<<getDescription()<<std::endl;
+            //gzwarn<<"> Suppressing an inactive mate: "<<getDescription()<<std::endl;
             this->state = Mate::SUPPRESSED;
           }
           break;
@@ -628,7 +628,7 @@ namespace assembly_sim {
 
         case Mate::MATED:
           if(state != Mate::MATED) {
-            gzwarn<<"> Attaching "<<female->link->GetName()<<" to "<<male->link->GetName()<<"!"<<std::endl;
+            //gzwarn<<"> Attaching "<<female->link->GetName()<<" to "<<male->link->GetName()<<"!"<<std::endl;
           } else {
             gzwarn<<"> Reattaching "<<female->link->GetName()<<" to "<<male->link->GetName()<<"!"<<std::endl;
           }
