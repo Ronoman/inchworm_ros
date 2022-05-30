@@ -10,21 +10,20 @@ from sensor_msgs.msg import JointState
 # This is a library of trajectory generation functions.
 
 class TrajectoryPlanner:
-  # TODO: Migrate to parameter server
-  REAL_ROBOT = True
 
   def __init__(self, idx=0):
     self.idx = idx
+    self.real_robot = rospy.get_param("real_robot", False)
 
-    if TrajectoryPlanner.REAL_ROBOT:
-      traj_topic = f"/inchworm/position_trajectory_controller/command"
+    if self.real_robot:
+      traj_cli = f"/inchworm/position_trajectory_controller/follow_joint_trajectory"
       joint_topic = f"/inchworm/joint_states"
     else:
-      traj_topic = f"/inchworm_{idx}/position_trajectory_controller/command"
+      traj_cli = f"/inchworm_{idx}/position_trajectory_controller/follow_joint_trajectory"
       joint_topic = f"/inchworm_{idx}/joint_states"
 
     # self.traj_pub = rospy.Publisher(traj_topic, JointTrajectory, queue_size=1)
-    self.traj_client = actionlib.SimpleActionClient(f"/inchworm/position_trajectory_controller/follow_joint_trajectory", FollowJointTrajectoryAction)
+    self.traj_client = actionlib.SimpleActionClient(traj_cli, FollowJointTrajectoryAction)
     self.traj_client.wait_for_server()
 
     self.joint_sub = rospy.Subscriber(joint_topic, JointState, self.jointCB)
@@ -146,7 +145,7 @@ class TrajectoryPlanner:
     else:
       last_states = self.last_desired_state
 
-    if TrajectoryPlanner.REAL_ROBOT:
+    if self.real_robot:
       joint_names = [f"iw_ankle_foot_bottom", f"iw_beam_ankle_bottom", f"iw_mid_joint", f"iw_beam_ankle_top", f"iw_ankle_foot_top"]
     else:
       joint_names = [f"iw_ankle_foot_bottom_{self.idx}", f"iw_beam_ankle_bottom_{self.idx}", f"iw_mid_joint_{self.idx}", f"iw_beam_ankle_top_{self.idx}", f"iw_ankle_foot_top_{self.idx}"]

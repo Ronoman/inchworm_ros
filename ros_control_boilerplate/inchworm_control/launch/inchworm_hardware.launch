@@ -1,6 +1,8 @@
 <?xml version="1.0"?>
 <launch>
 
+  <param name="real_robot" value="true" />
+
   <!-- GDB functionality -->
   <arg name="debug" default="false" />
   <arg unless="$(arg debug)" name="launch_prefix" value="" />

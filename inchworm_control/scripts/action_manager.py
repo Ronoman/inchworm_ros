@@ -11,6 +11,7 @@ from rospkg import RosPack
 
 class InchwormActionServer:
   def __init__(self, idx, manager, log_file=None, run_count=0):
+    rospy.loginfo(f"Initializing inchworm action server {idx}")
     self.server = actionlib.SimpleActionServer(f"inchworm_action_{idx}", InchwormAction, self.execute, False)
     
     self.idx = idx
@@ -118,6 +119,15 @@ class InchwormActionServer:
 
     return True
 
+def getRunNumber():
+  log_path = os.path.join(RosPack().get_path("inchworm_control"), "logs")
+  dirs = os.listdir(log_path)
+
+  # This will break spectacularly if you put a non number log dir in the logs directory. So don't do that please.
+  highest_log_dir = max([int(dir) for dir in dirs])
+
+  return highest_log_dir + 1
+
 def main():
   rospy.init_node("action_manager")
 
@@ -127,12 +137,7 @@ def main():
 
   servers = []
 
-  run_count = 0
-  run_count_path = os.path.join(RosPack().get_path("inchworm_control"), "logs/run_count.txt")
-  with open(run_count_path, "r") as f:
-    run_count = f.readline().strip("\n")
-  with open(run_count_path, "w") as f:
-    f.write(str(int(run_count) + 1))
+  run_count = getRunNumber()
 
   os.mkdir(os.path.join(RosPack().get_path("inchworm_control"), "logs", str(run_count)))
 
