@@ -306,11 +306,11 @@ class Inchworm:
 
     last_mate = self.last_mate_msg
 
-    for iw_mate in last_mate.male:
+    for i,iw_mate in enumerate(last_mate.male):
       if f"inchworm_description_{self.idx}" in iw_mate:
         on_shingle = int(last_mate.female[i].split("::")[1].split("_")[-1])
 
-        for shingle_mate in shingle_mate.female:
+        for shingle_mate in last_mate.female:
           if f"shingle_description_{on_shingle}::" in shingle_mate:
             return True
 
