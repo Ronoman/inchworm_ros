@@ -28,7 +28,7 @@ def main():
   res = write_proxy(write_req)
 
   print("Made write request.")
-  time.sleep(1)
+  time.sleep(3)
 
   read_req = ReadNFCBlockRequest()
 

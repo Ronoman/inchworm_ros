@@ -1,0 +1,20 @@
+-----
+currently on shingle 2, coord (2, 0)
+bottom EE is down
+-
+timestamp: 27.289
+action_type: 0
+coord_x: 4
+coord_y: 1
+end_effector: False
+
+-----
+currently on shingle 3, coord (3, 0)
+top EE is down
+-
+timestamp: 49.286
+action_type: 0
+coord_x: 2
+coord_y: 0
+end_effector: False
+
