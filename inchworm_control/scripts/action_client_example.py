@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-from re import X
 import rospy, actionlib
 
 from inchworm_control.msg import InchwormAction, InchwormGoal

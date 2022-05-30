@@ -290,6 +290,32 @@ class Inchworm:
 
     return neighbor
 
+  def isInchwormOnRoof(self):
+    '''
+    Determines whether the inchworm is currently attached to the roof. There are two cases where this function will return False:
+      1. The inchworm is in the middle of a step, and has both end effectors disconnected.
+      2. The inchworm has fallen off of the roof, or is in the process of doing so.
+
+    for all mates:
+      if the inchworm shows up in the mate list:
+        find the shingle its attached to
+        if the shingle is attached to the roof:
+          return True
+    return False
+    '''
+
+    last_mate = self.last_mate_msg
+
+    for iw_mate in last_mate.male:
+      if f"inchworm_description_{self.idx}" in iw_mate:
+        on_shingle = int(last_mate.female[i].split("::")[1].split("_")[-1])
+
+        for shingle_mate in shingle_mate.female:
+          if f"shingle_description_{on_shingle}::" in shingle_mate:
+            return True
+
+    return False
+
   #########################
   ### MAGNET MANAGEMENT ###
   #########################

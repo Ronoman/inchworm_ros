@@ -9,8 +9,6 @@ from shingle_manager import ShingleManager
 
 from rospkg import RosPack
 
-from threading import Lock
-
 class InchwormActionServer:
   def __init__(self, idx, manager, log_file=None, run_count=0):
     self.server = actionlib.SimpleActionServer(f"inchworm_action_{idx}", InchwormAction, self.execute, False)
@@ -49,6 +47,13 @@ class InchwormActionServer:
     self.logAction(goal)
 
     success = False
+
+    # If the inchworm is not on the roof when we start, something has gone wrong. Abort and fail
+    if not self.inchworm.isInchwormOnRoof():
+      rospy.logerr(f"Inchworm {self.inchworm.idx} is not on the roof! Aborting and quitting this action server.")
+      self.server.set_aborted(result=InchwormResult(success=False))
+      self.server.action_server.stop()
+      return
     
     if goal.action_type == 0:
       success = self.handleMove(goal)
