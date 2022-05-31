@@ -136,7 +136,7 @@ class Inchworm():
             self.goal_sent = False
         # while self.top_foot_position != top_foot_pos:
         #     self.move_top_foot(top_foot_pos)
-        
+        self.failed = False
 
 
     # this is used to create ox-plow order in shingling
@@ -294,9 +294,8 @@ class Inchworm():
                         self.update_shingle_with_current_roof(roof, [shingle.x_coord, shingle.y_coord])
                         # updates the shingle that the inchworm is plated on
                         self.update_shingle_with_current_roof(roof, self.bottom_foot_position)
-                    else:
-                        #rospy.logwarn(f"ATTEMPTED TO MOVE A THIRD ({ee}) LEG, BAD")
-                        pass
+                elif self.action_client.get_state() == GoalStatus.ABORTED:
+                        self.failed = True
 
 
         else:
@@ -365,6 +364,8 @@ class Inchworm():
                         self.update_shingle_with_current_roof(roof, self.bottom_foot_position)
                     self.shingle_to_move = shingle
                     self.goal_sent = False
+                elif self.action_client.get_state() == GoalStatus.ABORTED:
+                        self.failed = True
         else:
             shingle = roof.pickup_shingle([shingle.x_coord, shingle.y_coord])
             if (ee == EE.BOTTOM_FOOT):
@@ -503,9 +504,11 @@ class Inchworm():
                     self.bottom_foot_status = EEStatus.IN_AIR
 
                 else:
-                    if self.action_client.get_state() != GoalStatus.ACTIVE and self.action_client.get_state() != GoalStatus.PENDING or self.action_client.get_state() == GoalStatus.SUCCEEDED:
+                    if self.action_client.get_state() == GoalStatus.SUCCEEDED:
                         self.bottom_foot_position = new_pos
                         self.goal_sent_bottom = False
+                    elif self.action_client.get_state() == GoalStatus.ABORTED:
+                        self.failed = True
             else:
                 self.bottom_foot_status = EEStatus.IN_AIR
                 self.bottom_foot_position = new_pos
@@ -526,10 +529,12 @@ class Inchworm():
                     self.top_foot_status = EEStatus.IN_AIR
                     #rospy.logwarn(f"inchworm {self.id} sending top foot to {new_pos}")
                 else:
-                    if self.action_client.get_state() != GoalStatus.ACTIVE and self.action_client.get_state() != GoalStatus.PENDING or self.action_client.get_state() == GoalStatus.SUCCEEDED:
+                    if self.action_client.get_state() == GoalStatus.SUCCEEDED:
                         self.top_foot_position = new_pos
                         self.goal_sent_top = False
                         #rospy.logwarn(f"inchworm {self.id} has made it to the target {new_pos}")
+                    elif self.action_client.get_state() == GoalStatus.ABORTED:
+                        self.failed = True
             else:
                 self.top_foot_status = EEStatus.IN_AIR
                 self.top_foot_position = new_pos

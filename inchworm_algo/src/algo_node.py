@@ -51,6 +51,9 @@ def update_inchworms(roof, inchworms):
     if ticks % 1000 == 0:
         rospy.loginfo(ticks)
     for worm in inchworms:
+        if worm.failed:
+            inchworms.remove(worm)
+    for worm in inchworms:
         if worm is not None:
             worm.make_decision(roof)
     for worm in inchworms:
