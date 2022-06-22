@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 
-import rospy, math
+import rospy, math, tf2_ros
 
+from tf.transformations import quaternion_from_euler
+from gazebo_msgs.srv import SetModelState, SetModelStateRequest, GetModelState, GetModelStateRequest
 from assembly_msgs.msg import MateList
 from assembly_msgs.srv import SuppressMate, SuppressMateRequest, SuppressLink, SuppressLinkRequest
 
@@ -190,6 +192,11 @@ class Inchworm:
 
     self.roof_height = rospy.get_param("/roof_height")
     self.roof_width  = rospy.get_param("/roof_width")
+
+    rospy.wait_for_service("/gazebo/set_model_state")
+    rospy.wait_for_service("/gazebo/get_model_state")
+    self.gazebo_move_service = rospy.ServiceProxy("/gazebo/set_model_state", SetModelState)
+    self.gazebo_get_service = rospy.ServiceProxy("/gazebo/get_model_state", GetModelState)
 
     # 0 is bottom foot, 1 is top foot
     self.foot_down = 0
@@ -757,6 +764,81 @@ class Inchworm:
     self.unsupressShingle(self.getAttachedShingle((self.foot_down + 1) % 2))
 
     self.holdingShingle = False
+
+  def teleportOffRoof(self):
+    rospy.loginfo(f"Moving inchworm {self.idx} off the roof")
+    
+    # inchworm links
+    iw_bot = ["inchworm", f"inchworm_description_{self.idx}", f"iw_root_{self.idx}"]
+    iw_top = ["inchworm", f"inchworm_description_{self.idx}", f"iw_foot_top_{self.idx}"]    
+
+    # Begin by suppressing the magnet mates on the inchworm
+    req = SuppressLinkRequest()
+    req.scoped_link = iw_top
+    req.suppress = True
+
+    self.link_suppress_proxy(req)
+
+    req.scoped_link = iw_bot
+
+    self.link_suppress_proxy(req)
+  
+    rospy.sleep(0.25)
+
+    # probably don't need this, but I want to touch the /least/ amount of code #
+    # Shingle placement constants. MUST match what is in inchworm_description/sdf/all_models.sdf
+    # (except for Z Offset. Don't ask why, I don't know)
+    SHINGLE_HEIGHT = 0.1829
+    SHINGLE_WIDTH  = 0.254
+    OVERHANG = 0.0871
+    HORIZ_OFFSET = 0.005
+    Z_OFFSET = 0.12
+    VERT_OFFSET = 0.019478
+
+    if self.isInchwormOnRoof == False:
+      rospy.logerr("Inchworm is not on roof, don't need to teleport off")
+      return False
+
+    else:
+      roof_coord = self.on_coord
+      x_pos = (SHINGLE_WIDTH + HORIZ_OFFSET) * (roof_coord[0] + 1) - 10
+      y_pos = (SHINGLE_HEIGHT - OVERHANG + VERT_OFFSET) * (roof_coord[1]) - 10
+      z_pos = Z_OFFSET + math.tan(math.radians(9.02)) * (SHINGLE_HEIGHT - OVERHANG + VERT_OFFSET) * (roof_coord[1])
+
+      rx = math.radians(90)
+      ry = math.radians(9.02)
+      rz = -math.radians(90)
+
+      quat = quaternion_from_euler(rx, ry, rz)
+
+      model_name = f"inchworm::inchworm_description_{self.idx}"
+
+      req = SetModelStateRequest()
+      
+      req.model_state.model_name = model_name
+
+      req.model_state.pose.position.x = x_pos
+      req.model_state.pose.position.y = y_pos
+      req.model_state.pose.position.z = z_pos
+
+      req.model_state.pose.orientation.x = quat[0]
+      req.model_state.pose.orientation.y = quat[1]
+      req.model_state.pose.orientation.z = quat[2]
+      req.model_state.pose.orientation.w = quat[3]
+
+      req.model_state.reference_frame = "world"
+
+      self.gazebo_move_service(req)
+      self.gazebo_move_service(req)
+      self.gazebo_move_service(req)
+      self.gazebo_move_service(req)
+
+      return True
+
+
+  ##############################
+  ### Misc Tests and Helpers ###
+  ##############################
 
   # This is no unit test, this is an integration test.
   def unitTest(self):

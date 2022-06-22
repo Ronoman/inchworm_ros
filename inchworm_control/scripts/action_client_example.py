@@ -128,9 +128,7 @@ def main():
   client_1 = actionlib.SimpleActionClient("/inchworm_action_1", InchwormAction)
   client_1.wait_for_server()
 
-  rospy.loginfo("Got servers, sending goals.")
-
-  
+  rospy.loginfo("Got servers, sending goals.")  
 
   goal0 = InchwormGoal()
   goal1 = InchwormGoal()
@@ -149,6 +147,10 @@ def main():
   send(goal1, client_1)
   spawnOne(spawn, 0, 1, client_0)
 
+
+  goal0.action_type = 4
+  send(goal0, client_0)
+
   move0(goal0, 0, 1, ee0)
   send(goal0, client_0)
 
@@ -165,6 +167,9 @@ def main():
   send(goal0, client_0)
   ee0 = swapEE(ee0)
   ######################
+  goal0.action_type = 4
+  send(goal0, client_0)
+
   move0(goal0, 1, 1, ee0)
   send(goal0, client_0)
 
@@ -219,6 +224,10 @@ def main():
   send(goal0, client_0)
   ee0 = swapEE(ee0)
   ######################
+
+  goal0.action_type = 4
+  send(goal0, client_0)
+
   move0(goal0, 1, 1, ee0)
   send(goal0, client_0)
 

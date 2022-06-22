@@ -4,6 +4,7 @@
 # 2. Place shingle. Must be preceded by a move command to place the EE over the shingle's install location
 # 3. Spawn shingle. Spawns a shingle at the given absolute x,y. Spot must be free, or fun things happen
 uint8 action_type
+# 4. Teleport inchworm. Teleports robot off the roof to test robustness of algorithm
 
 # X,Y absolute coordinates in even-r that the action is relative to
 uint8 coord_x

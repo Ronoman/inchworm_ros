@@ -52,8 +52,8 @@ class InchwormActionServer:
     # If the inchworm is not on the roof when we start, something has gone wrong. Abort and fail
     if not self.inchworm.isInchwormOnRoof():
       rospy.logerr(f"Inchworm {self.inchworm.idx} is not on the roof! Aborting and quitting this action server.")
-      self.server.set_aborted(result=InchwormResult(success=False))
-      self.server.action_server.stop()
+      # self.server.set_aborted(result=InchwormResult(success=False))
+      # self.server.action_server.stop()
       return
     
     if goal.action_type == 0:
@@ -64,6 +64,8 @@ class InchwormActionServer:
       success = self.handlePlace(goal)
     elif goal.action_type == 3:
       success = self.handleSpawn(goal)
+    elif goal.action_type == 4:
+      success = self.handleTeleport()
     else:
       rospy.logerr(f"Action type {goal.action_type} not yet implemented.")
 
@@ -100,6 +102,8 @@ class InchwormActionServer:
 
     return True
 
+ 
+
   def handlePlace(self, goal):
     '''
     Places a shingle. End effector must be over the desired roof mount point.
@@ -118,6 +122,11 @@ class InchwormActionServer:
     self.manager.spawnShingle((goal.coord_x, goal.coord_y))
 
     return True
+
+
+  def handleTeleport(self):
+    return self.inchworm.teleportOffRoof()
+
 
 def getRunNumber():
   log_path = os.path.join(RosPack().get_path("inchworm_control"), "logs")
