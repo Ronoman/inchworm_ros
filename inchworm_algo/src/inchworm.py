@@ -134,6 +134,8 @@ class Inchworm():
             self.goal_sent_bottom = False
             self.goal_sent_top = False
             self.goal_sent = False
+            self.yeet_chance = 0.97
+            self.yeeted = False
         # while self.top_foot_position != top_foot_pos:
         #     self.move_top_foot(top_foot_pos)
         self.failed = False
@@ -897,6 +899,22 @@ class Inchworm():
                     self.roof_confidence[i] = val - CONF_DECRESS
 
 
+    def yeet(self):
+        if self.using_physics and random.random() > self.yeet_chance:
+            goal = InchwormGoal()
+            goal.action_type = 4
+            goal.coord_x = 0
+            goal.coord_y = 0
+            goal.end_effector = True
+            self.action_client.send_goal(goal)
+            self.yeeted = True
+            rospy.loginfo(f"Yeeting inchworm {self.id}")
+
+
+    def unclaim_all(self, real_roof):
+        for pos in self.claimed_pos.copy():
+                self.unclaim_pos(real_roof, pos)
+
     def make_decision(self, real_roof):
         # rospy.loginfo(f"robot {self.id} has claimed tiles {self.claimed_pos}")
         # rospy.loginfo(f"robot {self.id} is in state {self.robot_state}")
@@ -923,8 +941,7 @@ class Inchworm():
             #             self.roof.append(element.shingle_status)
             #         else:
             #             self.roof.append(ShingleStatus.UNINSTALLED)
-            for pos in self.claimed_pos.copy():
-                self.unclaim_pos(real_roof, pos)
+            self.unclaim_all(real_roof)
 
             
             self.update_shingle_with_current_roof(real_roof, self.bottom_foot_position)

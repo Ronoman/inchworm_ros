@@ -52,6 +52,7 @@ def update_inchworms(roof, inchworms):
         rospy.loginfo(ticks)
     for worm in inchworms:
         if worm.failed:
+            worm.unclaim_all(roof)
             inchworms.remove(worm)
     for worm in inchworms:
         if worm is not None:
@@ -67,6 +68,14 @@ def update_inchworms(roof, inchworms):
             is_done = True
         if worm is not None and not is_done:
             worm.run_action(roof)
+        
+        for worm in inchworms:
+            yeet_count = 0
+            for worm in inchworms:
+                if worm.yeeted:
+                    yeet_count += 1
+            if (not worm.yeeted) and len(inchworms) > 1 + yeet_count:
+                worm.yeet()
     return is_done, roof, inchworms
 
 def create_inchworms_msg(inchworms):
