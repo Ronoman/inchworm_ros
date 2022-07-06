@@ -29,11 +29,35 @@ def delay(action):
 
 ######################################################
 
+def runDemo(data, actions, planner):
+  ACTION_FN_MAP = {"magnet": magnet, "nfc": nfc, "comm": comm, "delay": delay}
+
+  # Run each action sequentially
+  for action in actions:
+    print(data)
+    data = list(action.values())[0]
+
+    print(action)
+    print()
+
+    name = list(action.keys())[0]
+
+    # If the type is in our function map, invoke the function and pass in the action data
+    if data["type"] in ACTION_FN_MAP:
+      print(f"Running action {name}")
+      ACTION_FN_MAP[data["type"]](data)
+    elif data["type"] == "joint":
+      print(f"Running action {name}")
+      planner.run_quintic_traj(data["payload"], data["duration"])
+    else:
+      rospy.logerr(f"Invalid action type {data['type']}, quitting")
+      sys.exit()
+
 def main():
   global trajectory_pub, mag_state_pub
   rospy.init_node("demo_runner")
 
-  mag_state_pub = rospy.Publisher("/inchworm/magnet_states", MagnetState, queue_size=1)
+  mag_state_pub = rospy.Publisher("/inchworm/set_magnet_state", MagnetState, queue_size=1)
 
   rospack = rospkg.RosPack()
 
@@ -57,28 +81,12 @@ def main():
 
   actions = list(data.values())[0]
 
-  ACTION_FN_MAP = {"magnet": magnet, "nfc": nfc, "comm": comm, "delay": delay}
-
-  # Run each action sequentially
-  for action in actions:
-    print(data)
-    data = list(action.values())[0]
-
-    print(action)
-    print()
-
-    name = list(action.keys())[0]
-
-    # If the type is in our function map, invoke the function and pass in the action data
-    if data["type"] in ACTION_FN_MAP:
-      print(f"Running action {name}")
-      ACTION_FN_MAP[data["type"]](data)
-    elif data["type"] == "joint":
-      print(f"Running action {name}")
-      planner.run_quintic_traj(data["payload"], data["duration"])
-    else:
-      rospy.logerr(f"Invalid action type {data['type']}, quitting")
-      sys.exit()
+  if "loop" in demo:
+    while not rospy.is_shutdown():
+      runDemo(data, actions, planner)
+      input()
+  else:
+    runDemo(data, actions, planner)
 
 if __name__ == "__main__":
   main()

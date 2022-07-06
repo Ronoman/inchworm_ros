@@ -1,0 +1,18 @@
+-----
+currently on shingle 0, coord (0, 0)
+bottomEE is down-
+timestamp: 5.164
+action_type: 3
+coord_x: 0
+coord_y: 1
+end_effector: False
+
+-----
+currently on shingle 0, coord (0, 0)
+bottomEE is down-
+timestamp: 5.513
+action_type: 0
+coord_x: 0
+coord_y: 1
+end_effector: True
+

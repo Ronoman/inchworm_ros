@@ -428,7 +428,7 @@ class Inchworm:
 
     print(angles)
 
-    self.planner.run_quintic_traj(angles, 3.0)
+    self.planner.run_quintic_traj(angles, 5.0)
 
   def spinTo(self, neighbor):
     '''
@@ -472,9 +472,9 @@ class Inchworm:
       else:
         poses = Inchworm.NEIGHBOR_POSE_MAP.get(self.lastNeighbor)
         #hover above last place
-        self.moveTo(poses[0], 2.0)
+        self.moveTo(poses[0], 3.0)
         #lift above last place
-        self.moveTo(poses[1], 2.0)
+        self.moveTo(poses[1], 3.0)
         rospy.sleep(1.0)
 
     
@@ -526,6 +526,8 @@ class Inchworm:
     temp = self.lastNeighbor
     self.lastNeighbor = Inchworm.LAST_NEIGHBOR_MAP.get(temp)
     self.swapMagnet(turnOff, turnOn, temp)
+
+    rospy.sleep(1.5)
 
   ################
   ### SHINGLES ###

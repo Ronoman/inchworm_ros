@@ -56,7 +56,7 @@ class Roof():
             shingle = self.shingle_array[coord[1]][coord[0]].pickup_shingle()
             self.shingle_array[coord[1]][coord[0]] = None
         else:
-            rospy.logwarn(f"Shingle at location {[coord[0], coord[1]]} was not marked as being placed in the roof")
+            #rospy.logwarn(f"Shingle at location {[coord[0], coord[1]]} was not marked as being placed in the roof")
             shingle = self.shingle_array[coord[1]][coord[0]]
         return shingle
 
@@ -83,7 +83,7 @@ class Roof():
 
 
     def spawn_first_row(self):
-        rospy.loginfo("spawining first row of shingles")
+        #rospy.loginfo("spawining first row of shingles")
         for i in range(self.width):
             is_half_shingle = False
             if i + 1 == self.width:
@@ -140,9 +140,9 @@ class Roof():
 
     def check_if_can_spawn_shingle(self):
         if self.get_shingle(0, self.shingle_depots[0].get_location() + 1) != None:
-            rospy.loginfo(self.get_shingle(0, self.shingle_depots[0].get_location() + 1).shingle_status)
+            #rospy.loginfo(self.get_shingle(0, self.shingle_depots[0].get_location() + 1).shingle_status)
             if (self.get_shingle(0, self.shingle_depots[0].get_location() + 1).shingle_status == ShingleStatus.INSTALLED):
-                rospy.loginfo("moving depot up")
+                #rospy.loginfo("moving depot up")
                 self.move_shingle_depot(False)
             return False
         else:

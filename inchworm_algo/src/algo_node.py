@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-import rospy, sys, random
+import rospy, sys, random, time
 
 from roof import Roof
 from inchworm import Inchworm, EEStatus
@@ -103,6 +103,9 @@ if __name__ == "__main__":
     r = rospy.Rate(hz)
     status = False
     rospy.sleep(2) # time it takes to startup the algo viz
+
+    start_time = time.time()
+
     while not rospy.is_shutdown() and not status:
         if not paused:
 
@@ -127,5 +130,9 @@ if __name__ == "__main__":
                 algo_finished_pub.publish(finished_msg)
         r.sleep()
     if use_physics:
+        rospy.loginfo("ALGO SIM FINISHED")
+        end_time = time.time()
+        dt = end_time - start_time
+        rospy.loginfo(f"Took {dt} seconds to run.")
         pause_physics_client=rospy.ServiceProxy('/gazebo/pause_physics',Empty)
         pause_physics_client(EmptyRequest())

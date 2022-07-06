@@ -128,7 +128,7 @@ class Inchworm():
         self.using_physics = physics
         self.most_recent_target = 0
         if physics:
-            rospy.logwarn(f"waiting for server")
+            #rospy.logwarn(f"waiting for server")
             self.action_client = actionlib.SimpleActionClient(f"/inchworm_action_{self.id}", InchwormAction)
             self.action_client.wait_for_server()
             self.goal_sent_bottom = False
@@ -167,7 +167,7 @@ class Inchworm():
 
     def create_diagonal_order(self, width, height):
         in_bounds = lambda x,y: x >= 0 and x < width and y >= 0 and y < height
-        rospy.logwarn(f"using diagonal_order")
+        #rospy.logwarn(f"using diagonal_order")
         shingle_index_order = []
 
         UP_RIGHT_EVEN = [1, 1]
@@ -295,7 +295,8 @@ class Inchworm():
                         # updates the shingle that the inchworm is plated on
                         self.update_shingle_with_current_roof(roof, self.bottom_foot_position)
                     else:
-                        rospy.logwarn(f"ATTEMPTED TO MOVE A THIRD ({ee}) LEG, BAD")
+                        #rospy.logwarn(f"ATTEMPTED TO MOVE A THIRD ({ee}) LEG, BAD")
+                        pass
 
 
         else:
@@ -329,7 +330,8 @@ class Inchworm():
                 # updates the shingle that the inchworm is plated on
                 self.update_shingle_with_current_roof(roof, self.bottom_foot_position)
             else:
-                rospy.logwarn(f"ATTEMPTED TO MOVE A THIRD ({ee}) LEG, BAD")
+                #rospy.logwarn(f"ATTEMPTED TO MOVE A THIRD ({ee}) LEG, BAD")
+                pass
         
 
 
@@ -383,7 +385,7 @@ class Inchworm():
 
             
             roof.pickup_shingle([shingle.x_coord, shingle.y_coord])
-            rospy.logwarn(f"inchworm {self.id} is picking up a shingle")
+            #rospy.logwarn(f"inchworm {self.id} is picking up a shingle")
             self.shingle_to_move = shingle
 
 
@@ -430,7 +432,7 @@ class Inchworm():
 
         # update the "roof" to include shingle, if the shingle is in a place
         self.set_shingle_state(shingle_coord[0], shingle_coord[1], shingle.shingle_status) 
-        rospy.logwarn(f"inchworm {self.id} reading {shingle.most_recent_target} -------------------------------")
+        #rospy.logwarn(f"inchworm {self.id} reading {shingle.most_recent_target} -------------------------------")
         if shingle.most_recent_target > self.most_recent_target:
             rospy.logwarn(f"inchworm {self.id} found a recent target of {shingle.most_recent_target}, which is less that {self.most_recent_target}")
             for i in range(self.most_recent_target, shingle.most_recent_target):
@@ -462,7 +464,7 @@ class Inchworm():
         # self.update_shingle_with_current_roof(real_roof, shingle_coord)
         # else:
         #     self.set_shingle_state(shingle_coord[0], shingle_coord[1], ShingleStatus.UNINSTALLED)
-        #     rospy.logwarn(f"inchworm {self.id} has a plated foot on an empty position")
+        #     #rospy.logwarn(f"inchworm {self.id} has a plated foot on an empty position")
             
 
 
@@ -522,12 +524,12 @@ class Inchworm():
                     self.action_client.send_goal(goal)
                     self.goal_sent_top = True
                     self.top_foot_status = EEStatus.IN_AIR
-                    rospy.logwarn(f"inchworm {self.id} sending top foot to {new_pos}")
+                    #rospy.logwarn(f"inchworm {self.id} sending top foot to {new_pos}")
                 else:
                     if self.action_client.get_state() != GoalStatus.ACTIVE and self.action_client.get_state() != GoalStatus.PENDING or self.action_client.get_state() == GoalStatus.SUCCEEDED:
                         self.top_foot_position = new_pos
                         self.goal_sent_top = False
-                        rospy.logwarn(f"inchworm {self.id} has made it to the target {new_pos}")
+                        #rospy.logwarn(f"inchworm {self.id} has made it to the target {new_pos}")
             else:
                 self.top_foot_status = EEStatus.IN_AIR
                 self.top_foot_position = new_pos
@@ -698,7 +700,7 @@ class Inchworm():
         #     row = []
         #     for j in range(len(self.roof)):
         #         row.append(self.roof[j][i].value)
-        #     rospy.logwarn(f"inchworm {self.id} row {i} has values {row}")
+        #     #rospy.logwarn(f"inchworm {self.id} row {i} has values {row}")
         for i, coord in enumerate(self.shingle_order):
             val = self.get_shingle_state(coord[0], coord[1])
             # rospy.loginfo(val)
@@ -730,7 +732,7 @@ class Inchworm():
         #     row = []
         #     for j in range(len(self.roof)):
         #         row.append(self.roof[j][i].value)
-        #     rospy.logwarn(f"inchworm {self.id} row {i} has values {row}")
+        #     #rospy.logwarn(f"inchworm {self.id} row {i} has values {row}")
 
         return [x_coord, y_coord]
 
@@ -826,7 +828,7 @@ class Inchworm():
             cY = int(M["m01"] / M["m00"]) + random.randint(-int(self.roof_width/4), int(self.roof_width/4))
 
 
-            rospy.logwarn(f"inchworm {self.id} is exploring to a random location centroid at {[cX, cY]}")
+            #rospy.logwarn(f"inchworm {self.id} is exploring to a random location centroid at {[cX, cY]}")
             self.target = [cX, cY]
 
     def make_state_explore(self, real_roof):
@@ -1099,8 +1101,9 @@ class Inchworm():
 
 
                     else:
-                        rospy.logwarn(
-                            f"inchworm {self.id} could not figure out which end effector to use to move the shingle at {placed_shingle_location}")
+                        pass
+                        #rospy.logwarn(
+                            #f"inchworm {self.id} could not figure out which end effector to use to move the shingle at {placed_shingle_location}")
 
                     self.move_shingle_step = 1
                     self.probe_step = 0
@@ -1119,7 +1122,7 @@ class Inchworm():
                     #     try:
                     #         self.unclaim_pos(real_roof, [placed_shingle.x_coord, placed_shingle.y_coord])
                     #     except Exception as e:
-                    #         rospy.logwarn(f"inchworm {self.id} encountered an exception {e}")
+                    #         #rospy.logwarn(f"inchworm {self.id} encountered an exception {e}")
                     #     self.make_state_explore(real_roof)
 
             else:
@@ -1252,10 +1255,10 @@ class Inchworm():
                     status = self.probe(real_roof, self.ee_shingle_neighbors[self.foot_shingle_neighbor_to_move_to]["pos"])
                     if status[0] == 0:
                         if status[1]:
-                            rospy.logwarn(f"inchworm {self.id} found an shingle install location at {[self.install_shingle_target.x_coord, self.install_shingle_target.y_coord]}")
+                            #rospy.logwarn(f"inchworm {self.id} found an shingle install location at {[self.install_shingle_target.x_coord, self.install_shingle_target.y_coord]}")
                             self.installing_status = 3
                         else:
-                            rospy.logwarn(f"inchworm {self.id} did not find an shingle at install loc {[self.install_shingle_target.x_coord, self.install_shingle_target.y_coord]}")
+                            #rospy.logwarn(f"inchworm {self.id} did not find an shingle at install loc {[self.install_shingle_target.x_coord, self.install_shingle_target.y_coord]}")
                             self.set_shingle_state(self.install_shingle_target.x_coord, self.install_shingle_target.y_coord, ShingleStatus.UNINSTALLED)
                             if self.bottom_foot_position[0] == self.install_shingle_target.x_coord and self.bottom_foot_position[1] == self.install_shingle_target.y_coord:
                                 self.update_shingle_with_current_roof(real_roof, self.top_foot_position)
@@ -1266,10 +1269,10 @@ class Inchworm():
                     status = self.probe(real_roof, [self.install_shingle_target.x_coord, self.install_shingle_target.y_coord])
                     if status[0] == 0:
                         if status[1]:
-                            rospy.logwarn(f"inchworm {self.id} found an shingle install location at {[self.install_shingle_target.x_coord, self.install_shingle_target.y_coord]}")
+                            #rospy.logwarn(f"inchworm {self.id} found an shingle install location at {[self.install_shingle_target.x_coord, self.install_shingle_target.y_coord]}")
                             self.installing_status = 4
                         else:
-                            rospy.logwarn(f"inchworm {self.id} did not find an shingle at install loc {[self.install_shingle_target.x_coord, self.install_shingle_target.y_coord]}")
+                            #rospy.logwarn(f"inchworm {self.id} did not find an shingle at install loc {[self.install_shingle_target.x_coord, self.install_shingle_target.y_coord]}")
                             self.set_shingle_state(self.install_shingle_target.x_coord, self.install_shingle_target.y_coord, ShingleStatus.UNINSTALLED)
                             if self.bottom_foot_position[0] == self.install_shingle_target.x_coord and self.bottom_foot_position[1] == self.install_shingle_target.y_coord:
                                 self.update_shingle_with_current_roof(real_roof, self.top_foot_position)
@@ -1464,13 +1467,13 @@ class Inchworm():
                 # try:
                 #     self.unclaim_pos(real_roof, [self.shingle_to_move.x_coord, self.shingle_to_move.y_coord])
                 # except Exception as e:
-                #     rospy.logwarn(e)
-                #     rospy.logwarn(self.move_shingle_step)
+                #     #rospy.logwarn(e)
+                #     #rospy.logwarn(self.move_shingle_step)
                 # try:
                 #     self.unclaim_pos(real_roof,self.old_shingle_pos)
                 # except Exception as e:
-                #     rospy.logwarn(e)
-                #     rospy.logwarn(self.move_shingle_step)
+                #     #rospy.logwarn(e)
+                #     #rospy.logwarn(self.move_shingle_step)
                 
         elif self.robot_state == RobotState.EXPLORE:
             if self.explore_state == 1:
@@ -1681,13 +1684,13 @@ class Inchworm():
             if not (next_best_tile[0] is path_to_goal[-1][0] and next_best_tile[1] is path_to_goal[-1][1]):
                 path_to_goal.append(next_best_tile)
             else:
-                rospy.logwarn(f"inchworm {self.id} has a goal of {goal} from path planning with path {path_to_goal}")
+                #rospy.logwarn(f"inchworm {self.id} has a goal of {goal} from path planning with path {path_to_goal}")
                 # for i in reversed(range(len(self.roof[0]))):
                 #     row = []
                 #     for j in range(len(self.roof)):
                 #         row.append(self.roof[j][i].value)
-                #     rospy.logwarn(f"inchworm {self.id} row {i} has values {row}")
-                rospy.logwarn(f"inchworm {self.id} PATH STUCK IN A DEAD END, CHECK NEIGHBORS")
+                #     #rospy.logwarn(f"inchworm {self.id} row {i} has values {row}")
+                #rospy.logwarn(f"inchworm {self.id} PATH STUCK IN A DEAD END, CHECK NEIGHBORS")
                 # rospy.loginfo(f"start is {start}, goal is {goal}, path is {path_to_goal}")
                 oh_no = []
                 oh_no.append(start)
@@ -1755,7 +1758,8 @@ class Inchworm():
                 if read_shingle == ShingleStatus.INSTALLED:
                     installed_neighbors.append(n)
         if len(installed_neighbors) == 0:
-            rospy.logwarn(f"Shingle at {pos} has no installed neighbors")
+            #rospy.logwarn(f"Shingle at {pos} has no installed neighbors")
+            pass
 
         return installed_neighbors
 
@@ -1773,7 +1777,7 @@ class Inchworm():
         neighbors_of_goal = self.get_installed_neighbors(goal)
         spot = Inchworm.get_intersection(neighbors_of_shingle, neighbors_of_goal)
         if len(spot) == 0:
-            rospy.logwarn(f"INVALID path, no spot for the robot to move the shingle {shingle} to the next point {goal}")
+            #rospy.logwarn(f"INVALID path, no spot for the robot to move the shingle {shingle} to the next point {goal}")
             return neighbors_of_shingle[0]
         return spot[0]
 
