@@ -62,7 +62,12 @@ for j in range(3):
 
     print(average_data)
     plt.rcParams['font.size'] = '14'
-    plt.scatter(inchworms, move_data, label=f"Pattern {j}")
+    if j == 0:
+        plt.scatter(inchworms, move_data, label=f"Ox Pattern")
+    elif j == 1:
+        plt.scatter(inchworms, move_data, label=f"Diagonal Pattern")
+    else:
+        plt.scatter(inchworms, move_data, label=f"Right to Left Pattern")
 plt.xlabel("Inchworm Count")
 plt.ylabel("Estimated Hours Until Compilation")
 plt.title(f"Time to Shingle a {WIDTH}x{HEIGHT} Roof")

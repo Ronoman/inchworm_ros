@@ -38,7 +38,7 @@ def main():
 
   WIDTH = 10
   HEIGHT = 10
-  RATE = 5000
+  RATE = 500
 
 
 

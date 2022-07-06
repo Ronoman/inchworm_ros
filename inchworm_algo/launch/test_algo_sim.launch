@@ -1,0 +1,10 @@
+<launch>
+    <arg name="roof_width"/>
+    <arg name="roof_height"/>
+    
+    <arg name="pattern" default="0"/>
+
+    <node pkg="inchworm_algo" type="test_algo_sim.py" name="algo_node" args="$(arg pattern) $(arg roof_width) $(arg roof_height) " output="screen"/>
+
+
+</launch>

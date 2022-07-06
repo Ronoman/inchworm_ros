@@ -7,7 +7,7 @@ import plotly.graph_objects as go
 move_to_days = (16/3600)
 WIDTH = 30
 HEIGHT = 30
-pattern = 2
+pattern = 1
 
 data = []
 with open(f"../data/{sys.argv[1]}") as csvfile:
@@ -112,6 +112,13 @@ for i in data_points:
         name=f'Run with {i + 1} inchworms'
     ))
 fig.update_traces(mode='lines+markers')
+pattern_title = ""
+if pattern == 0:
+    pattern_title = "Ox Plowing Pattern"
+elif pattern == 1:
+    pattern_title = "Diagonal Pattern"
+elif pattern == 2:
+    pattern_title = "Right to Left Pattern"
 fig.update_layout(
     polar=dict(
         radialaxis=dict(
@@ -120,7 +127,7 @@ fig.update_layout(
         # title = "Percent of Actions Taken"
         )),
     showlegend=True,
-    title=f"Share of Actions Taken in Run by Average Inchworm<br><sup>On a {WIDTH}x{HEIGHT} roof with pattern {pattern}</sup>",
+    title=f"Share of Actions Taken in Run by Average Inchworm<br><sup>On a {WIDTH}x{HEIGHT} roof with the {pattern_title}</sup>",
     
     font=dict(
         family="DejaVu Sans",
